@@ -54,6 +54,8 @@ services:
 
   wordpress-setup:
     image: wordpress:cli
+    # Match wordpress:latest (www-data uid 33); cli image defaults to uid 82
+    user: "33:33"
     depends_on:
       db:
         condition: service_healthy
@@ -84,6 +86,7 @@ services:
     profiles:
       - tools
     image: wordpress:cli
+    user: "33:33"
     depends_on:
       wordpress:
         condition: service_healthy

@@ -148,7 +148,8 @@ docker compose --profile tools run --rm wp-cli wp option update siteurl 'https:/
 | Port already in use | Change `WP_PORT` in `.env` |
 | Setup failed | `docker compose logs wordpress-setup` |
 | Stuck on install screen | Run `make setup` or check setup logs |
-| Permission errors in wp-cli | Bootstrap uses `--allow-root`; interactive CLI runs as `www-data` (uid 33) |
+| Elementor / plugin install failed (`Could not create directory …/upgrade`) | `wordpress-setup` must run as uid `33:33` to match the WordPress container; run `make setup` again after pulling the fix |
+| Permission errors in wp-cli | WP-CLI services use uid `33:33` to match `wordpress:latest` |
 | Start fresh | `make reset` |
 
 ## Architecture

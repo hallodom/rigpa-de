@@ -31,6 +31,10 @@ else
   echo "WordPress already installed."
 fi
 
+# Ensure WP can download plugins (upgrade dir lives on the volume, not bind mounts)
+mkdir -p /var/www/html/wp-content/upgrade
+chmod 775 /var/www/html/wp-content/upgrade 2>/dev/null || true
+
 if ! wp plugin is-active elementor --allow-root 2>/dev/null; then
   echo "Installing and activating Elementor..."
   wp plugin install elementor --activate --allow-root
