@@ -1,0 +1,15 @@
+.env
+.DS_Store
+
+# WordPress runtime content (installed by Docker bootstrap)
+wp-content/uploads/*
+!wp-content/uploads/.gitkeep
+wp-content/plugins/*
+!wp-content/plugins/.gitkeep
+wp-content/themes/*
+!wp-content/themes/.gitkeep
+
+# Cache / backup artifacts
+*.log
+*.sql
+*.sql.gz
