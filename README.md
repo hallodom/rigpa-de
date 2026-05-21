@@ -49,6 +49,7 @@ docker compose --profile tools run --rm wp-cli wp language core install de_DE --
 | `make wp ARGS="plugin list"` | Run WP-CLI |
 | `make reset` | `down -v` then `up` (factory reset)  |
 | `make prod-up` | Start with production overrides    |
+| `make build-map` | Build Rigpa.de Map plugin assets |
 
 ## Local development
 
@@ -141,6 +142,59 @@ docker compose --profile tools run --rm wp-cli wp option update home 'https://ne
 docker compose --profile tools run --rm wp-cli wp option update siteurl 'https://new-domain.example'
 ```
 
+## Rigpa.de Map plugin
+
+Interactive Germany locations map from the [Replicate Design](Replicate%20Design/) Figma export.
+
+### Build assets (required before first use)
+
+```bash
+make build-map
+```
+
+This compiles React/Tailwind into `wp-content/plugins/rigpa-de-map/assets/` and copies [`germany-vector.svg`](germany-vector.svg).
+
+### Shortcode
+
+Add to any page or post:
+
+```
+[rigpa_de_map]
+```
+
+Alias: `[rigpa-de-map]`. In Elementor, use the **Shortcode** widget.
+
+Bootstrap activates the plugin when the plugin directory exists (after `make build-map`). It does **not** change your homepage automatically.
+
+### Testing the map on your homepage (manual)
+
+1. Build assets: `make build-map`
+2. Ensure the plugin is active: **Plugins → Rigpa.de Map**, or `make wp ARGS="plugin activate rigpa-de-map"`
+3. Edit the page you use as the site front page
+4. Add `[rigpa_de_map]` in the block editor, or an Elementor **Shortcode** widget
+5. Update the page and view the site URL
+
+One-off WP-CLI example (replace `123` with your home page ID):
+
+```bash
+make wp ARGS="post update 123 --post_content='[rigpa_de_map]'"
+```
+
+**Full-width test page (page ID 8):** Map Test at http://localhost:8080/?page_id=8 uses template `page-no-title` and post meta `_rigpa_de_map_full_width=1` so the map spans the content area. To enable on another page:
+
+```bash
+make wp ARGS="post meta update PAGE_ID _wp_page_template page-no-title"
+make wp ARGS="post meta update PAGE_ID _rigpa_de_map_full_width 1"
+```
+
+### Rebuild after design changes
+
+```bash
+make build-map
+```
+
+Then hard-refresh the browser (assets use `filemtime` cache busting).
+
 ## Troubleshooting
 
 | Issue | What to try |
@@ -161,6 +215,6 @@ docker compose --profile tools run --rm wp-cli wp option update siteurl 'https:/
 
 ## Git
 
-Committed: compose files, scripts, `.env.example`, `wp-content/themes`, `wp-content/plugins` placeholders.
+Committed: compose files, scripts, `.env.example`, `wp-content/themes`, `wp-content/plugins/rigpa-de-map/`, `Replicate Design/` (excluding `node_modules`), `germany-vector.svg`.
 
-Not committed: `.env`, uploads, Elementor files (see `.gitignore`).
+Not committed: `.env`, uploads, other `wp-content/plugins/*` runtime installs (see `.gitignore`).
