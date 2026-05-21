@@ -8,60 +8,85 @@ function rigpa_de_map_get_locations() {
     return array(
         'left'  => array(
             array(
-                'name'   => 'Dharma Mati Berlin',
-                'region' => 'Centre',
-                'url'    => '',
-            ),
-            array(
-                'name'   => 'Cologne',
+                'name'   => 'Aachen',
                 'region' => 'Group',
                 'url'    => '',
             ),
             array(
-                'name'   => 'Munich',
-                'region' => 'München',
+                'name'   => 'Bad Saarow',
+                'region' => 'Group',
                 'url'    => '',
             ),
             array(
-                'name'   => 'Bad Saarow',
-                'region' => 'Rheinland',
+                'name'   => 'Berlin',
+                'region' => 'Centre',
                 'url'    => '',
             ),
             array(
                 'name'   => 'Bielefeld',
-                'region' => 'Rheinland',
+                'region' => 'Group',
                 'url'    => '',
             ),
             array(
                 'name'   => 'Bremen',
-                'region' => 'Hessen',
+                'region' => 'Group',
+                'url'    => '',
+            ),
+            array(
+                'name'   => 'Düsseldorf',
+                'region' => 'Centre',
+                'url'    => '',
+            ),
+            array(
+                'name'   => 'Frankfurt',
+                'region' => 'Centre',
+                'url'    => '',
+            ),
+            array(
+                'name'   => 'Freiburg',
+                'region' => 'Centre',
                 'url'    => '',
             ),
         ),
         'right' => array(
             array(
-                'name'   => 'Heidelberg',
-                'region' => 'Baden-Württemberg',
+                'name'   => 'Fürth',
+                'region' => 'Centre',
                 'url'    => '',
             ),
             array(
-                'name'   => 'Stuttgart',
-                'region' => 'Baden-Württemberg',
+                'name'   => 'Hamburg',
+                'region' => 'Centre',
+                'url'    => '',
+            ),
+            array(
+                'name'   => 'Heidelberg',
+                'region' => 'Centre',
+                'url'    => '',
+            ),
+            array(
+                'name'   => 'Kassel',
+                'region' => 'Centre',
+                'url'    => '',
+            ),
+            array(
+                'name'   => 'Köln',
+                'region' => 'Centre',
                 'url'    => '',
             ),
             array(
                 'name'   => 'München',
-                'region' => 'Bayern',
+                'region' => 'Centre',
                 'url'    => '',
             ),
             array(
-                'name'   => 'Leipzig',
-                'region' => 'Sachsen',
+                'name'   => 'Stuttgart',
+                'region' => 'Group',
                 'url'    => '',
             ),
             array(
-                'name'   => 'Dresden',
-                'region' => 'Sachsen',
+                'name'   => 'Wiesbaden',
+                'region' => '',
                 'url'    => '',
             ),
         ),
