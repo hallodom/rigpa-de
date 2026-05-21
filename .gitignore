@@ -6,6 +6,9 @@ wp-content/uploads/*
 !wp-content/uploads/.gitkeep
 wp-content/plugins/*
 !wp-content/plugins/.gitkeep
+!wp-content/plugins/rigpa-de-map/
+!wp-content/plugins/rigpa-de-map/**
+
 wp-content/themes/*
 !wp-content/themes/.gitkeep
 
@@ -13,3 +16,5 @@ wp-content/themes/*
 *.log
 *.sql
 *.sql.gz
+/Replicate Design/node_modules
+/Replicate Design
