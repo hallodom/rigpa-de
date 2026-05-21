@@ -28,3 +28,5 @@ reset:
 build-map:
 	cp germany-vector.svg wp-content/plugins/rigpa-de-map/assets/germany-vector.svg
 	cd "Replicate Design" && npm install && npm run build:wp
+	mkdir -p wp-content/plugins/rigpa-de-map/assets/images
+	cp "Replicate Design/src/assets/images/"*.jpg wp-content/plugins/rigpa-de-map/assets/images/
