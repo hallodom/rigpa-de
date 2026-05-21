@@ -43,4 +43,12 @@ else
   echo "Elementor already active."
 fi
 
+if [ -f /var/www/html/wp-content/plugins/rigpa-de-map/rigpa-de-map.php ]; then
+  echo "Activating Rigpa.de Map plugin..."
+  wp plugin activate rigpa-de-map --allow-root 2>/dev/null || true
+  echo "Rigpa.de Map activated (or already active)."
+else
+  echo "Rigpa.de Map plugin not found — run 'make build-map' on the host first."
+fi
+
 echo "Bootstrap complete."
