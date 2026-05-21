@@ -1,4 +1,4 @@
-.PHONY: up down logs setup wp prod-up prod-down reset
+.PHONY: up down logs setup wp prod-up prod-down reset build-map
 
 up:
 	docker compose up -d
@@ -24,3 +24,7 @@ prod-down:
 reset:
 	docker compose down -v
 	docker compose up -d
+
+build-map:
+	cp germany-vector.svg wp-content/plugins/rigpa-de-map/assets/germany-vector.svg
+	cd "Replicate Design" && npm install && npm run build:wp
