@@ -1,11 +1,43 @@
 <?php
 /**
  * Location data for the Rigpa.de map (mirrors Replicate Design/src/data/locations.ts).
+ */
+
+/**
+ * Sanitize a location link: absolute URLs (https://) or site-relative paths (/page).
  *
+ * @param string $url Raw URL from admin input.
+ * @return string Sanitized URL or empty string if invalid.
+ */
+function rigpa_de_map_sanitize_location_url($url) {
+    $url = trim((string) wp_unslash($url));
+    if ($url === '') {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $url)) {
+        return esc_url_raw($url);
+    }
+
+    // Reject other schemes and protocol-relative URLs.
+    if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $url) || strpos($url, '//') === 0) {
+        return '';
+    }
+
+    if ($url[0] !== '/') {
+        $url = '/' . $url;
+    }
+
+    $url = preg_replace('/[\x00-\x1F\x7F]/', '', $url);
+
+    return sanitize_text_field($url);
+}
+
+/**
  * @return array{left: array<int, array{id: string, name: string, region: string, url: string, coords: array{x: int, y: int}}>, right: array<int, array{id: string, name: string, region: string, url: string, coords: array{x: int, y: int}}>}
  */
 function rigpa_de_map_get_locations() {
-    return array(
+    $locations = array(
         'left'  => array(
             array(
                 'id'     => 'aachen',
@@ -123,4 +155,23 @@ function rigpa_de_map_get_locations() {
             ),
         ),
     );
+
+    $saved_urls = get_option(RIGPA_DE_MAP_URLS_OPTION, array());
+    if (!is_array($saved_urls) || $saved_urls === array()) {
+        return $locations;
+    }
+
+    foreach (array('left', 'right') as $column) {
+        if (!isset($locations[$column])) {
+            continue;
+        }
+        foreach ($locations[$column] as $index => $item) {
+            $id = $item['id'] ?? '';
+            if ($id !== '' && isset($saved_urls[$id])) {
+                $locations[$column][$index]['url'] = $saved_urls[$id];
+            }
+        }
+    }
+
+    return $locations;
 }
