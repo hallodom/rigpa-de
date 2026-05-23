@@ -50,6 +50,7 @@ docker compose --profile tools run --rm wp-cli wp language core install de_DE --
 | `make reset` | `down -v` then `up` (factory reset)  |
 | `make prod-up` | Start with production overrides    |
 | `make build-map` | Build Rigpa.de Map plugin assets |
+| `make package-plugin` | Build assets and create `dist/rigpa-de-map.zip` for WP upload |
 
 ## Local development
 
@@ -194,6 +195,26 @@ make build-map
 ```
 
 Then hard-refresh the browser (assets use `filemtime` cache busting).
+
+### Install on another WordPress site (zip)
+
+Build a upload-ready plugin archive:
+
+```bash
+make package-plugin
+```
+
+This runs `make build-map`, verifies required assets, and writes **`dist/rigpa-de-map.zip`**.
+
+Install in any WordPress admin:
+
+1. **Plugins → Add New → Upload Plugin**
+2. Choose `dist/rigpa-de-map.zip`
+3. **Install Now**, then **Activate**
+
+The zip contains the `rigpa-de-map/` folder at the archive root, as WordPress expects.
+
+For local Docker dev, the plugin is bind-mounted from `wp-content/plugins/rigpa-de-map/` — run `make build-map` before `make setup` so bootstrap can activate it with complete assets.
 
 ## Troubleshooting
 

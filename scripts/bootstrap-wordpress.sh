@@ -3,6 +3,9 @@ set -eu
 
 cd /var/www/html
 
+PLUGIN_SLUG="rigpa-de-map"
+PLUGIN_DIR="/var/www/html/wp-content/plugins/${PLUGIN_SLUG}"
+
 echo "Waiting for WordPress and database..."
 for i in $(seq 1 60); do
   if wp config path --allow-root 2>/dev/null; then
@@ -43,12 +46,31 @@ else
   echo "Elementor already active."
 fi
 
-if [ -f /var/www/html/wp-content/plugins/rigpa-de-map/rigpa-de-map.php ]; then
-  echo "Activating Rigpa.de Map plugin..."
-  wp plugin activate rigpa-de-map --allow-root 2>/dev/null || true
-  echo "Rigpa.de Map activated (or already active)."
+if [ -f "${PLUGIN_DIR}/rigpa-de-map.php" ]; then
+  missing_assets=0
+  for asset in \
+    "${PLUGIN_DIR}/assets/js/rigpa-de-map.js" \
+    "${PLUGIN_DIR}/assets/css/rigpa-de-map.css" \
+    "${PLUGIN_DIR}/assets/germany-vector.svg"
+  do
+    if [ ! -f "$asset" ]; then
+      echo "WARNING: Missing plugin asset: $asset"
+      missing_assets=1
+    fi
+  done
+
+  if [ "$missing_assets" -eq 1 ]; then
+    echo "Rigpa.de Map plugin found but assets are incomplete."
+    echo "Run 'make build-map' on the host, then 'make setup' to activate the plugin."
+  else
+    echo "Activating Rigpa.de Map plugin..."
+    wp plugin activate "${PLUGIN_SLUG}" --allow-root 2>/dev/null || true
+    echo "Rigpa.de Map activated (or already active)."
+  fi
 else
-  echo "Rigpa.de Map plugin not found — run 'make build-map' on the host first."
+  echo "Rigpa.de Map plugin not found in wp-content/plugins/${PLUGIN_SLUG}/."
+  echo "For local dev: run 'make build-map' on the host before 'make setup'."
+  echo "For production: upload dist/rigpa-de-map.zip via Plugins → Add New → Upload Plugin."
 fi
 
 echo "Bootstrap complete."

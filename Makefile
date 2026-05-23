@@ -1,4 +1,4 @@
-.PHONY: up down logs setup wp prod-up prod-down reset build-map
+.PHONY: up down logs setup wp prod-up prod-down reset build-map package-plugin
 
 up:
 	docker compose up -d
@@ -30,3 +30,6 @@ build-map:
 	cd "Replicate Design" && npm install && npm run build:wp
 	mkdir -p wp-content/plugins/rigpa-de-map/assets/images
 	cp "Replicate Design/src/assets/images/"*.jpg wp-content/plugins/rigpa-de-map/assets/images/
+
+package-plugin:
+	./scripts/package-plugin.sh

@@ -16,5 +16,6 @@ wp-content/themes/*
 *.log
 *.sql
 *.sql.gz
+/dist/
 /Replicate Design/node_modules
 /Replicate Design
