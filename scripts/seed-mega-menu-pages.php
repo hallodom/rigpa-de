@@ -183,3 +183,6 @@ if ($demo_existing instanceof WP_Post) {
 }
 
 WP_CLI::success('Done. Visit /mega-menu-demo/ to test the menu.');
+
+WP_CLI::log('');
+require __DIR__ . '/seed-mega-menu-nav.php';

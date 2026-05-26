@@ -53,7 +53,8 @@ docker compose --profile tools run --rm wp-cli wp language core install de_DE --
 | `make build-mega-menu` | Build Rigpa Mega Menu plugin assets |
 | `make package-plugin` | Build assets and create `dist/rigpa-de-map.zip` for WP upload |
 | `make package-mega-menu` | Build assets and create `dist/rigpa-mega-menu.zip` for WP upload |
-| `make seed-mega-menu-pages` | Create example WP pages and wire mega menu links |
+| `make seed-mega-menu-pages` | Create demo pages, seed nav menus, and assign plugin locations |
+| `make seed-mega-menu-nav` | Seed nav menus only and assign plugin locations |
 
 ## Local development
 
@@ -239,6 +240,23 @@ This compiles React/Tailwind from `wp-content/plugins/rigpa-mega-menu/src/` into
 
 Alias: `[rigpa-mega-menu]`. Language override: `[rigpa_mega_menu lang="german"]` or `lang="english"`. Default `lang="auto"` follows the WordPress locale (`de_DE` → German).
 
+### Languages
+
+The plugin supports **two menu languages**, each backed by its own nav menu and location:
+
+| Shortcode `lang` | Menu loaded |
+|------------------|-------------|
+| `auto` (default) | **Mega Menu (German)** if WordPress locale starts with `de` (e.g. `de_DE`); otherwise **Mega Menu (English)** |
+| `english` or `en` | Always **Mega Menu (English)** |
+| `german` or `de` | Always **Mega Menu (German)** |
+
+- **Menu links and section titles** come from the assigned WordPress nav menu for that language.
+- **Header UI labels** (e.g. “Menu”, “Open menu”, “Learn more →”) follow the resolved language in the React frontend.
+- **Other locales** (French, Spanish, etc.) use the **English** menu when `lang="auto"`. Set the site language to Deutsch, or pin the shortcode with `lang="german"` / `lang="english"`, to control which menu appears.
+- **WPML / Polylang** — not auto-detected. Use separate Elementor headers per language with the matching `lang` attribute, or rely on `lang="auto"` where WordPress locale matches the menu you want.
+
+Adding a third language would require a new menu location and code changes; only English and German are supported out of the box.
+
 ### Elementor header setup
 
 1. **Templates → Theme Builder → Header** — create or edit a header template (display: Entire Site)
@@ -247,9 +265,35 @@ Alias: `[rigpa-mega-menu]`. Language override: `[rigpa_mega_menu lang="german"]`
 
 Bootstrap activates the plugin when built assets exist (after `make build-mega-menu`).
 
-### Menu content
+### How menu content works
 
-Labels, descriptions, featured cards, and URLs are defined in `wp-content/plugins/rigpa-mega-menu/includes/menus.php`. Edit that file and redeploy to change content.
+The mega menu reads its structure from **WordPress navigation menus** stored in the database (`Appearance → Menus`), not from the theme’s header menu.
+
+1. **Plugin locations** — The plugin registers two slots: **Mega Menu (English)** (`rigpa-mega-menu-en`) and **Mega Menu (German)** (`rigpa-mega-menu-de`).
+2. **Assignment** — You assign a nav menu to each slot under **Appearance → Menus → Menu Settings** (checkboxes at the bottom). WordPress stores this as a mapping from location slug → menu ID in the active theme.
+3. **Structure** — Top-level menu items become section labels (e.g. Meditate, About). Nested items become the links inside each dropdown panel.
+4. **Frontend** — The `[rigpa_mega_menu]` shortcode loads the assigned menu for the current language, passes it to the React app as JSON, and renders the interactive mega menu.
+5. **Fallback** — If no menu is assigned to a location, the plugin uses built-in defaults from `includes/menus.php`.
+
+**Editing:** Go to **Appearance → Menus**, select **Mega Menu (English)** or **Mega Menu (German)**, and edit items there. Enable **Description** under **Screen Options** to edit the subtitle text under each link.
+
+**Status:** **Tools → Mega Menu** in wp-admin shows whether each location is assigned.
+
+### Seed demo content (local dev)
+
+Menus are **not** created automatically when the plugin is activated. Run a seed command from the project root:
+
+```bash
+# Demo pages + nav menus + location assignment
+make seed-mega-menu-pages
+
+# Nav menus + location assignment only
+make seed-mega-menu-nav
+```
+
+The seed script creates both nav menus (6 top-level sections with nested links), links them to existing pages where possible, assigns them to the plugin locations, and sets featured-card meta on section items. Re-running is safe for pages (existing are skipped); re-running the nav seed **replaces** menu items with the default structure from `includes/menus.php`.
+
+Then visit **http://localhost:8080/mega-menu-demo/** — menu links point at the seeded pages (e.g. `/introduction-to-meditation/`, `/de-berlin-dharma-mali/`).
 
 ### Install on another WordPress site (zip)
 
@@ -259,15 +303,7 @@ make package-mega-menu
 
 Produces **`dist/rigpa-mega-menu.zip`** for **Plugins → Add New → Upload Plugin**.
 
-### Example content pages
-
-Seed demo pages for every mega menu link (English + German) and a test page with the menu embedded:
-
-```bash
-make seed-mega-menu-pages
-```
-
-Then visit **http://localhost:8080/mega-menu-demo/** — menu links point at the seeded pages (e.g. `/introduction-to-meditation/`, `/de-berlin-dharma-mali/`). Re-run the command safely; existing pages are skipped.
+After installing on another site, create menus under **Appearance → Menus**, assign them to **Mega Menu (English)** / **Mega Menu (German)**, or copy the structure from `includes/menus.php` manually.
 
 ## Troubleshooting
 

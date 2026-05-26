@@ -15,6 +15,131 @@ function rigpa_mega_menu_asset_url($filename) {
 }
 
 /**
+ * Register nav menu locations editable under Appearance → Menus.
+ */
+function rigpa_mega_menu_register_nav_menus() {
+    register_nav_menus(
+        array(
+            'rigpa-mega-menu-en' => __('Mega Menu (English)', 'rigpa-mega-menu'),
+            'rigpa-mega-menu-de' => __('Mega Menu (German)', 'rigpa-mega-menu'),
+        )
+    );
+}
+add_action('after_setup_theme', 'rigpa_mega_menu_register_nav_menus');
+
+/**
+ * @param string $lang english|german
+ * @return string
+ */
+function rigpa_mega_menu_location_for_lang($lang) {
+    return $lang === 'german' ? 'rigpa-mega-menu-de' : 'rigpa-mega-menu-en';
+}
+
+/**
+ * Resolve a page ID from a site-relative path such as /introduction-to-meditation/.
+ *
+ * @param string $url
+ * @return int
+ */
+function rigpa_mega_menu_page_id_from_url($url) {
+    $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+    if ($path === '') {
+        return 0;
+    }
+
+    $page = get_page_by_path($path, OBJECT, 'page');
+
+    return $page instanceof WP_Post ? (int) $page->ID : 0;
+}
+
+/**
+ * Build mega menu JSON from a WordPress nav menu assigned to our location.
+ *
+ * @param string $lang english|german
+ * @return array<int, array<string, mixed>>|null
+ */
+function rigpa_mega_menu_build_menus_from_nav($lang) {
+    $location = rigpa_mega_menu_location_for_lang($lang);
+    $locations = get_nav_menu_locations();
+
+    if (empty($locations[$location])) {
+        return null;
+    }
+
+    $menu = wp_get_nav_menu_object((int) $locations[$location]);
+    if (!$menu instanceof WP_Term) {
+        return null;
+    }
+
+    $items = wp_get_nav_menu_items((int) $menu->term_id, array('update_post_term_cache' => false));
+    if (!is_array($items) || $items === array()) {
+        return null;
+    }
+
+    $sections = array();
+    $children_by_parent = array();
+
+    foreach ($items as $item) {
+        if (!$item instanceof WP_Post) {
+            continue;
+        }
+
+        $parent_id = (int) $item->menu_item_parent;
+        if ($parent_id === 0) {
+            $sections[(int) $item->ID] = array(
+                'label' => (string) $item->title,
+                'items' => array(),
+            );
+
+            $featured = get_post_meta((int) $item->ID, '_rigpa_mega_menu_featured', true);
+            if (is_array($featured) && !empty($featured['title'])) {
+                if (!empty($featured['image']) && !str_starts_with((string) $featured['image'], 'http')) {
+                    $featured['image'] = home_url((string) $featured['image']);
+                }
+                $sections[(int) $item->ID]['featured'] = $featured;
+            }
+            continue;
+        }
+
+        if (!isset($children_by_parent[$parent_id])) {
+            $children_by_parent[$parent_id] = array();
+        }
+
+        $children_by_parent[$parent_id][] = $item;
+    }
+
+    if ($sections === array()) {
+        return null;
+    }
+
+    foreach ($sections as $section_id => $section) {
+        foreach ($children_by_parent[$section_id] ?? array() as $child) {
+            $section['items'][] = array(
+                'title'       => (string) $child->title,
+                'description' => (string) $child->description,
+                'url'         => (string) $child->url,
+            );
+        }
+
+        $sections[$section_id] = $section;
+    }
+
+    return array_values($sections);
+}
+
+/**
+ * @param string $lang english|german
+ * @return array<int, array<string, mixed>>
+ */
+function rigpa_mega_menu_get_static_menus($lang) {
+    if ($lang === 'german') {
+        return rigpa_mega_menu_get_german_menus();
+    }
+
+    return rigpa_mega_menu_get_english_menus();
+}
+
+/**
  * Resolve language key from shortcode / locale.
  *
  * @param string $lang auto|english|german
@@ -39,11 +164,12 @@ function rigpa_mega_menu_resolve_lang($lang) {
  * @return array<int, array<string, mixed>>
  */
 function rigpa_mega_menu_get_menus($lang) {
-    if ($lang === 'german') {
-        return rigpa_mega_menu_get_german_menus();
+    $from_nav = rigpa_mega_menu_build_menus_from_nav($lang);
+    if ($from_nav !== null) {
+        return $from_nav;
     }
 
-    return rigpa_mega_menu_get_english_menus();
+    return rigpa_mega_menu_get_static_menus($lang);
 }
 
 /**

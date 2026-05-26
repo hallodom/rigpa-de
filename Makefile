@@ -1,4 +1,4 @@
-.PHONY: up down logs setup wp prod-up prod-down reset build-map build-mega-menu package-plugin package-mega-menu seed-mega-menu-pages
+.PHONY: up down logs setup wp prod-up prod-down reset build-map build-mega-menu package-plugin package-mega-menu seed-mega-menu-pages seed-mega-menu-nav
 
 up:
 	docker compose up -d
@@ -59,3 +59,6 @@ package-mega-menu:
 
 seed-mega-menu-pages:
 	docker compose --profile tools run --rm -v "$(PWD)/scripts:/scripts:ro" wp-cli wp --allow-root eval-file /scripts/seed-mega-menu-pages.php
+
+seed-mega-menu-nav:
+	docker compose --profile tools run --rm -v "$(PWD)/scripts:/scripts:ro" wp-cli wp --allow-root eval-file /scripts/seed-mega-menu-nav.php
