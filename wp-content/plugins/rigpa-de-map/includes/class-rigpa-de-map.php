@@ -116,6 +116,16 @@ class Rigpa_De_Map {
             '.rigpa-de-map-wrapper { width: 100%; min-height: 1px; }'
         );
 
+        wp_add_inline_style(
+            'rigpa-de-map',
+            self::get_hardening_css()
+        );
+
+        // Move the plugin stylesheet to the end of the head so it loads after
+        // theme/page-builder CSS (Elementor, BuddyBoss, etc.). At equal
+        // !important + specificity, source order decides — ours must be last.
+        add_action('wp_print_styles', array(__CLASS__, 'reorder_stylesheet'), 9999);
+
         if (self::current_page_uses_full_width()) {
             wp_add_inline_style(
                 'rigpa-de-map',
@@ -125,5 +135,137 @@ class Rigpa_De_Map {
                 body.rigpa-de-map-full-width .rigpa-de-map-section { max-width: none !important; width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }'
             );
         }
+    }
+
+    /**
+     * High-specificity overrides scoped to .rigpa-de-map-root.
+     *
+     * These exist to neutralise hostile rules from themes / page builders
+     * (BuddyBoss, Elementor, Astra, etc.) that style generic tags like
+     * `img`, `div`, `button` site-wide and would otherwise break the map.
+     */
+    private static function get_hardening_css() {
+        return <<<'CSS'
+.rigpa-de-map-wrapper,
+.rigpa-de-map-root {
+    background: transparent !important;
+}
+
+.rigpa-de-map-root,
+.rigpa-de-map-root *,
+.rigpa-de-map-root *::before,
+.rigpa-de-map-root *::after {
+    box-sizing: border-box !important;
+}
+
+.rigpa-de-map-root img,
+.rigpa-de-map-root svg,
+.rigpa-de-map-root .rigpa-de-map-section img,
+.rigpa-de-map-root .rigpa-de-map-section svg,
+.elementor .rigpa-de-map-root img,
+.elementor .rigpa-de-map-root svg,
+.elementor-widget .rigpa-de-map-root img,
+.elementor-widget .rigpa-de-map-root svg {
+    max-width: none !important;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+.rigpa-de-map-root div,
+.rigpa-de-map-root dl,
+.rigpa-de-map-root li,
+.rigpa-de-map-root .rigpa-de-map-section div,
+.rigpa-de-map-root .rigpa-de-map-section dl,
+.rigpa-de-map-root .rigpa-de-map-section li {
+    border-radius: 0;
+}
+
+.rigpa-de-map-root .rigpa-de-marker-bump,
+.rigpa-de-map-root [data-name="Map"] div[data-marker] > div {
+    border-radius: 9999px !important;
+}
+
+.rigpa-de-map-root .rigpa-de-hover-card,
+.rigpa-de-map-root .rigpa-de-hover-card-exit {
+    border-radius: 0.5rem !important;
+}
+
+.rigpa-de-map-root .rigpa-de-hover-card img,
+.rigpa-de-map-root .rigpa-de-hover-card-exit img {
+    border-radius: 0 !important;
+}
+
+.rigpa-de-map-root button,
+.rigpa-de-map-root input,
+.rigpa-de-map-root .rigpa-de-map-section button,
+.rigpa-de-map-root .rigpa-de-map-section input {
+    border-radius: 0;
+    box-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: inherit;
+}
+
+.rigpa-de-map-root form[data-name="Form"] input[type="text"],
+.rigpa-de-map-root form[data-name="Form"] button[type="submit"],
+.elementor .rigpa-de-map-root form[data-name="Form"] input[type="text"],
+.elementor .rigpa-de-map-root form[data-name="Form"] button[type="submit"] {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    box-sizing: border-box !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 20px !important;
+}
+
+.rigpa-de-map-root a,
+.rigpa-de-map-root .rigpa-de-map-section a,
+.elementor .rigpa-de-map-root a,
+.elementor-widget .rigpa-de-map-root a {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    box-shadow: none;
+    background: transparent;
+}
+
+.rigpa-de-map-root p,
+.rigpa-de-map-root h1,
+.rigpa-de-map-root h2,
+.rigpa-de-map-root h3,
+.rigpa-de-map-root h4 {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    text-shadow: none;
+}
+CSS;
+    }
+
+    /**
+     * Re-print the plugin stylesheet last so it wins source-order ties
+     * against theme / page-builder CSS that uses the same !important + specificity.
+     */
+    public static function reorder_stylesheet() {
+        global $wp_styles;
+        if (!isset($wp_styles->registered['rigpa-de-map'])) {
+            return;
+        }
+        if (!in_array('rigpa-de-map', (array) $wp_styles->done, true)) {
+            return;
+        }
+
+        $wp_styles->done = array_values(array_filter(
+            (array) $wp_styles->done,
+            static function ($handle) {
+                return $handle !== 'rigpa-de-map';
+            }
+        ));
+        $wp_styles->do_items('rigpa-de-map');
     }
 }

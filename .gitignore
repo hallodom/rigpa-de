@@ -8,6 +8,10 @@ wp-content/plugins/*
 !wp-content/plugins/.gitkeep
 !wp-content/plugins/rigpa-de-map/
 !wp-content/plugins/rigpa-de-map/**
+!wp-content/plugins/rigpa-mega-menu/
+!wp-content/plugins/rigpa-mega-menu/**
+
+wp-content/plugins/rigpa-mega-menu/src/node_modules
 
 wp-content/themes/*
 !wp-content/themes/.gitkeep

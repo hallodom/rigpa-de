@@ -50,7 +50,10 @@ docker compose --profile tools run --rm wp-cli wp language core install de_DE --
 | `make reset` | `down -v` then `up` (factory reset)  |
 | `make prod-up` | Start with production overrides    |
 | `make build-map` | Build Rigpa.de Map plugin assets |
+| `make build-mega-menu` | Build Rigpa Mega Menu plugin assets |
 | `make package-plugin` | Build assets and create `dist/rigpa-de-map.zip` for WP upload |
+| `make package-mega-menu` | Build assets and create `dist/rigpa-mega-menu.zip` for WP upload |
+| `make seed-mega-menu-pages` | Create example WP pages and wire mega menu links |
 
 ## Local development
 
@@ -216,6 +219,56 @@ The zip contains the `rigpa-de-map/` folder at the archive root, as WordPress ex
 
 For local Docker dev, the plugin is bind-mounted from `wp-content/plugins/rigpa-de-map/` — run `make build-map` before `make setup` so bootstrap can activate it with complete assets.
 
+## Rigpa Mega Menu plugin
+
+Interactive header mega menu with English and German menu structures. Use in an Elementor Theme Builder header via shortcode.
+
+### Build assets (required before first use)
+
+```bash
+make build-mega-menu
+```
+
+This compiles React/Tailwind from `wp-content/plugins/rigpa-mega-menu/src/` into `assets/` and downloads featured card images.
+
+### Shortcode
+
+```
+[rigpa_mega_menu]
+```
+
+Alias: `[rigpa-mega-menu]`. Language override: `[rigpa_mega_menu lang="german"]` or `lang="english"`. Default `lang="auto"` follows the WordPress locale (`de_DE` → German).
+
+### Elementor header setup
+
+1. **Templates → Theme Builder → Header** — create or edit a header template (display: Entire Site)
+2. Add an Elementor **Shortcode** widget with `[rigpa_mega_menu]`
+3. Disable the theme’s default header if it conflicts
+
+Bootstrap activates the plugin when built assets exist (after `make build-mega-menu`).
+
+### Menu content
+
+Labels, descriptions, featured cards, and URLs are defined in `wp-content/plugins/rigpa-mega-menu/includes/menus.php`. Edit that file and redeploy to change content.
+
+### Install on another WordPress site (zip)
+
+```bash
+make package-mega-menu
+```
+
+Produces **`dist/rigpa-mega-menu.zip`** for **Plugins → Add New → Upload Plugin**.
+
+### Example content pages
+
+Seed demo pages for every mega menu link (English + German) and a test page with the menu embedded:
+
+```bash
+make seed-mega-menu-pages
+```
+
+Then visit **http://localhost:8080/mega-menu-demo/** — menu links point at the seeded pages (e.g. `/introduction-to-meditation/`, `/de-berlin-dharma-mali/`). Re-run the command safely; existing pages are skipped.
+
 ## Troubleshooting
 
 | Issue | What to try |
@@ -236,6 +289,6 @@ For local Docker dev, the plugin is bind-mounted from `wp-content/plugins/rigpa-
 
 ## Git
 
-Committed: compose files, scripts, `.env.example`, `wp-content/themes`, `wp-content/plugins/rigpa-de-map/`, `Replicate Design/` (excluding `node_modules`), `germany-vector.svg`.
+Committed: compose files, scripts, `.env.example`, `wp-content/themes`, `wp-content/plugins/rigpa-de-map/`, `wp-content/plugins/rigpa-mega-menu/`, `Replicate Design/` (excluding `node_modules`), `germany-vector.svg`.
 
 Not committed: `.env`, uploads, other `wp-content/plugins/*` runtime installs (see `.gitignore`).

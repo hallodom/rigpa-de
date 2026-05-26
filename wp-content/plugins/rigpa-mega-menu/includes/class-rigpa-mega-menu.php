@@ -1,0 +1,286 @@
+<?php
+/**
+ * Rigpa Mega Menu shortcode and assets.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class Rigpa_Mega_Menu {
+
+    /** @var bool */
+    private static $assets_enqueued = false;
+
+    /** @var int */
+    private static $instance_count = 0;
+
+    /** @var string */
+    private static $resolved_lang = 'english';
+
+    public static function init() {
+        add_shortcode('rigpa_mega_menu', array(__CLASS__, 'render_shortcode'));
+        add_shortcode('rigpa-mega-menu', array(__CLASS__, 'render_shortcode'));
+    }
+
+    /**
+     * @param array<string, string>|string $atts
+     */
+    public static function render_shortcode($atts = array()) {
+        $atts = shortcode_atts(
+            array(
+                'lang' => 'auto',
+            ),
+            $atts,
+            'rigpa_mega_menu'
+        );
+
+        self::$resolved_lang = rigpa_mega_menu_resolve_lang($atts['lang']);
+        self::enqueue_assets();
+
+        self::$instance_count++;
+        $id = self::$instance_count === 1
+            ? 'rigpa-mega-menu-root'
+            : 'rigpa-mega-menu-root-' . self::$instance_count;
+
+        return sprintf(
+            '<div id="%s" class="rigpa-mega-menu-wrapper rigpa-mega-menu-root" role="navigation" aria-label="%s"></div>',
+            esc_attr($id),
+            esc_attr__('Main', 'rigpa-mega-menu')
+        );
+    }
+
+    public static function enqueue_assets() {
+        if (self::$assets_enqueued) {
+            return;
+        }
+
+        $css_path = RIGPA_MEGA_MENU_PATH . 'assets/css/rigpa-mega-menu.css';
+        $js_path  = RIGPA_MEGA_MENU_PATH . 'assets/js/rigpa-mega-menu.js';
+
+        if (!file_exists($css_path) || !file_exists($js_path)) {
+            return;
+        }
+
+        self::$assets_enqueued = true;
+
+        wp_enqueue_style(
+            'rigpa-mega-menu-fonts',
+            'https://fonts.googleapis.com/css2?family=Bitter:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap',
+            array(),
+            null
+        );
+
+        wp_enqueue_style(
+            'rigpa-mega-menu',
+            RIGPA_MEGA_MENU_URL . 'assets/css/rigpa-mega-menu.css',
+            array('rigpa-mega-menu-fonts'),
+            (string) filemtime($css_path)
+        );
+
+        wp_enqueue_script(
+            'rigpa-mega-menu',
+            RIGPA_MEGA_MENU_URL . 'assets/js/rigpa-mega-menu.js',
+            array(),
+            (string) filemtime($js_path),
+            true
+        );
+
+        $menus = rigpa_mega_menu_get_menus(self::$resolved_lang);
+
+        wp_localize_script(
+            'rigpa-mega-menu',
+            'rigpaMegaMenu',
+            array(
+                'assetsUrl' => RIGPA_MEGA_MENU_URL . 'assets/',
+                'lang'      => self::$resolved_lang,
+                'menus'     => $menus,
+            )
+        );
+
+        wp_add_inline_style(
+            'rigpa-mega-menu',
+            '.rigpa-mega-menu-wrapper { width: 100%; position: relative; overflow: visible !important; z-index: 9999; }'
+        );
+
+        // Ensure every ancestor of the menu root that could clip the absolutely-
+        // positioned dropdown panel allows overflow. Twenty Twenty-Five and most
+        // block themes set overflow:hidden on layout containers.
+        wp_add_inline_style(
+            'rigpa-mega-menu',
+            '.wp-block-group:has(.rigpa-mega-menu-root), header:has(.rigpa-mega-menu-root), .wp-block-template-part:has(.rigpa-mega-menu-root) { overflow: visible !important; }'
+        );
+
+        wp_add_inline_style(
+            'rigpa-mega-menu',
+            self::get_hardening_css()
+        );
+
+        add_action('wp_print_styles', array(__CLASS__, 'reorder_stylesheet'), 9999);
+    }
+
+    /**
+     * High-specificity overrides scoped to .rigpa-mega-menu-root.
+     *
+     * Neutralises hostile rules from themes / page builders (Elementor,
+     * block themes, BuddyBoss, etc.) that style generic tags site-wide.
+     */
+    private static function get_hardening_css() {
+        return <<<'CSS'
+.rigpa-mega-menu-wrapper,
+.rigpa-mega-menu-root {
+    display: block !important;
+    width: 100% !important;
+    background: transparent !important;
+    overflow: visible !important;
+    position: relative !important;
+    isolation: isolate;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.5;
+    color: #171717;
+}
+
+.rigpa-mega-menu-root,
+.rigpa-mega-menu-root *,
+.rigpa-mega-menu-root *::before,
+.rigpa-mega-menu-root *::after {
+    box-sizing: border-box !important;
+}
+
+.rigpa-mega-menu-root img,
+.rigpa-mega-menu-root svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel img,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel svg,
+.elementor .rigpa-mega-menu-root img,
+.elementor .rigpa-mega-menu-root svg,
+.elementor-widget .rigpa-mega-menu-root img,
+.elementor-widget .rigpa-mega-menu-root svg {
+    max-width: 100% !important;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    display: block;
+    vertical-align: middle;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    object-fit: cover;
+}
+
+.rigpa-mega-menu-root nav,
+.rigpa-mega-menu-root ul,
+.rigpa-mega-menu-root ol,
+.rigpa-mega-menu-root li,
+.elementor .rigpa-mega-menu-root nav,
+.elementor .rigpa-mega-menu-root ul,
+.elementor .rigpa-mega-menu-root ol,
+.elementor .rigpa-mega-menu-root li {
+    list-style: none !important;
+    margin: 0;
+    padding: 0;
+}
+
+.rigpa-mega-menu-root button,
+.rigpa-mega-menu-root input,
+.rigpa-mega-menu-root .rigpa-mega-menu-header button,
+.elementor .rigpa-mega-menu-root button,
+.elementor-widget .rigpa-mega-menu-root button {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    border-radius: 0;
+    box-shadow: none;
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: inherit;
+    font-family: inherit;
+    min-height: 0;
+    height: auto;
+    width: auto;
+    margin: 0;
+}
+
+.rigpa-mega-menu-root a,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel a,
+.elementor .rigpa-mega-menu-root a,
+.elementor-widget .rigpa-mega-menu-root a {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    box-shadow: none;
+    background: transparent;
+    color: inherit;
+}
+
+.rigpa-mega-menu-root a:hover,
+.rigpa-mega-menu-root a:focus,
+.rigpa-mega-menu-root a:active,
+.elementor .rigpa-mega-menu-root a:hover,
+.elementor .rigpa-mega-menu-root a:focus,
+.elementor .rigpa-mega-menu-root a:active {
+    text-decoration: none !important;
+    outline: none;
+}
+
+.rigpa-mega-menu-root p,
+.rigpa-mega-menu-root h1,
+.rigpa-mega-menu-root h2,
+.rigpa-mega-menu-root h3,
+.rigpa-mega-menu-root h4,
+.rigpa-mega-menu-root span,
+.elementor .rigpa-mega-menu-root p,
+.elementor .rigpa-mega-menu-root h1,
+.elementor .rigpa-mega-menu-root h2,
+.elementor .rigpa-mega-menu-root h3,
+.elementor .rigpa-mega-menu-root h4,
+.elementor .rigpa-mega-menu-root span {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    text-shadow: none;
+    font-weight: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header {
+    background-color: #fff !important;
+}
+CSS;
+    }
+
+    /**
+     * Re-print the plugin stylesheet last so it wins source-order ties
+     * against theme / page-builder CSS.
+     */
+    public static function reorder_stylesheet() {
+        global $wp_styles;
+        if (!isset($wp_styles->registered['rigpa-mega-menu'])) {
+            return;
+        }
+        if (!in_array('rigpa-mega-menu', (array) $wp_styles->done, true)) {
+            return;
+        }
+
+        $wp_styles->done = array_values(array_filter(
+            (array) $wp_styles->done,
+            static function ($handle) {
+                return $handle !== 'rigpa-mega-menu';
+            }
+        ));
+        $wp_styles->do_items('rigpa-mega-menu');
+    }
+}
