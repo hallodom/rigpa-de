@@ -83,6 +83,33 @@ function MenuPanel({
   );
 }
 
+function MobileSectionLinks({
+  menu,
+  id,
+}: {
+  menu: MenuSection;
+  id: string;
+}) {
+  return (
+    <ul id={id} className="rigpa-mega-menu-mobile-links">
+      {menu.items.map((item, idx) => (
+        <li key={idx} className="rigpa-mega-menu-mobile-link-item">
+          <a href={item.url} className="rigpa-mega-menu-mobile-link">
+            <span className="rigpa-mega-menu-mobile-link-title">
+              {item.title}
+            </span>
+            {item.description && (
+              <span className="rigpa-mega-menu-mobile-link-desc">
+                {item.description}
+              </span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
   const baseId = useId().replace(/:/g, "");
   const rootRef = useRef<HTMLDivElement>(null);
@@ -293,7 +320,7 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
           ) : (
             <button
               type="button"
-              className="rigpamm:flex rigpamm:items-center rigpamm:gap-2 rigpamm:px-3 rigpamm:py-3 rigpamm:text-sm rigpamm:font-medium rigpamm:bg-transparent rigpamm:border-0 rigpamm:cursor-pointer rigpamm:text-neutral-900"
+              className="rigpa-mega-menu-mobile-toggle"
               aria-expanded={mobileOpen}
               aria-controls={`${baseId}-mobile-menu`}
               onClick={() => {
@@ -301,11 +328,13 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
                 setMobileExpandedIndex(null);
               }}
             >
-              <span className="rigpamm:sr-only">
+              <span className="rigpa-mega-menu-sr-only">
                 {mobileOpen ? closeMenuLabel : openMenuLabel}
               </span>
               <svg
-                className="rigpamm:w-5 rigpamm:h-5"
+                className="rigpa-mega-menu-mobile-toggle-icon"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -322,7 +351,7 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
                   </>
                 )}
               </svg>
-              <span>{menuLabel}</span>
+              <span className="rigpa-mega-menu-mobile-toggle-label">{menuLabel}</span>
             </button>
           )}
         </div>
@@ -331,57 +360,63 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
       {!isDesktop && mobileRendered && (
         <div
           id={`${baseId}-mobile-menu`}
-          className={`rigpa-mega-menu-mobile-panel rigpamm:border-t rigpamm:border-neutral-200 rigpamm:bg-white ${
+          className={`rigpa-mega-menu-mobile-panel ${
             mobileVisible ? "rigpa-mega-menu-mobile-panel--open" : ""
           }`}
         >
-          <div className="rigpa-mega-menu-inner rigpamm:py-4 rigpamm:space-y-2">
+          <nav aria-label={menuLabel} className="rigpa-mega-menu-mobile-nav">
             {menus.map((menu, index) => {
-              const panelId = `${baseId}-mobile-panel-${index}`;
+              const bodyId = `${baseId}-mobile-body-${index}`;
               const isExpanded = mobileExpandedIndex === index;
 
               return (
                 <div
                   key={menu.label}
-                  className="rigpamm:border rigpamm:border-neutral-200 rigpamm:rounded-lg rigpamm:overflow-hidden"
+                  className="rigpa-mega-menu-mobile-section"
                 >
                   <button
                     type="button"
-                    className="rigpamm:w-full rigpamm:flex rigpamm:items-center rigpamm:justify-between rigpamm:px-4 rigpamm:py-3 rigpamm:text-sm rigpamm:font-medium rigpamm:text-left rigpamm:bg-neutral-50 rigpamm:border-0 rigpamm:cursor-pointer"
+                    className="rigpa-mega-menu-mobile-section-btn"
                     aria-expanded={isExpanded}
-                    aria-controls={panelId}
+                    aria-controls={bodyId}
                     onClick={() =>
                       setMobileExpandedIndex(isExpanded ? null : index)
                     }
                   >
-                    <span className="rigpamm:font-serif">{menu.label}</span>
+                    <span className="rigpa-mega-menu-mobile-section-label">
+                      {menu.label}
+                    </span>
                     <svg
-                      className={`rigpamm:w-4 rigpamm:h-4 rigpamm:transition-transform ${
-                        isExpanded ? "rigpamm:rotate-180" : ""
+                      className={`rigpa-mega-menu-mobile-chevron ${
+                        isExpanded ? "rigpa-mega-menu-mobile-chevron--open" : ""
                       }`}
+                      width="12"
+                      height="12"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="2.5"
                       aria-hidden="true"
                     >
-                      <path strokeLinecap="round" d="M6 9l6 6 6-6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
                     </svg>
                   </button>
 
-                  {isExpanded && (
-                    <div id={panelId} className="rigpamm:p-4 rigpamm:bg-white">
-                      <MenuPanel
-                        menu={menu}
-                        lang={lang}
-                        panelId={panelId}
-                      />
+                  <div
+                    className={`rigpa-mega-menu-mobile-accordion ${
+                      isExpanded ? "rigpa-mega-menu-mobile-accordion--open" : ""
+                    }`}
+                    role="region"
+                    id={bodyId}
+                  >
+                    <div className="rigpa-mega-menu-mobile-accordion-inner">
+                      <MobileSectionLinks menu={menu} id={`${bodyId}-links`} />
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
-          </div>
+          </nav>
         </div>
       )}
     </div>
