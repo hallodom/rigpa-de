@@ -18,6 +18,7 @@ define('RIGPA_MEGA_MENU_PATH', plugin_dir_path(__FILE__));
 define('RIGPA_MEGA_MENU_URL', plugin_dir_url(__FILE__));
 
 require_once RIGPA_MEGA_MENU_PATH . 'includes/menus.php';
+require_once RIGPA_MEGA_MENU_PATH . 'includes/class-rigpa-mega-menu-seeder.php';
 require_once RIGPA_MEGA_MENU_PATH . 'includes/class-rigpa-mega-menu.php';
 require_once RIGPA_MEGA_MENU_PATH . 'includes/class-rigpa-mega-menu-admin.php';
 

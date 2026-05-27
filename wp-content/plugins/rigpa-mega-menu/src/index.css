@@ -21,6 +21,26 @@
   isolation: isolate;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* Full-bleed root, constrained menu content */
+.rigpa-mega-menu-root .rigpa-mega-menu-inner {
+  width: 100%;
+  max-width: 890px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* Dropdown panel card — fixed width, independent of root */
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown-inner {
+  width: 890px;
+  max-width: calc(100vw - 3rem);
+  margin-inline: auto;
+  padding-block: 1.5rem;
 }
 
 .rigpa-mega-menu-root img,

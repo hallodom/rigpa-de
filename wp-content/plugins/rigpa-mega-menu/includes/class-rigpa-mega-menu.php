@@ -100,7 +100,7 @@ class Rigpa_Mega_Menu {
 
         wp_add_inline_style(
             'rigpa-mega-menu',
-            '.rigpa-mega-menu-wrapper { width: 100%; position: relative; overflow: visible !important; z-index: 9999; }'
+            '.rigpa-mega-menu-wrapper, .rigpa-mega-menu-root { width: 100vw !important; max-width: 100vw !important; margin-left: calc(50% - 50vw) !important; margin-right: calc(50% - 50vw) !important; position: relative; overflow: visible !important; z-index: 9999; }'
         );
 
         // Ensure every ancestor of the menu root that could clip the absolutely-
@@ -130,7 +130,10 @@ class Rigpa_Mega_Menu {
 .rigpa-mega-menu-wrapper,
 .rigpa-mega-menu-root {
     display: block !important;
-    width: 100% !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
     background: transparent !important;
     overflow: visible !important;
     position: relative !important;

@@ -87,15 +87,45 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
   const baseId = useId().replace(/:/g, "");
   const rootRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const PANEL_WIDTH = 890;
+  const PANEL_OFFSET_LEFT = -20; // nudge slightly left of the trigger button
+  const SCREEN_MARGIN = 12;      // minimum gap from viewport edges
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [renderedIndex, setRenderedIndex] = useState<number | null>(null);
   const [panelVisible, setPanelVisible] = useState(false);
+  const [panelLeft, setPanelLeft] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileRendered, setMobileRendered] = useState(false);
   const [mobileVisible, setMobileVisible] = useState(false);
   const [mobileExpandedIndex, setMobileExpandedIndex] = useState<number | null>(null);
+
+  const calculatePanelLeft = useCallback((index: number) => {
+    const el = itemRefs.current[index];
+    if (!el) return 0;
+
+    const rect = el.getBoundingClientRect();
+    // Ideal position: align left edge of panel slightly left of the trigger
+    let left = PANEL_OFFSET_LEFT;
+
+    const panelScreenLeft = rect.left + left;
+    const panelScreenRight = panelScreenLeft + PANEL_WIDTH;
+
+    // If panel would bleed off the right edge, pull it left
+    if (panelScreenRight > window.innerWidth - SCREEN_MARGIN) {
+      left -= panelScreenRight - (window.innerWidth - SCREEN_MARGIN);
+    }
+
+    // If panel would bleed off the left edge, push it right
+    if (rect.left + left < SCREEN_MARGIN) {
+      left = SCREEN_MARGIN - rect.left;
+    }
+
+    return left;
+  }, []);
 
   const closeAll = useCallback(() => {
     setActiveIndex(null);
@@ -116,9 +146,10 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
         return;
       }
       clearHoverTimeout();
+      setPanelLeft(calculatePanelLeft(index));
       setActiveIndex(index);
     },
-    [clearHoverTimeout, isDesktop]
+    [clearHoverTimeout, isDesktop, calculatePanelLeft]
   );
 
   const scheduleCloseDesktopPanel = useCallback(() => {
@@ -201,20 +232,26 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
       ref={rootRef}
       className="rigpa-mega-menu-header rigpamm:relative rigpamm:w-full rigpamm:bg-white rigpamm:border-b rigpamm:border-neutral-200 rigpamm:z-50"
     >
-      <div className="rigpamm:mx-auto rigpamm:max-w-7xl rigpamm:px-6">
+      <div className="rigpa-mega-menu-inner">
         <div className="rigpamm:flex rigpamm:items-center rigpamm:justify-between rigpamm:min-h-[56px]">
           {isDesktop ? (
             <nav
               className="rigpamm:flex rigpamm:flex-wrap rigpamm:gap-1"
               aria-label={menuLabel}
-              onMouseLeave={scheduleCloseDesktopPanel}
             >
               {menus.map((menu, index) => {
                 const panelId = `${baseId}-panel-${index}`;
                 const isOpen = activeIndex === index;
+                const isRendered = renderedIndex === index;
 
                 return (
-                  <div key={menu.label} className="rigpamm:relative">
+                  <div
+                    key={menu.label}
+                    ref={(el) => { itemRefs.current[index] = el; }}
+                    className="rigpamm:relative"
+                    onMouseEnter={() => openDesktopPanel(index)}
+                    onMouseLeave={scheduleCloseDesktopPanel}
+                  >
                     <button
                       type="button"
                       className={`rigpamm:px-4 rigpamm:py-4 rigpamm:text-sm rigpamm:font-medium rigpamm:transition-colors rigpamm:bg-transparent rigpamm:border-0 rigpamm:cursor-pointer ${
@@ -225,7 +262,6 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
                       aria-expanded={isOpen}
                       aria-controls={panelId}
                       aria-haspopup="true"
-                      onMouseEnter={() => openDesktopPanel(index)}
                       onFocus={() => openDesktopPanel(index)}
                       onClick={() =>
                         setActiveIndex(isOpen ? null : index)
@@ -233,6 +269,23 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
                     >
                       {menu.label}
                     </button>
+
+                    {isRendered && (
+                      <div
+                        className={`rigpa-mega-menu-dropdown rigpamm:absolute rigpamm:top-full ${
+                          panelVisible ? "rigpa-mega-menu-dropdown--open" : ""
+                        }`}
+                        style={{ left: `${panelLeft}px` }}
+                      >
+                        <div className="rigpa-mega-menu-dropdown-inner">
+                          <MenuPanel
+                            menu={menu}
+                            lang={lang}
+                            panelId={panelId}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -275,24 +328,6 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
         </div>
       </div>
 
-      {isDesktop && renderedIndex !== null && (
-        <div
-          className={`rigpa-mega-menu-dropdown rigpamm:absolute rigpamm:left-0 rigpamm:right-0 rigpamm:top-full ${
-            panelVisible ? "rigpa-mega-menu-dropdown--open" : ""
-          }`}
-          onMouseEnter={clearHoverTimeout}
-          onMouseLeave={scheduleCloseDesktopPanel}
-        >
-          <div className="rigpamm:mx-auto rigpamm:max-w-4xl rigpamm:px-6 rigpamm:py-6">
-            <MenuPanel
-              menu={menus[renderedIndex]}
-              lang={lang}
-              panelId={`${baseId}-panel-${renderedIndex}`}
-            />
-          </div>
-        </div>
-      )}
-
       {!isDesktop && mobileRendered && (
         <div
           id={`${baseId}-mobile-menu`}
@@ -300,7 +335,7 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
             mobileVisible ? "rigpa-mega-menu-mobile-panel--open" : ""
           }`}
         >
-          <div className="rigpamm:mx-auto rigpamm:max-w-7xl rigpamm:px-6 rigpamm:py-4 rigpamm:space-y-2">
+          <div className="rigpa-mega-menu-inner rigpamm:py-4 rigpamm:space-y-2">
             {menus.map((menu, index) => {
               const panelId = `${baseId}-mobile-panel-${index}`;
               const isExpanded = mobileExpandedIndex === index;
