@@ -4,6 +4,7 @@ import type { MenuSection } from "./types";
 interface MegaMenuHeaderProps {
   menus: MenuSection[];
   lang: "english" | "german";
+  transparent?: boolean;
 }
 
 function useMediaQuery(query: string): boolean {
@@ -39,41 +40,43 @@ function MenuPanel({
   return (
     <div
       id={panelId}
-      className={`rigpa-mega-menu-panel rigpamm:grid rigpamm:gap-0 rigpamm:bg-white rigpamm:border rigpamm:border-neutral-200 rigpamm:rounded-lg rigpamm:shadow-xl rigpamm:overflow-hidden ${
-        menu.featured ? "rigpamm:grid-cols-[1fr_300px]" : "rigpamm:grid-cols-1"
+      className={`rigpa-mega-menu-panel ${
+        menu.featured ? "rigpa-mega-menu-panel--with-featured" : ""
       }`}
     >
-      <div className="rigpamm:p-8 rigpamm:grid rigpamm:grid-cols-2 rigpamm:gap-x-8 rigpamm:gap-y-6">
+      <div className="rigpa-mega-menu-panel-links">
         {menu.items.map((item, idx) => (
-          <a key={idx} href={item.url} className="rigpamm:group rigpamm:block">
-            <div className="rigpamm:font-medium rigpamm:text-sm rigpamm:mb-1 rigpamm:group-hover:text-neutral-600 rigpamm:transition-colors">
+          <a key={idx} href={item.url} className="rigpa-mega-menu-panel-link">
+            <span className="rigpa-mega-menu-panel-link-title">
               {item.title}
-            </div>
-            <div className="rigpamm:text-xs rigpamm:text-neutral-500 rigpamm:leading-relaxed">
-              {item.description}
-            </div>
+            </span>
+            {item.description && (
+              <span className="rigpa-mega-menu-panel-link-desc">
+                {item.description}
+              </span>
+            )}
           </a>
         ))}
       </div>
 
       {menu.featured && (
-        <div className="rigpamm:bg-neutral-50 rigpamm:p-6 rigpamm:flex rigpamm:flex-col rigpamm:border-l rigpamm:border-neutral-200">
-          <div className="rigpamm:aspect-[4/3] rigpamm:rounded rigpamm:overflow-hidden rigpamm:mb-4">
+        <div className="rigpa-mega-menu-panel-featured">
+          <div className="rigpa-mega-menu-panel-featured-image-wrap">
             <img
               src={menu.featured.image}
               alt={menu.featured.title}
-              className="rigpamm:w-full rigpamm:h-full rigpamm:object-cover"
+              className="rigpa-mega-menu-panel-featured-image"
             />
           </div>
-          <div className="rigpamm:font-medium rigpamm:text-sm rigpamm:mb-2">
+          <div className="rigpa-mega-menu-panel-featured-title">
             {menu.featured.title}
           </div>
-          <div className="rigpamm:text-xs rigpamm:text-neutral-600 rigpamm:mb-4 rigpamm:leading-relaxed">
+          <div className="rigpa-mega-menu-panel-featured-desc">
             {menu.featured.description}
           </div>
           <a
             href={menu.featured.url}
-            className="rigpamm:text-xs rigpamm:font-medium rigpamm:hover:underline rigpamm:mt-auto"
+            className="rigpa-mega-menu-panel-featured-cta"
           >
             {learnMore}
           </a>
@@ -110,7 +113,11 @@ function MobileSectionLinks({
   );
 }
 
-export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
+export default function MegaMenuHeader({
+  menus,
+  lang,
+  transparent = true,
+}: MegaMenuHeaderProps) {
   const baseId = useId().replace(/:/g, "");
   const rootRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -254,37 +261,50 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
   const openMenuLabel = lang === "german" ? "Menü öffnen" : "Open menu";
   const closeMenuLabel = lang === "german" ? "Menü schließen" : "Close menu";
 
+  const headerClass = transparent
+    ? "rigpa-mega-menu-header rigpa-mega-menu-header--transparent"
+    : "rigpa-mega-menu-header rigpa-mega-menu-header--solid";
+
   return (
-    <div
-      ref={rootRef}
-      className="rigpa-mega-menu-header rigpamm:relative rigpamm:w-full rigpamm:bg-white rigpamm:border-b rigpamm:border-neutral-200 rigpamm:z-50"
-    >
+    <div ref={rootRef} className={headerClass}>
       <div className="rigpa-mega-menu-inner">
-        <div className="rigpamm:flex rigpamm:items-center rigpamm:justify-between rigpamm:min-h-[56px]">
+        <div className="rigpa-mega-menu-header-row">
           {isDesktop ? (
-            <nav
-              className="rigpamm:flex rigpamm:flex-wrap rigpamm:gap-1"
-              aria-label={menuLabel}
-            >
+            <nav className="rigpa-mega-menu-desktop-nav" aria-label={menuLabel}>
               {menus.map((menu, index) => {
                 const panelId = `${baseId}-panel-${index}`;
                 const isOpen = activeIndex === index;
                 const isRendered = renderedIndex === index;
+                const hasItems = menu.items.length > 0;
+
+                if (!hasItems) {
+                  return (
+                    <div
+                      key={menu.label}
+                      className="rigpa-mega-menu-nav-item"
+                    >
+                      <a
+                        href={menu.url || "#"}
+                        className="rigpa-mega-menu-nav-btn"
+                      >
+                        {menu.label}
+                      </a>
+                    </div>
+                  );
+                }
 
                 return (
                   <div
                     key={menu.label}
                     ref={(el) => { itemRefs.current[index] = el; }}
-                    className="rigpamm:relative"
+                    className="rigpa-mega-menu-nav-item"
                     onMouseEnter={() => openDesktopPanel(index)}
                     onMouseLeave={scheduleCloseDesktopPanel}
                   >
                     <button
                       type="button"
-                      className={`rigpamm:px-4 rigpamm:py-4 rigpamm:text-sm rigpamm:font-medium rigpamm:transition-colors rigpamm:bg-transparent rigpamm:border-0 rigpamm:cursor-pointer ${
-                        isOpen
-                          ? "rigpamm:text-neutral-900"
-                          : "rigpamm:text-neutral-700 rigpamm:hover:text-neutral-900"
+                      className={`rigpa-mega-menu-nav-btn ${
+                        isOpen ? "rigpa-mega-menu-nav-btn--active" : ""
                       }`}
                       aria-expanded={isOpen}
                       aria-controls={panelId}
@@ -299,7 +319,7 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
 
                     {isRendered && (
                       <div
-                        className={`rigpa-mega-menu-dropdown rigpamm:absolute rigpamm:top-full ${
+                        className={`rigpa-mega-menu-dropdown ${
                           panelVisible ? "rigpa-mega-menu-dropdown--open" : ""
                         }`}
                         style={{ left: `${panelLeft}px` }}
@@ -368,6 +388,22 @@ export default function MegaMenuHeader({ menus, lang }: MegaMenuHeaderProps) {
             {menus.map((menu, index) => {
               const bodyId = `${baseId}-mobile-body-${index}`;
               const isExpanded = mobileExpandedIndex === index;
+              const hasItems = menu.items.length > 0;
+
+              if (!hasItems) {
+                return (
+                  <div key={menu.label} className="rigpa-mega-menu-mobile-section">
+                    <a
+                      href={menu.url || "#"}
+                      className="rigpa-mega-menu-mobile-section-btn"
+                    >
+                      <span className="rigpa-mega-menu-mobile-section-label">
+                        {menu.label}
+                      </span>
+                    </a>
+                  </div>
+                );
+              }
 
               return (
                 <div

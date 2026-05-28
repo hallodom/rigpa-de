@@ -27,16 +27,28 @@ function getMountNodes(): HTMLElement[] {
   return nodes;
 }
 
+function applyMenuTextColor(node: HTMLElement, color?: string) {
+  if (!color) {
+    return;
+  }
+  node.style.setProperty("--rigpa-mega-menu-item-color", color);
+}
+
 function mountMegaMenu(node: HTMLElement, config: RigpaMegaMenuConfig) {
   if (node.dataset.rigpaMegaMenuMounted === "true") {
     return;
   }
 
   node.dataset.rigpaMegaMenuMounted = "true";
+  applyMenuTextColor(node, config.menuTextColor);
 
   createRoot(node).render(
     <StrictMode>
-      <MegaMenuHeader menus={config.menus} lang={config.lang} />
+      <MegaMenuHeader
+        menus={config.menus}
+        lang={config.lang}
+        transparent={config.transparent !== false}
+      />
     </StrictMode>
   );
 }

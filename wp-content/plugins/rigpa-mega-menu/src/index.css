@@ -15,6 +15,7 @@
 }
 
 .rigpa-mega-menu-root {
+  --rigpa-mega-menu-item-color: #ffffff;
   font-family: var(--rigpamm-font-sans, "Inter", ui-sans-serif, system-ui, sans-serif);
   color: #171717;
   line-height: 1.5;
@@ -35,12 +36,204 @@
   padding-inline: 1.5rem;
 }
 
+/* Header bar — no borders; background controlled by transparent setting */
+.rigpa-mega-menu-root .rigpa-mega-menu-header {
+  position: relative;
+  width: 100%;
+  z-index: 50;
+  border: 0;
+  background: transparent;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header--solid {
+  background: #fff;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header--transparent {
+  background: transparent;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+}
+
+/* Desktop nav — spaced items via flex + margin */
+.rigpa-mega-menu-root .rigpa-mega-menu-desktop-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-nav-item {
+  position: relative;
+  margin-right: 2rem;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-nav-item:last-child {
+  margin-right: 0;
+}
+
+/* Menu bar items — colour from plugin setting; no background on hover */
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn {
+  padding: 1rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--rigpa-mega-menu-item-color, #ffffff);
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:active,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn--active,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:focus-visible {
+  color: var(--rigpa-mega-menu-item-color, #ffffff);
+  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+
 /* Dropdown panel card — fixed width, independent of root */
 .rigpa-mega-menu-root .rigpa-mega-menu-dropdown-inner {
   width: 890px;
   max-width: calc(100vw - 3rem);
   margin-inline: auto;
   padding-block: 1.5rem;
+}
+
+/* Desktop dropdown panel — namespaced, no Tailwind dependency */
+.rigpa-mega-menu-root .rigpa-mega-menu-panel {
+  display: grid;
+  gap: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+  grid-template-columns: 1fr;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel--with-featured {
+  grid-template-columns: 1fr 300px;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+  padding: 2rem;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: transparent !important;
+  border: 0;
+  box-shadow: none;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link::before,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-links img,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-links svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link img,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link svg {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #171717;
+  margin-bottom: 0.25rem;
+  transition: color 0.15s ease;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover .rigpa-mega-menu-panel-link-title,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:focus .rigpa-mega-menu-panel-link-title {
+  color: #525252;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link-desc {
+  display: block;
+  font-size: 0.75rem;
+  color: #737373;
+  line-height: 1.5;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured {
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  padding: 1.5rem;
+  border-left: 1px solid #e5e5e5;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-image-wrap {
+  aspect-ratio: 4 / 3;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #171717;
+  margin-bottom: 0.5rem;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-desc {
+  font-size: 0.75rem;
+  color: #525252;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-cta {
+  margin-top: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #171717;
+  text-decoration: none;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-cta:hover {
+  text-decoration: underline;
 }
 
 .rigpa-mega-menu-root img,
@@ -81,7 +274,11 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
   background: transparent;
+  border: 0;
   opacity: 0;
   transform: translateY(-10px);
   pointer-events: none;
@@ -120,32 +317,46 @@
   padding-bottom: 0.5rem;
 }
 
-/* Mobile toggle button */
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle {
+/* Mobile toggle button (menu bar) */
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #171717;
+  color: var(--rigpa-mega-menu-item-color, #ffffff);
   background: transparent;
+  background-color: transparent;
   border: 0;
+  box-shadow: none;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
 }
 
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle-icon {
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:active {
+  color: var(--rigpa-mega-menu-item-color, #ffffff);
+  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle-icon {
   display: block;
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+  color: var(--rigpa-mega-menu-item-color, #ffffff);
+  stroke: currentColor;
 }
 
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle-label {
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle-label {
   font-size: 0.875rem;
   font-weight: 500;
+  color: var(--rigpa-mega-menu-item-color, #ffffff);
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-sr-only {
@@ -162,7 +373,7 @@
 
 /* Mobile panel */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel {
-  border-top: 1px solid #e5e5e5;
+  border: 0;
   background: #fff;
   opacity: 0;
   transform: translateY(-10px);
@@ -183,10 +394,6 @@
 
 /* Mobile section accordion item */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-section {
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section:last-child {
   border-bottom: 0;
 }
 
@@ -232,7 +439,7 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item + .rigpa-mega-menu-mobile-link-item {
-  border-top: 1px solid #f5f5f5;
+  border-top: 0;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link {

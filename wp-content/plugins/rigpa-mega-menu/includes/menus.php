@@ -86,17 +86,26 @@ function rigpa_mega_menu_build_menus_from_nav($lang) {
 
         $parent_id = (int) $item->menu_item_parent;
         if ($parent_id === 0) {
+            $section_url = Rigpa_Mega_Menu_Sanitize::text((string) $item->url);
+            if ($section_url === '#' || $section_url === '') {
+                $section_url = '';
+            }
+
             $sections[(int) $item->ID] = array(
-                'label' => (string) $item->title,
+                'label' => Rigpa_Mega_Menu_Sanitize::text((string) $item->title),
+                'url'   => $section_url,
                 'items' => array(),
             );
 
             $featured = get_post_meta((int) $item->ID, '_rigpa_mega_menu_featured', true);
-            if (is_array($featured) && !empty($featured['title'])) {
-                if (!empty($featured['image']) && !str_starts_with((string) $featured['image'], 'http')) {
-                    $featured['image'] = home_url((string) $featured['image']);
+            if (is_array($featured)) {
+                $clean_featured = Rigpa_Mega_Menu_Sanitize::featured($featured);
+                if ($clean_featured !== null) {
+                    if (!empty($clean_featured['image']) && !str_starts_with($clean_featured['image'], 'http')) {
+                        $clean_featured['image'] = home_url($clean_featured['image']);
+                    }
+                    $sections[(int) $item->ID]['featured'] = $clean_featured;
                 }
-                $sections[(int) $item->ID]['featured'] = $featured;
             }
             continue;
         }
@@ -114,11 +123,24 @@ function rigpa_mega_menu_build_menus_from_nav($lang) {
 
     foreach ($sections as $section_id => $section) {
         foreach ($children_by_parent[$section_id] ?? array() as $child) {
-            $section['items'][] = array(
-                'title'       => (string) $child->title,
-                'description' => (string) $child->description,
-                'url'         => (string) $child->url,
+            $link = Rigpa_Mega_Menu_Sanitize::menu_link(
+                array(
+                    'title'       => (string) $child->title,
+                    'description' => (string) $child->description,
+                    'url'         => (string) $child->url,
+                )
             );
+
+            if ($link['title'] === '') {
+                continue;
+            }
+
+            $section['items'][] = $link;
+        }
+
+        if ($section['items'] === array() && $section['url'] === '') {
+            unset($sections[$section_id]);
+            continue;
         }
 
         $sections[$section_id] = $section;

@@ -1,4 +1,4 @@
-.PHONY: up down logs setup wp prod-up prod-down reset build-map build-mega-menu package-plugin package-mega-menu seed-mega-menu-pages seed-mega-menu-nav
+.PHONY: up down logs setup wp prod-up prod-down reset build-map build-mega-menu package-plugin package-mega-menu seed-mega-menu-pages seed-mega-menu-nav duplicate-mega-menu-main sync-mega-menu-descriptions clear-mega-menu-descriptions
 
 up:
 	docker compose up -d
@@ -62,3 +62,12 @@ seed-mega-menu-pages:
 
 seed-mega-menu-nav:
 	docker compose --profile tools run --rm -v "$(PWD)/scripts:/scripts:ro" wp-cli wp --allow-root eval-file /scripts/seed-mega-menu-nav.php
+
+duplicate-mega-menu-main:
+	docker compose --profile tools run --rm -v "$(PWD)/scripts:/scripts:ro" wp-cli wp --allow-root eval-file /scripts/duplicate-mega-menu-main.php
+
+sync-mega-menu-descriptions:
+	docker compose --profile tools run --rm -v "$(PWD)/scripts:/scripts:ro" wp-cli wp --allow-root eval-file /scripts/sync-mega-menu-descriptions.php add
+
+clear-mega-menu-descriptions:
+	docker compose --profile tools run --rm -v "$(PWD)/scripts:/scripts:ro" wp-cli wp --allow-root eval-file /scripts/sync-mega-menu-descriptions.php clear

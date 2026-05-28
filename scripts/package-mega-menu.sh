@@ -16,6 +16,12 @@ required=(
   "${PLUGIN_DIR}/rigpa-mega-menu.php"
   "${PLUGIN_DIR}/includes/class-rigpa-mega-menu.php"
   "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-admin.php"
+  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-seeder.php"
+  "${PLUGIN_DIR}/includes/menu-descriptions.php"
+  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-description-sync.php"
+  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-sanitize.php"
+  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-settings.php"
+  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-duplicator.php"
   "${PLUGIN_DIR}/includes/menus.php"
   "${PLUGIN_DIR}/assets/js/rigpa-mega-menu.js"
   "${PLUGIN_DIR}/assets/css/rigpa-mega-menu.css"
@@ -37,7 +43,10 @@ fi
 mkdir -p "${DIST_DIR}"
 rm -f "${ZIP_FILE}"
 
-(cd "${ROOT}/wp-content/plugins" && zip -r "${ZIP_FILE}" "${PLUGIN_SLUG}" -x "*.DS_Store" -x "**/.DS_Store" -x "**/node_modules/**")
+(cd "${ROOT}/wp-content/plugins" && zip -r "${ZIP_FILE}" "${PLUGIN_SLUG}" \
+  -x "*.DS_Store" \
+  -x "**/.DS_Store" \
+  -x "${PLUGIN_SLUG}/src/**")
 
 echo ""
 echo "Plugin package ready:"

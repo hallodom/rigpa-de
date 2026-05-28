@@ -13,6 +13,7 @@ export interface FeaturedCard {
 
 export interface MenuSection {
   label: string;
+  url?: string;
   items: MenuItem[];
   featured?: FeaturedCard;
 }
@@ -21,6 +22,8 @@ export interface RigpaMegaMenuConfig {
   assetsUrl: string;
   lang: "english" | "german";
   menus: MenuSection[];
+  transparent?: boolean;
+  menuTextColor?: string;
 }
 
 declare global {

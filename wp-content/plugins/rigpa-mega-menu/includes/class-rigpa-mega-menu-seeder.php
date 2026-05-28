@@ -76,16 +76,62 @@ class Rigpa_Mega_Menu_Seeder {
 
     /**
      * @param int $menu_id
+     * @return int Number of items removed.
      */
     public static function clear_menu($menu_id) {
         $items = wp_get_nav_menu_items($menu_id, array('update_post_term_cache' => false));
         if (!is_array($items)) {
-            return;
+            return 0;
         }
 
+        $count = count($items);
         foreach ($items as $item) {
             wp_delete_post((int) $item->ID, true);
         }
+
+        return $count;
+    }
+
+    /**
+     * Remove all items from a language menu and unassign the plugin location.
+     *
+     * @param string $lang english|german
+     * @return array{menu_name: string, items_removed: int, location: string}|\WP_Error
+     */
+    public static function clear_lang($lang) {
+        if ($lang !== 'english' && $lang !== 'german') {
+            return new WP_Error('rigpa_mega_menu_invalid_lang', __('Invalid language.', 'rigpa-mega-menu'));
+        }
+
+        $menu_name = $lang === 'german' ? 'Mega Menu (German)' : 'Mega Menu (English)';
+        $location  = rigpa_mega_menu_location_for_lang($lang);
+        $removed   = 0;
+
+        $menu = wp_get_nav_menu_object($menu_name);
+        if ($menu instanceof WP_Term) {
+            $removed = self::clear_menu((int) $menu->term_id);
+        }
+
+        self::unassign_location($location);
+
+        return array(
+            'menu_name'     => $menu_name,
+            'items_removed' => $removed,
+            'location'      => $location,
+        );
+    }
+
+    /**
+     * @param string $location
+     */
+    public static function unassign_location($location) {
+        $locations = get_theme_mod('nav_menu_locations', array());
+        if (!is_array($locations)) {
+            return;
+        }
+
+        unset($locations[$location]);
+        set_theme_mod('nav_menu_locations', $locations);
     }
 
     /**
@@ -132,12 +178,12 @@ class Rigpa_Mega_Menu_Seeder {
             $page    = $path !== '' ? get_page_by_path($path, OBJECT, 'page') : null;
             $page_id = $page instanceof WP_Post ? (int) $page->ID : 0;
 
-            $args = array(
-                'menu-item-title'       => (string) $item['title'],
-                'menu-item-description' => (string) $item['description'],
-                'menu-item-status'      => 'publish',
-                'menu-item-parent-id'   => (int) $parent_id,
-            );
+        $args = array(
+            'menu-item-title'       => Rigpa_Mega_Menu_Sanitize::text((string) $item['title']),
+            'menu-item-description' => Rigpa_Mega_Menu_Sanitize::text((string) $item['description']),
+            'menu-item-status'      => 'publish',
+            'menu-item-parent-id'   => (int) $parent_id,
+        );
 
             if ($page_id > 0) {
                 $args['menu-item-type']      = 'post_type';

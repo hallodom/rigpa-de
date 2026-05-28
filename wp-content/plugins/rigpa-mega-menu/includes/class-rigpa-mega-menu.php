@@ -43,9 +43,15 @@ class Rigpa_Mega_Menu {
             ? 'rigpa-mega-menu-root'
             : 'rigpa-mega-menu-root-' . self::$instance_count;
 
+        $mode_class = Rigpa_Mega_Menu_Settings::is_transparent()
+            ? 'rigpa-mega-menu-root--transparent'
+            : 'rigpa-mega-menu-root--solid';
+
         return sprintf(
-            '<div id="%s" class="rigpa-mega-menu-wrapper rigpa-mega-menu-root" role="navigation" aria-label="%s"></div>',
+            '<div id="%s" class="rigpa-mega-menu-wrapper rigpa-mega-menu-root %s"%s role="navigation" aria-label="%s"></div>',
             esc_attr($id),
+            esc_attr($mode_class),
+            Rigpa_Mega_Menu_Settings::get_root_color_style_attribute(),
             esc_attr__('Main', 'rigpa-mega-menu')
         );
     }
@@ -92,10 +98,17 @@ class Rigpa_Mega_Menu {
             'rigpa-mega-menu',
             'rigpaMegaMenu',
             array(
-                'assetsUrl' => RIGPA_MEGA_MENU_URL . 'assets/',
-                'lang'      => self::$resolved_lang,
-                'menus'     => $menus,
+                'assetsUrl'   => RIGPA_MEGA_MENU_URL . 'assets/',
+                'lang'        => self::$resolved_lang,
+                'menus'       => $menus,
+                'transparent'   => Rigpa_Mega_Menu_Settings::is_transparent(),
+                'menuTextColor' => Rigpa_Mega_Menu_Settings::get_menu_text_color(),
             )
+        );
+
+        wp_add_inline_style(
+            'rigpa-mega-menu',
+            '.rigpa-mega-menu-root {' . Rigpa_Mega_Menu_Settings::get_root_color_style_declaration() . '}'
         );
 
         wp_add_inline_style(
@@ -152,8 +165,6 @@ class Rigpa_Mega_Menu {
 
 .rigpa-mega-menu-root img,
 .rigpa-mega-menu-root svg,
-.rigpa-mega-menu-root .rigpa-mega-menu-panel img,
-.rigpa-mega-menu-root .rigpa-mega-menu-panel svg,
 .elementor .rigpa-mega-menu-root img,
 .elementor .rigpa-mega-menu-root svg,
 .elementor-widget .rigpa-mega-menu-root img,
@@ -170,11 +181,69 @@ class Rigpa_Mega_Menu {
     vertical-align: middle;
 }
 
-.rigpa-mega-menu-root .rigpa-mega-menu-panel img {
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-image-wrap img,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-image,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-image-wrap img,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-image-wrap img {
     width: 100% !important;
     height: 100% !important;
     max-width: 100% !important;
-    object-fit: cover;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-links img,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-links svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link img,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link svg,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-links img,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-link img,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-links img,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-link img {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link::before,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link::after,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-link::before,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-link::after,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-link::before,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-link::after {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    background-image: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-links a,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-link,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-link {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-link:active,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
 }
 
 .rigpa-mega-menu-root nav,
@@ -259,8 +328,56 @@ class Rigpa_Mega_Menu {
     border: 0 !important;
 }
 
-.rigpa-mega-menu-root .rigpa-mega-menu-header {
+.rigpa-mega-menu-root.rigpa-mega-menu-root--solid .rigpa-mega-menu-header {
     background-color: #fff !important;
+}
+
+.rigpa-mega-menu-root.rigpa-mega-menu-root--transparent .rigpa-mega-menu-header {
+    background-color: transparent !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header,
+.rigpa-mega-menu-root .rigpa-mega-menu-nav-btn,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn {
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle-label,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle {
+    color: var(--rigpa-mega-menu-item-color, #ffffff) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:active,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn--active,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:active,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:hover,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:focus,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:active,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:hover,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle:hover {
+    color: var(--rigpa-mega-menu-item-color, #ffffff) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle-icon {
+    color: var(--rigpa-mega-menu-item-color, #ffffff) !important;
+    stroke: currentColor !important;
 }
 CSS;
     }
