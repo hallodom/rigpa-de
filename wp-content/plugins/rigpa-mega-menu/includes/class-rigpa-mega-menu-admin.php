@@ -797,17 +797,17 @@ class Rigpa_Mega_Menu_Admin {
                                                     style="width: 100%;">
                                             </td>
                                             <td>
-                                                <input type="url" class="regular-text"
+                                                <input type="text" class="regular-text"
                                                     name="rigpa_featured[<?php echo esc_attr($section['item_id']); ?>][image]"
                                                     value="<?php echo esc_attr($section['featured']['image'] ?? ''); ?>"
-                                                    placeholder="https://..."
+                                                    placeholder="https://... or /path/to/image.jpg"
                                                     style="width: 100%;">
                                                 <?php if (!empty($section['featured']['image'])) : ?>
                                                     <img src="<?php echo esc_url($section['featured']['image']); ?>" style="max-width: 80px; max-height: 40px; margin-top: 4px; display: block; border-radius: 3px;" alt="">
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <input type="url" class="regular-text"
+                                                <input type="text" class="regular-text"
                                                     name="rigpa_featured[<?php echo esc_attr($section['item_id']); ?>][url]"
                                                     value="<?php echo esc_attr($section['featured']['url'] ?? ''); ?>"
                                                     placeholder="/page-slug/"

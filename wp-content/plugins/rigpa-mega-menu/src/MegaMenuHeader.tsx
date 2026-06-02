@@ -120,13 +120,13 @@ export default function MegaMenuHeader({
 }: MegaMenuHeaderProps) {
   const baseId = useId().replace(/:/g, "");
   const rootRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const PANEL_WIDTH = 890;
-  const PANEL_OFFSET_LEFT = -20; // nudge slightly left of the trigger button
-  const SCREEN_MARGIN = 12;      // minimum gap from viewport edges
+  const SCREEN_MARGIN = 48;      // minimum gap from viewport edges
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [renderedIndex, setRenderedIndex] = useState<number | null>(null);
@@ -142,20 +142,32 @@ export default function MegaMenuHeader({
     if (!el) return 0;
 
     const rect = el.getBoundingClientRect();
-    // Ideal position: align left edge of panel slightly left of the trigger
-    let left = PANEL_OFFSET_LEFT;
+    // Ideal position: center the panel under the midpoint of the trigger so it
+    // stays balanced and shifts as little as possible between items.
+    let left = rect.width / 2 - PANEL_WIDTH / 2;
+
+    // Use the centered content container's edges as the clamp boundary so the
+    // panel aligns with the menu content rather than the raw viewport edge.
+    const inner = innerRef.current;
+    const innerRect = inner ? inner.getBoundingClientRect() : null;
+    const leftBound = innerRect
+      ? Math.max(innerRect.left, SCREEN_MARGIN)
+      : SCREEN_MARGIN;
+    const rightBound = innerRect
+      ? Math.min(innerRect.right, window.innerWidth - SCREEN_MARGIN)
+      : window.innerWidth - SCREEN_MARGIN;
 
     const panelScreenLeft = rect.left + left;
     const panelScreenRight = panelScreenLeft + PANEL_WIDTH;
 
-    // If panel would bleed off the right edge, pull it left
-    if (panelScreenRight > window.innerWidth - SCREEN_MARGIN) {
-      left -= panelScreenRight - (window.innerWidth - SCREEN_MARGIN);
+    // If panel would bleed past the right boundary, pull it left
+    if (panelScreenRight > rightBound) {
+      left -= panelScreenRight - rightBound;
     }
 
-    // If panel would bleed off the left edge, push it right
-    if (rect.left + left < SCREEN_MARGIN) {
-      left = SCREEN_MARGIN - rect.left;
+    // If panel would bleed past the left boundary, push it right
+    if (rect.left + left < leftBound) {
+      left = leftBound - rect.left;
     }
 
     return left;
@@ -267,7 +279,7 @@ export default function MegaMenuHeader({
 
   return (
     <div ref={rootRef} className={headerClass}>
-      <div className="rigpa-mega-menu-inner">
+      <div ref={innerRef} className="rigpa-mega-menu-inner">
         <div className="rigpa-mega-menu-header-row">
           {isDesktop ? (
             <nav className="rigpa-mega-menu-desktop-nav" aria-label={menuLabel}>
@@ -315,6 +327,18 @@ export default function MegaMenuHeader({
                       }
                     >
                       {menu.label}
+                      <svg
+                        className="rigpa-mega-menu-nav-chevron"
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        aria-hidden="true"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                      </svg>
                     </button>
 
                     {isRendered && (

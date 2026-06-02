@@ -139,8 +139,8 @@ function rigpa_mega_menu_build_menus_from_nav($lang) {
         }
 
         if ($section['items'] === array() && $section['url'] === '') {
-            unset($sections[$section_id]);
-            continue;
+            // Keep childless sections as non-interactive labels rather than dropping them.
+            // They appear in the nav bar but have no dropdown.
         }
 
         $sections[$section_id] = $section;

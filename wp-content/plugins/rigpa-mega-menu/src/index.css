@@ -87,6 +87,19 @@
   border: 0;
   box-shadow: none;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-chevron {
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn--active .rigpa-mega-menu-nav-chevron {
+  transform: rotate(180deg);
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-btn:hover,
@@ -125,19 +138,27 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-links {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem 2rem;
-  padding: 2rem;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 1.75rem 2.5rem !important;
+  padding: 2rem !important;
+  margin: 0 !important;
+  list-style: none !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link {
-  display: block;
-  text-decoration: none;
-  color: inherit;
+  display: block !important;
+  text-decoration: none !important;
+  color: inherit !important;
   background: transparent !important;
-  border: 0;
-  box-shadow: none;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  text-align: left !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
@@ -167,24 +188,38 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link-title {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #171717;
-  margin-bottom: 0.25rem;
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #171717 !important;
+  margin: 0 0 0.25rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
   transition: color 0.15s ease;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover .rigpa-mega-menu-panel-link-title,
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:focus .rigpa-mega-menu-panel-link-title {
-  color: #525252;
+  color: #525252 !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link-desc {
-  display: block;
-  font-size: 0.75rem;
-  color: #737373;
-  line-height: 1.5;
+  display: block !important;
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  color: #9a9a9a !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  font-style: normal !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-featured {
