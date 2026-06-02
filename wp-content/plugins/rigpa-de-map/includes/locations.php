@@ -54,8 +54,8 @@ function rigpa_de_map_get_locations() {
                 'coords' => array('x' => 406, 'y' => 142),
             ),
             array(
-                'id'     => 'berlin',
-                'name'   => 'Berlin',
+                'id'     => 'dharma-mati-berlin',
+                'name'   => 'Dharma Mati Berlin',
                 'region' => 'Centre',
                 'url'    => '',
                 'coords' => array('x' => 386, 'y' => 132),
@@ -94,6 +94,13 @@ function rigpa_de_map_get_locations() {
                 'region' => 'Centre',
                 'url'    => '',
                 'coords' => array('x' => 216, 'y' => 354),
+            ),
+            array(
+                'id'     => 'hannover',
+                'name'   => 'Hannover',
+                'region' => 'Group',
+                'url'    => '',
+                'coords' => array('x' => 263, 'y' => 125),
             ),
         ),
         'right' => array(

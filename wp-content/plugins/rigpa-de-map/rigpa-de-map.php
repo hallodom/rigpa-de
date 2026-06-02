@@ -22,5 +22,35 @@ require_once RIGPA_DE_MAP_PATH . 'includes/locations.php';
 require_once RIGPA_DE_MAP_PATH . 'includes/class-rigpa-de-map.php';
 require_once RIGPA_DE_MAP_PATH . 'includes/class-rigpa-de-map-admin.php';
 
+register_activation_hook(__FILE__, 'rigpa_de_map_activate');
+
+/**
+ * On first activation, seed the URLs option with the known German centre paths.
+ * Uses add_option so manually saved URLs are never overwritten on re-activation.
+ */
+function rigpa_de_map_activate() {
+    $seed = array(
+        'aachen'             => '/centres/aachen/',
+        'bad-saarow'         => '/centres/bad-saarow/',
+        'bielefeld'          => '/centres/bielefeld/',
+        'bremen'             => '/centres/bremen/',
+        'dharma-mati-berlin' => '/centres/dharma-mati-berlin/',
+        'duesseldorf'        => '/centres/dusseldorf/',
+        'frankfurt'          => '/centres/frankfurt/',
+        'freiburg'           => '/centres/freiburg/',
+        'fuerth'             => '/centres/furth/',
+        'hamburg'            => '/centres/hamburg/',
+        'hannover'           => '/centres/hannover/',
+        'heidelberg'         => '/centres/heidelberg/',
+        'kassel'             => '/centres/kassel/',
+        'koeln'              => '/centres/cologne/',
+        'muenchen'           => '/centres/munich/',
+        'stuttgart'          => '/centres/stuttgart/',
+        'wiesbaden'          => '/centres/wiesbaden/',
+    );
+
+    add_option(RIGPA_DE_MAP_URLS_OPTION, $seed, '', false);
+}
+
 Rigpa_De_Map::init();
 Rigpa_De_Map_Admin::init();
