@@ -81,14 +81,14 @@ class Rigpa_Mega_Menu {
             'rigpa-mega-menu',
             RIGPA_MEGA_MENU_URL . 'assets/css/rigpa-mega-menu.css',
             array('rigpa-mega-menu-fonts'),
-            (string) filemtime($css_path)
+            RIGPA_MEGA_MENU_VERSION . '.' . (string) filemtime($css_path)
         );
 
         wp_enqueue_script(
             'rigpa-mega-menu',
             RIGPA_MEGA_MENU_URL . 'assets/js/rigpa-mega-menu.js',
             array(),
-            (string) filemtime($js_path),
+            RIGPA_MEGA_MENU_VERSION . '.' . (string) filemtime($js_path),
             true
         );
 
@@ -233,7 +233,9 @@ class Rigpa_Mega_Menu {
     background-image: none !important;
     box-shadow: none !important;
     border: 0 !important;
-    padding: 0 !important;
+    padding: 0.625rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+    transition: background-color 0.15s ease !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
@@ -241,8 +243,8 @@ class Rigpa_Mega_Menu {
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:active,
 .elementor .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
 .elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover {
-    background: transparent !important;
-    background-color: transparent !important;
+    background: rgba(0, 0, 0, 0.04) !important;
+    background-color: rgba(0, 0, 0, 0.04) !important;
     background-image: none !important;
 }
 
@@ -378,6 +380,31 @@ class Rigpa_Mega_Menu {
 .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle-icon {
     color: var(--rigpa-mega-menu-item-color, #ffffff) !important;
     stroke: currentColor !important;
+}
+
+/* Dropdown wrapper enter/exit — prevent Elementor/theme from overriding the transition */
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-dropdown,
+.elementor-widget .rigpa-mega-menu-root .rigpa-mega-menu-dropdown {
+    transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Inner panel/links must NOT animate — swap is instant when hovering between items */
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown .rigpa-mega-menu-panel,
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown .rigpa-mega-menu-panel-link,
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown .rigpa-mega-menu-panel-featured,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-dropdown .rigpa-mega-menu-panel,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-dropdown .rigpa-mega-menu-panel-link,
+.elementor .rigpa-mega-menu-root .rigpa-mega-menu-dropdown .rigpa-mega-menu-panel-featured {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rigpa-mega-menu-root .rigpa-mega-menu-dropdown {
+        transition: none !important;
+    }
 }
 CSS;
     }

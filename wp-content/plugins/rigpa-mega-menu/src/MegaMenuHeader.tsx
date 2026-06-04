@@ -139,35 +139,36 @@ export default function MegaMenuHeader({
 
   const calculatePanelLeft = useCallback((index: number) => {
     const el = itemRefs.current[index];
-    if (!el) return 0;
+    const root = rootRef.current;
+    if (!el || !root) return 0;
 
     const rect = el.getBoundingClientRect();
-    // Ideal position: center the panel under the midpoint of the trigger so it
-    // stays balanced and shifts as little as possible between items.
-    let left = rect.width / 2 - PANEL_WIDTH / 2;
+    const rootRect = root.getBoundingClientRect();
 
-    // Use the centered content container's edges as the clamp boundary so the
-    // panel aligns with the menu content rather than the raw viewport edge.
+    // Ideal: centre the panel under the midpoint of the trigger.
+    // Coordinates are relative to the header root (position: relative).
+    const triggerCenterFromRoot = rect.left - rootRect.left + rect.width / 2;
+    let left = triggerCenterFromRoot - PANEL_WIDTH / 2;
+
+    // Clamp to the centered content container so the panel aligns with menu
+    // content rather than bleeding past the viewport edges.
     const inner = innerRef.current;
     const innerRect = inner ? inner.getBoundingClientRect() : null;
-    const leftBound = innerRect
+    const leftBoundScreen = innerRect
       ? Math.max(innerRect.left, SCREEN_MARGIN)
       : SCREEN_MARGIN;
-    const rightBound = innerRect
+    const rightBoundScreen = innerRect
       ? Math.min(innerRect.right, window.innerWidth - SCREEN_MARGIN)
       : window.innerWidth - SCREEN_MARGIN;
 
-    const panelScreenLeft = rect.left + left;
-    const panelScreenRight = panelScreenLeft + PANEL_WIDTH;
+    const leftBound = leftBoundScreen - rootRect.left;
+    const rightBound = rightBoundScreen - rootRect.left;
 
-    // If panel would bleed past the right boundary, pull it left
-    if (panelScreenRight > rightBound) {
-      left -= panelScreenRight - rightBound;
+    if (left + PANEL_WIDTH > rightBound) {
+      left = rightBound - PANEL_WIDTH;
     }
-
-    // If panel would bleed past the left boundary, push it right
-    if (rect.left + left < leftBound) {
-      left = leftBound - rect.left;
+    if (left < leftBound) {
+      left = leftBound;
     }
 
     return left;
@@ -211,8 +212,14 @@ export default function MegaMenuHeader({
   useEffect(() => {
     if (activeIndex !== null) {
       setRenderedIndex(activeIndex);
-      const frame = requestAnimationFrame(() => setPanelVisible(true));
-      return () => cancelAnimationFrame(frame);
+      let innerFrame = 0;
+      const outerFrame = requestAnimationFrame(() => {
+        innerFrame = requestAnimationFrame(() => setPanelVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(outerFrame);
+        cancelAnimationFrame(innerFrame);
+      };
     }
 
     setPanelVisible(false);
@@ -223,8 +230,17 @@ export default function MegaMenuHeader({
   useEffect(() => {
     if (mobileOpen) {
       setMobileRendered(true);
-      const frame = requestAnimationFrame(() => setMobileVisible(true));
-      return () => cancelAnimationFrame(frame);
+      // Double rAF: the panel mounts at `grid-template-rows: 0fr`, and we must
+      // let the browser commit that starting layout before flipping to `1fr`,
+      // otherwise the open transition is skipped and the panel pops open.
+      let innerFrame = 0;
+      const outerFrame = requestAnimationFrame(() => {
+        innerFrame = requestAnimationFrame(() => setMobileVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(outerFrame);
+        cancelAnimationFrame(innerFrame);
+      };
     }
 
     setMobileVisible(false);
@@ -341,22 +357,6 @@ export default function MegaMenuHeader({
                       </svg>
                     </button>
 
-                    {isRendered && (
-                      <div
-                        className={`rigpa-mega-menu-dropdown ${
-                          panelVisible ? "rigpa-mega-menu-dropdown--open" : ""
-                        }`}
-                        style={{ left: `${panelLeft}px` }}
-                      >
-                        <div className="rigpa-mega-menu-dropdown-inner">
-                          <MenuPanel
-                            menu={menu}
-                            lang={lang}
-                            panelId={panelId}
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -401,6 +401,25 @@ export default function MegaMenuHeader({
         </div>
       </div>
 
+      {isDesktop && renderedIndex !== null && (
+        <div
+          className={`rigpa-mega-menu-dropdown ${
+            panelVisible ? "rigpa-mega-menu-dropdown--open" : ""
+          }`}
+          style={{ left: `${panelLeft}px` }}
+          onMouseEnter={clearHoverTimeout}
+          onMouseLeave={scheduleCloseDesktopPanel}
+        >
+          <div className="rigpa-mega-menu-dropdown-inner">
+            <MenuPanel
+              menu={menus[renderedIndex]}
+              lang={lang}
+              panelId={`${baseId}-panel-${renderedIndex}`}
+            />
+          </div>
+        </div>
+      )}
+
       {!isDesktop && mobileRendered && (
         <div
           id={`${baseId}-mobile-menu`}
@@ -408,6 +427,7 @@ export default function MegaMenuHeader({
             mobileVisible ? "rigpa-mega-menu-mobile-panel--open" : ""
           }`}
         >
+          <div className="rigpa-mega-menu-mobile-panel-content">
           <nav aria-label={menuLabel} className="rigpa-mega-menu-mobile-nav">
             {menus.map((menu, index) => {
               const bodyId = `${baseId}-mobile-body-${index}`;
@@ -477,6 +497,7 @@ export default function MegaMenuHeader({
               );
             })}
           </nav>
+          </div>
         </div>
       )}
     </div>

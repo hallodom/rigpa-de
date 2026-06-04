@@ -6,6 +6,8 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* No @keyframes needed — transitions + @starting-style handle all enter animations */
+
 /* Scoped base reset — replaces global Tailwind preflight inside the menu only. */
 .rigpa-mega-menu-root,
 .rigpa-mega-menu-root *,
@@ -93,6 +95,12 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-nav-chevron {
+  display: inline-block !important;
+  visibility: visible !important;
+  width: 10px !important;
+  height: 10px !important;
+  max-width: none !important;
+  max-height: none !important;
   opacity: 0.7;
   transition: transform 0.2s ease;
   flex-shrink: 0;
@@ -140,8 +148,8 @@
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-links {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 1.75rem 2.5rem !important;
-  padding: 2rem !important;
+  gap: 0.5rem 1rem !important;
+  padding: 1.25rem !important;
   margin: 0 !important;
   list-style: none !important;
 }
@@ -156,16 +164,18 @@
   border: 0 !important;
   box-shadow: none !important;
   outline: none !important;
-  padding: 0 !important;
+  padding: 0.625rem 0.75rem !important;
   margin: 0 !important;
   text-align: left !important;
+  border-radius: 0.5rem !important;
+  transition: background-color 0.15s ease !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:hover,
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:focus,
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-link:active {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
   box-shadow: none !important;
 }
 
@@ -308,25 +318,43 @@
   padding: 0;
 }
 
+/*
+ * Desktop dropdown — single persistent element. The wrapper alone owns the
+ * enter/exit transition. Inner content (panel/links/featured) does NOT animate
+ * so swapping menus while open is instant.
+ *
+ * @starting-style fires the first time the dropdown is rendered → enter animation.
+ * Removing --open while still rendered → exit animation runs in reverse.
+ * Supported: Chrome 117+, Firefox 129+, Safari 17.5+ (all 2023–2024).
+ */
 .rigpa-mega-menu-root .rigpa-mega-menu-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
   background: transparent;
   border: 0;
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-  transition:
-    opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.rigpa-mega-menu-root .rigpa-mega-menu-dropdown.rigpa-mega-menu-dropdown--open,
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel.rigpa-mega-menu-mobile-panel--open {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown.rigpa-mega-menu-dropdown--open {
   pointer-events: auto;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-dropdown:not(.rigpa-mega-menu-dropdown--open) {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@starting-style {
+  .rigpa-mega-menu-root .rigpa-mega-menu-dropdown {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -340,7 +368,7 @@
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open {
@@ -348,8 +376,48 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion-inner {
+  min-height: 0;
   overflow: hidden;
+  padding-bottom: 0;
+  transform: translateY(-6px);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-accordion-inner {
   padding-bottom: 0.5rem;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion-inner {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Mobile link items — @starting-style fires when accordion first opens */
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.2s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(1) { transition-delay: 0.04s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(2) { transition-delay: 0.08s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(3) { transition-delay: 0.12s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(4) { transition-delay: 0.16s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(5) { transition-delay: 0.20s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(6) { transition-delay: 0.24s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(7) { transition-delay: 0.28s; }
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item:nth-child(8) { transition-delay: 0.32s; }
+
+@starting-style {
+  .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
 /* Mobile toggle button (menu bar) */
@@ -406,50 +474,96 @@
   border: 0;
 }
 
-/* Mobile panel */
+/* Mobile panel — height expands from zero */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel {
-  border: 0;
-  background: #fff;
-  opacity: 0;
-  transform: translateY(-10px);
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
-  transition:
-    opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel.rigpa-mega-menu-mobile-panel--open {
+  grid-template-rows: 1fr;
+  pointer-events: auto;
+}
+
+/* Inner wrapper required for grid height trick */
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel-content {
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-nav {
-  width: 100%;
-  max-width: 890px;
-  margin-inline: auto;
-  padding-inline: 1.5rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.75rem;
+  width: 100% !important;
+  max-width: 890px !important;
+  margin-inline: auto !important;
+  padding-inline: 1.5rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.75rem !important;
+  background: transparent !important;
+  background-image: none !important;
+  list-style: none !important;
 }
 
 /* Mobile section accordion item */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-section {
-  border-bottom: 0;
+  border-bottom: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section::before,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section::after {
+  content: none !important;
+  display: none !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.875rem 0.25rem;
-  text-align: left;
-  background: transparent;
-  border: 0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 1rem) !important;
+  margin: 0 0.5rem !important;
+  padding: 0.875rem 0.75rem !important;
+  text-align: left !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  transition: background-color 0.15s ease !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn:active {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn::before,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-btn::after {
+  content: none !important;
+  display: none !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-section-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #171717;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #171717 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-family: inherit !important;
 }
 
 /* Chevron icon — small and controlled */
@@ -459,7 +573,7 @@
   height: 12px;
   flex-shrink: 0;
   color: #a3a3a3;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-chevron--open {
@@ -468,21 +582,97 @@
 
 /* Mobile link list */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-links {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item {
+  list-style: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item + .rigpa-mega-menu-mobile-link-item {
-  border-top: 0;
+  border-top: 0 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item::before,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link {
-  display: flex;
-  flex-direction: column;
-  padding: 0.625rem 1.25rem;
-  text-decoration: none;
-  color: inherit;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0.625rem 0.75rem !important;
+  margin: 0 0.5rem !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link:focus,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link:active {
+  background: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link::before,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+/* Hide stray images/SVGs injected by theme/page-builder in mobile links */
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-links img,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-links svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link img,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item img,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-item svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section img,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-section svg,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-nav img,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-nav svg {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+}
+
+/* Preserve intentional SVG icons (chevrons, toggle icon) */
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-chevron,
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle-icon {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  max-width: none !important;
+  max-height: none !important;
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle-icon {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link:hover .rigpa-mega-menu-mobile-link-title {
@@ -490,22 +680,42 @@
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #262626;
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #262626 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-family: inherit !important;
+  line-height: 1.4 !important;
   transition: color 0.15s;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-link-desc {
-  font-size: 0.75rem;
-  color: #737373;
-  line-height: 1.5;
-  margin-top: 0.125rem;
+  display: block !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  color: #737373 !important;
+  line-height: 1.5 !important;
+  margin: 0.125rem 0 0 0 !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  font-family: inherit !important;
+  font-style: normal !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel,
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion,
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-chevron {
+    transition: none;
+  }
+
+  .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item {
     transition: none;
   }
 }
