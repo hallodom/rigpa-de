@@ -658,9 +658,14 @@
   overflow: hidden !important;
 }
 
-/* Preserve intentional SVG icons (chevrons, toggle icon) */
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-chevron,
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle-icon {
+/*
+ * Preserve intentional SVG icons (chevrons, toggle icon).
+ * Qualified with `svg` so these match the (0,2,1) specificity of the
+ * "hide stray SVG" rules above (e.g. `.mobile-section svg`); since they come
+ * later in source order they win, keeping the chevrons visible.
+ */
+.rigpa-mega-menu-root svg.rigpa-mega-menu-mobile-chevron,
+.rigpa-mega-menu-root svg.rigpa-mega-menu-mobile-toggle-icon {
   display: block !important;
   width: 12px !important;
   height: 12px !important;
@@ -670,7 +675,7 @@
   overflow: visible !important;
 }
 
-.rigpa-mega-menu-root .rigpa-mega-menu-mobile-toggle-icon {
+.rigpa-mega-menu-root svg.rigpa-mega-menu-mobile-toggle-icon {
   width: 18px !important;
   height: 18px !important;
 }
