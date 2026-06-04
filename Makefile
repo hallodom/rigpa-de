@@ -49,6 +49,14 @@ build-mega-menu:
 		curl -fsSL "https://images.unsplash.com/photo-1776100882982-237106f1471d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400" \
 			-o wp-content/plugins/rigpa-mega-menu/assets/images/featured-visit.jpg; \
 	fi
+	@if [ ! -f wp-content/plugins/rigpa-mega-menu/assets/images/dzogchen-beara.jpg ]; then \
+		curl -fsSL "https://images.unsplash.com/photo-1761407627917-ba68e55ea612?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&w=600&h=360&q=70" \
+			-o wp-content/plugins/rigpa-mega-menu/assets/images/dzogchen-beara.jpg; \
+	fi
+	@if [ ! -f wp-content/plugins/rigpa-mega-menu/assets/images/lerab-ling.jpg ]; then \
+		curl -fsSL "https://images.unsplash.com/photo-1770234848923-f4c14f3c87fa?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&w=600&h=360&q=70" \
+			-o wp-content/plugins/rigpa-mega-menu/assets/images/lerab-ling.jpg; \
+	fi
 	cd wp-content/plugins/rigpa-mega-menu/src && npm install && npm run build
 
 package-plugin:

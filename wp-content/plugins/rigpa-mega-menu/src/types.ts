@@ -16,6 +16,7 @@ export interface MenuSection {
   url?: string;
   items: MenuItem[];
   featured?: FeaturedCard;
+  featuredCentres?: FeaturedCard[];
 }
 
 export interface RigpaMegaMenuConfig {

@@ -107,6 +107,19 @@ function rigpa_mega_menu_build_menus_from_nav($lang) {
                     $sections[(int) $item->ID]['featured'] = $clean_featured;
                 }
             }
+
+            $featured_centres = get_post_meta((int) $item->ID, '_rigpa_mega_menu_featured_centres', true);
+            if (is_array($featured_centres) && $featured_centres !== array()) {
+                $clean_centres = Rigpa_Mega_Menu_Sanitize::featured_centres($featured_centres);
+                if ($clean_centres !== array()) {
+                    foreach ($clean_centres as $index => $centre) {
+                        if (!empty($centre['image']) && !str_starts_with($centre['image'], 'http')) {
+                            $clean_centres[$index]['image'] = home_url($centre['image']);
+                        }
+                    }
+                    $sections[(int) $item->ID]['featuredCentres'] = $clean_centres;
+                }
+            }
             continue;
         }
 
@@ -195,10 +208,86 @@ function rigpa_mega_menu_get_menus($lang) {
 }
 
 /**
+ * Build the "Groups" section: all German locations + two featured centre cards.
+ *
+ * Location list mirrors the Rigpa.de map data (rigpa-de-map plugin) but is kept
+ * here so the mega menu has no hard dependency on the map plugin.
+ *
+ * @param string $lang english|german
+ * @return array<string, mixed>
+ */
+function rigpa_mega_menu_get_groups_section($lang) {
+    $location_names = array(
+        'Aachen',
+        'Bad Saarow',
+        'Dharma Mati Berlin',
+        'Bielefeld',
+        'Bremen',
+        'Düsseldorf',
+        'Frankfurt',
+        'Freiburg',
+        'Hannover',
+        'Fürth',
+        'Hamburg',
+        'Heidelberg',
+        'Kassel',
+        'Köln',
+        'München',
+        'Stuttgart',
+        'Wiesbaden',
+    );
+
+    $items = array();
+    foreach ($location_names as $name) {
+        $items[] = array('title' => $name, 'description' => '', 'url' => '#');
+    }
+
+    if ($lang === 'german') {
+        return array(
+            'label'           => 'Gruppen',
+            'items'           => $items,
+            'featuredCentres' => array(
+                array(
+                    'title'       => 'Dzogchen Beara',
+                    'description' => 'Retreatzentrum · Irland',
+                    'image'       => rigpa_mega_menu_asset_url('dzogchen-beara.jpg'),
+                    'url'         => 'https://www.dzogchenbeara.org/',
+                ),
+                array(
+                    'title'       => 'Lerab Ling',
+                    'description' => 'Retreatzentrum · Frankreich',
+                    'image'       => rigpa_mega_menu_asset_url('lerab-ling.jpg'),
+                    'url'         => 'https://www.lerabling.org/',
+                ),
+            ),
+        );
+    }
+
+    return array(
+        'label'           => 'Groups',
+        'items'           => $items,
+        'featuredCentres' => array(
+            array(
+                'title'       => 'Dzogchen Beara',
+                'description' => 'Retreat centre · Ireland',
+                'image'       => rigpa_mega_menu_asset_url('dzogchen-beara.jpg'),
+                'url'         => 'https://www.dzogchenbeara.org/',
+            ),
+            array(
+                'title'       => 'Lerab Ling',
+                'description' => 'Retreat centre · France',
+                'image'       => rigpa_mega_menu_asset_url('lerab-ling.jpg'),
+                'url'         => 'https://www.lerabling.org/',
+            ),
+        ),
+    );
+}
+
+/**
  * @return array<int, array<string, mixed>>
  */
 function rigpa_mega_menu_get_english_menus() {
-    return array(
+    $menus = array(
         array(
             'label' => 'Meditate',
             'items' => array(
@@ -286,13 +375,17 @@ function rigpa_mega_menu_get_english_menus() {
             ),
         ),
     );
+
+    $menus[] = rigpa_mega_menu_get_groups_section('english');
+
+    return $menus;
 }
 
 /**
  * @return array<int, array<string, mixed>>
  */
 function rigpa_mega_menu_get_german_menus() {
-    return array(
+    $menus = array(
         array(
             'label' => 'Angebote',
             'items' => array(
@@ -386,4 +479,8 @@ function rigpa_mega_menu_get_german_menus() {
             ),
         ),
     );
+
+    $menus[] = rigpa_mega_menu_get_groups_section('german');
+
+    return $menus;
 }

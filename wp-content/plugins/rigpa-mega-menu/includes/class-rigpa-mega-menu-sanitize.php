@@ -62,6 +62,37 @@ class Rigpa_Mega_Menu_Sanitize {
     }
 
     /**
+     * Sanitize a list of featured "centre" cards.
+     *
+     * @param array<int, array<string, mixed>> $cards
+     * @return array<int, array<string, string>> Clean list (cards without a title are dropped).
+     */
+    public static function featured_centres(array $cards) {
+        $clean = array();
+
+        foreach ($cards as $card) {
+            if (!is_array($card)) {
+                continue;
+            }
+
+            $entry = array(
+                'title'       => self::text((string) ($card['title'] ?? '')),
+                'description' => self::text((string) ($card['description'] ?? '')),
+                'url'         => self::url((string) ($card['url'] ?? '')),
+                'image'       => self::url((string) ($card['image'] ?? '')),
+            );
+
+            if ($entry['title'] === '') {
+                continue;
+            }
+
+            $clean[] = $entry;
+        }
+
+        return $clean;
+    }
+
+    /**
      * Sanitize nav menu item args before writing to the database.
      *
      * @param array<string, mixed> $args

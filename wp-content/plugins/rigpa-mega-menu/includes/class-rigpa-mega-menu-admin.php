@@ -25,6 +25,7 @@ class Rigpa_Mega_Menu_Admin {
         }
 
         add_action('admin_menu', array(__CLASS__, 'register_menu'));
+        add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
         add_action('admin_post_' . self::ACTION_SEED, array(__CLASS__, 'handle_seed'));
         add_action('admin_post_' . self::ACTION_SAVE_SETTINGS, array(__CLASS__, 'handle_save_settings'));
         add_action('admin_post_' . self::ACTION_COPY_MAIN, array(__CLASS__, 'handle_copy_main'));
@@ -43,6 +44,58 @@ class Rigpa_Mega_Menu_Admin {
             self::MENU_SLUG,
             array(__CLASS__, 'render_page')
         );
+    }
+
+    /**
+     * Load the media library frame + picker script on our settings page only.
+     *
+     * @param string $hook Current admin page hook suffix.
+     */
+    public static function enqueue_assets($hook) {
+        if ($hook !== 'tools_page_' . self::MENU_SLUG) {
+            return;
+        }
+
+        wp_enqueue_media();
+        wp_enqueue_script(
+            'rigpa-mega-menu-admin-media',
+            RIGPA_MEGA_MENU_URL . 'assets/js/admin-media.js',
+            array('jquery'),
+            RIGPA_MEGA_MENU_VERSION,
+            true
+        );
+    }
+
+    /**
+     * Render an image field: text input + media-library picker + preview.
+     *
+     * @param string $name  Form field name.
+     * @param string $value Current image URL/path.
+     */
+    private static function render_image_field($name, $value) {
+        $value = (string) $value;
+        ?>
+        <div class="rigpa-mega-menu-image-field">
+            <input type="text" class="regular-text rigpa-mm-image-input"
+                name="<?php echo esc_attr($name); ?>"
+                value="<?php echo esc_attr($value); ?>"
+                placeholder="https://... or /path/to/image.jpg"
+                style="width: 100%;">
+            <span class="rigpa-mm-image-buttons" style="display:inline-flex; gap:6px; margin-top:4px;">
+                <button type="button" class="button button-small rigpa-mm-image-select"
+                    data-title="<?php esc_attr_e('Select or upload image', 'rigpa-mega-menu'); ?>"
+                    data-button="<?php esc_attr_e('Use this image', 'rigpa-mega-menu'); ?>">
+                    <?php esc_html_e('Select image', 'rigpa-mega-menu'); ?>
+                </button>
+                <button type="button" class="button button-small rigpa-mm-image-remove"
+                    style="<?php echo $value === '' ? 'display:none;' : ''; ?>">
+                    <?php esc_html_e('Remove', 'rigpa-mega-menu'); ?>
+                </button>
+            </span>
+            <img class="rigpa-mm-image-preview" src="<?php echo esc_url($value); ?>" alt=""
+                style="max-width: 120px; max-height: 60px; margin-top: 6px; border-radius: 4px; display: <?php echo $value === '' ? 'none' : 'block'; ?>;">
+        </div>
+        <?php
     }
 
     /**
@@ -310,8 +363,25 @@ class Rigpa_Mega_Menu_Admin {
 
         $updated = 0;
 
-        if (!isset($_POST['rigpa_featured']) || !is_array($_POST['rigpa_featured'])) {
+        $has_featured = isset($_POST['rigpa_featured']) && is_array($_POST['rigpa_featured']);
+        $has_centres  = isset($_POST['rigpa_centres']) && is_array($_POST['rigpa_centres']);
+
+        if (!$has_featured && !$has_centres) {
             wp_safe_redirect(add_query_arg(array('page' => self::MENU_SLUG, 'featured_saved' => '0'), admin_url('tools.php')));
+            exit;
+        }
+
+        if ($has_centres) {
+            $updated += self::save_centres_from_post(wp_unslash($_POST['rigpa_centres']));
+        }
+
+        if (!$has_featured) {
+            wp_safe_redirect(
+                add_query_arg(
+                    array('page' => self::MENU_SLUG, 'featured_saved' => (string) $updated),
+                    admin_url('tools.php')
+                )
+            );
             exit;
         }
 
@@ -357,6 +427,36 @@ class Rigpa_Mega_Menu_Admin {
             )
         );
         exit;
+    }
+
+    /**
+     * Persist featured-centre cards from the admin form.
+     *
+     * @param array<int, array<int, array<string, mixed>>> $centres_post Already wp_unslash()'d.
+     * @return int Number of sections updated.
+     */
+    private static function save_centres_from_post(array $centres_post) {
+        $updated = 0;
+
+        foreach ($centres_post as $item_id => $cards) {
+            $item_id = (int) $item_id;
+            if ($item_id <= 0 || !is_array($cards)) {
+                continue;
+            }
+
+            ksort($cards);
+            $clean = Rigpa_Mega_Menu_Sanitize::featured_centres(array_values($cards));
+
+            if ($clean === array()) {
+                delete_post_meta($item_id, '_rigpa_mega_menu_featured_centres');
+            } else {
+                update_post_meta($item_id, '_rigpa_mega_menu_featured_centres', $clean);
+            }
+
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public static function render_page() {
@@ -797,14 +897,12 @@ class Rigpa_Mega_Menu_Admin {
                                                     style="width: 100%;">
                                             </td>
                                             <td>
-                                                <input type="text" class="regular-text"
-                                                    name="rigpa_featured[<?php echo esc_attr($section['item_id']); ?>][image]"
-                                                    value="<?php echo esc_attr($section['featured']['image'] ?? ''); ?>"
-                                                    placeholder="https://... or /path/to/image.jpg"
-                                                    style="width: 100%;">
-                                                <?php if (!empty($section['featured']['image'])) : ?>
-                                                    <img src="<?php echo esc_url($section['featured']['image']); ?>" style="max-width: 80px; max-height: 40px; margin-top: 4px; display: block; border-radius: 3px;" alt="">
-                                                <?php endif; ?>
+                                                <?php
+                                                self::render_image_field(
+                                                    'rigpa_featured[' . (int) $section['item_id'] . '][image]',
+                                                    (string) ($section['featured']['image'] ?? '')
+                                                );
+                                                ?>
                                             </td>
                                             <td>
                                                 <input type="text" class="regular-text"
@@ -817,6 +915,66 @@ class Rigpa_Mega_Menu_Admin {
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            <?php foreach ($group['sections'] as $section) :
+                                $show_centres = !empty($section['centres'])
+                                    || in_array($section['label'], array('Groups', 'Gruppen'), true);
+                                if (!$show_centres) {
+                                    continue;
+                                }
+                                $cards = $section['centres'];
+                            ?>
+                                <h4 style="margin: 1.25rem 0 0.5rem; font-size: 12px; text-transform: uppercase; color: #646970;">
+                                    <?php echo esc_html(sprintf(__('Featured centres — %s', 'rigpa-mega-menu'), $section['label'])); ?>
+                                </h4>
+                                <p class="description" style="margin-top:0;">
+                                    <?php esc_html_e('Two compact cards shown in the right column of this dropdown. Leave a card’s title blank to remove it.', 'rigpa-mega-menu'); ?>
+                                </p>
+                                <table class="widefat striped rigpa-mega-menu-admin__table" style="margin-bottom: 1rem;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 160px;"><?php esc_html_e('Image', 'rigpa-mega-menu'); ?></th>
+                                            <th><?php esc_html_e('Title', 'rigpa-mega-menu'); ?></th>
+                                            <th><?php esc_html_e('Description', 'rigpa-mega-menu'); ?></th>
+                                            <th><?php esc_html_e('Link URL', 'rigpa-mega-menu'); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php for ($i = 0; $i < 2; $i++) :
+                                            $card = isset($cards[$i]) && is_array($cards[$i])
+                                                ? $cards[$i]
+                                                : array('title' => '', 'description' => '', 'image' => '', 'url' => '');
+                                            $base = 'rigpa_centres[' . (int) $section['item_id'] . '][' . $i . ']';
+                                        ?>
+                                            <tr>
+                                                <td>
+                                                    <?php self::render_image_field($base . '[image]', (string) ($card['image'] ?? '')); ?>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="regular-text"
+                                                        name="<?php echo esc_attr($base); ?>[title]"
+                                                        value="<?php echo esc_attr($card['title'] ?? ''); ?>"
+                                                        placeholder="<?php esc_attr_e('Centre name', 'rigpa-mega-menu'); ?>"
+                                                        style="width: 100%;">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="regular-text"
+                                                        name="<?php echo esc_attr($base); ?>[description]"
+                                                        value="<?php echo esc_attr($card['description'] ?? ''); ?>"
+                                                        placeholder="<?php esc_attr_e('Short description', 'rigpa-mega-menu'); ?>"
+                                                        style="width: 100%;">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="regular-text"
+                                                        name="<?php echo esc_attr($base); ?>[url]"
+                                                        value="<?php echo esc_attr($card['url'] ?? ''); ?>"
+                                                        placeholder="https://..."
+                                                        style="width: 100%;">
+                                                </td>
+                                            </tr>
+                                        <?php endfor; ?>
+                                    </tbody>
+                                </table>
+                            <?php endforeach; ?>
                         <?php endforeach; ?>
                         <?php submit_button(__('Save Featured Panels', 'rigpa-mega-menu')); ?>
                     <?php endif; ?>
@@ -914,6 +1072,22 @@ class Rigpa_Mega_Menu_Admin {
                     $featured = array('title' => '', 'description' => '', 'image' => '', 'url' => '');
                 }
 
+                $centres_meta = get_post_meta((int) $item->ID, '_rigpa_mega_menu_featured_centres', true);
+                $centres = array();
+                if (is_array($centres_meta)) {
+                    foreach ($centres_meta as $centre) {
+                        if (!is_array($centre)) {
+                            continue;
+                        }
+                        $centres[] = array(
+                            'title'       => (string) ($centre['title'] ?? ''),
+                            'description' => (string) ($centre['description'] ?? ''),
+                            'image'       => (string) ($centre['image'] ?? ''),
+                            'url'         => (string) ($centre['url'] ?? ''),
+                        );
+                    }
+                }
+
                 $sections[] = array(
                     'item_id'  => (int) $item->ID,
                     'label'    => Rigpa_Mega_Menu_Sanitize::text((string) $item->title),
@@ -923,6 +1097,7 @@ class Rigpa_Mega_Menu_Admin {
                         'image'       => (string) ($featured['image'] ?? ''),
                         'url'         => (string) ($featured['url'] ?? ''),
                     ),
+                    'centres'  => $centres,
                 );
             }
 

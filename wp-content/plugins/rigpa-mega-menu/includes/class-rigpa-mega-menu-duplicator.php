@@ -143,6 +143,17 @@ class Rigpa_Mega_Menu_Duplicator {
             return $copied;
         }
 
+        // Append the built-in "Groups" section after the copied items, exactly as
+        // the seeder installs it (section + location links + featured-centre cards).
+        if (function_exists('rigpa_mega_menu_get_groups_section')) {
+            $groups_section = rigpa_mega_menu_get_groups_section($lang);
+            if (is_array($groups_section) && !empty($groups_section['label'])) {
+                Rigpa_Mega_Menu_Seeder::seed_section($target_id, $groups_section);
+                $copied['sections'] = (int) $copied['sections'] + 1;
+                $copied['links']    = (int) $copied['links'] + count((array) ($groups_section['items'] ?? array()));
+            }
+        }
+
         Rigpa_Mega_Menu_Seeder::assign_location($target_id, $location);
 
         $description_sync = Rigpa_Mega_Menu_Description_Sync::add_lang($lang);
@@ -256,13 +267,19 @@ class Rigpa_Mega_Menu_Duplicator {
      */
     private static function copy_item_meta($from_id, $to_id) {
         $featured = get_post_meta($from_id, '_rigpa_mega_menu_featured', true);
-        if (!is_array($featured)) {
-            return;
+        if (is_array($featured)) {
+            $clean = Rigpa_Mega_Menu_Sanitize::featured($featured);
+            if ($clean !== null) {
+                update_post_meta($to_id, '_rigpa_mega_menu_featured', $clean);
+            }
         }
 
-        $clean = Rigpa_Mega_Menu_Sanitize::featured($featured);
-        if ($clean !== null) {
-            update_post_meta($to_id, '_rigpa_mega_menu_featured', $clean);
+        $centres = get_post_meta($from_id, '_rigpa_mega_menu_featured_centres', true);
+        if (is_array($centres) && $centres !== array()) {
+            $clean_centres = Rigpa_Mega_Menu_Sanitize::featured_centres($centres);
+            if ($clean_centres !== array()) {
+                update_post_meta($to_id, '_rigpa_mega_menu_featured_centres', $clean_centres);
+            }
         }
     }
 }

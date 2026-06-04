@@ -173,6 +173,13 @@ class Rigpa_Mega_Menu_Seeder {
             update_post_meta((int) $parent_id, '_rigpa_mega_menu_featured', $section['featured']);
         }
 
+        if (!empty($section['featuredCentres']) && is_array($section['featuredCentres'])) {
+            $centres = Rigpa_Mega_Menu_Sanitize::featured_centres($section['featuredCentres']);
+            if ($centres !== array()) {
+                update_post_meta((int) $parent_id, '_rigpa_mega_menu_featured_centres', $centres);
+            }
+        }
+
         foreach ($section['items'] as $item) {
             $path    = trim((string) parse_url((string) $item['url'], PHP_URL_PATH), '/');
             $page    = $path !== '' ? get_page_by_path($path, OBJECT, 'page') : null;

@@ -36,12 +36,15 @@ function MenuPanel({
   panelId: string;
 }) {
   const learnMore = lang === "german" ? "Mehr erfahren →" : "Learn more →";
+  const centres = menu.featuredCentres ?? [];
+  const hasCentres = centres.length > 0;
+  const hasFeatured = Boolean(menu.featured);
 
   return (
     <div
       id={panelId}
       className={`rigpa-mega-menu-panel ${
-        menu.featured ? "rigpa-mega-menu-panel--with-featured" : ""
+        hasFeatured || hasCentres ? "rigpa-mega-menu-panel--with-featured" : ""
       }`}
     >
       <div className="rigpa-mega-menu-panel-links">
@@ -59,28 +62,59 @@ function MenuPanel({
         ))}
       </div>
 
-      {menu.featured && (
-        <div className="rigpa-mega-menu-panel-featured">
-          <div className="rigpa-mega-menu-panel-featured-image-wrap">
-            <img
-              src={menu.featured.image}
-              alt={menu.featured.title}
-              className="rigpa-mega-menu-panel-featured-image"
-            />
-          </div>
-          <div className="rigpa-mega-menu-panel-featured-title">
-            {menu.featured.title}
-          </div>
-          <div className="rigpa-mega-menu-panel-featured-desc">
-            {menu.featured.description}
-          </div>
-          <a
-            href={menu.featured.url}
-            className="rigpa-mega-menu-panel-featured-cta"
-          >
-            {learnMore}
-          </a>
+      {hasCentres ? (
+        <div className="rigpa-mega-menu-panel-featured rigpa-mega-menu-panel-featured--centres">
+          {centres.map((centre, idx) => (
+            <a
+              key={idx}
+              href={centre.url || "#"}
+              className="rigpa-mega-menu-centre-card"
+            >
+              {centre.image && (
+                <span className="rigpa-mega-menu-centre-card-image-wrap">
+                  <img
+                    src={centre.image}
+                    alt={centre.title}
+                    className="rigpa-mega-menu-centre-card-image"
+                  />
+                </span>
+              )}
+              <span className="rigpa-mega-menu-centre-card-title">
+                {centre.title}
+              </span>
+              {centre.description && (
+                <span className="rigpa-mega-menu-centre-card-desc">
+                  {centre.description}
+                </span>
+              )}
+            </a>
+          ))}
         </div>
+      ) : (
+        hasFeatured &&
+        menu.featured && (
+          <div className="rigpa-mega-menu-panel-featured">
+            <div className="rigpa-mega-menu-panel-featured-image-wrap">
+              <img
+                src={menu.featured.image}
+                alt={menu.featured.title}
+                className="rigpa-mega-menu-panel-featured-image"
+              />
+            </div>
+            <div className="rigpa-mega-menu-panel-featured-title">
+              {menu.featured.title}
+            </div>
+            <div className="rigpa-mega-menu-panel-featured-desc">
+              {menu.featured.description}
+            </div>
+            <a
+              href={menu.featured.url}
+              className="rigpa-mega-menu-panel-featured-cta"
+            >
+              {learnMore}
+            </a>
+          </div>
+        )
       )}
     </div>
   );

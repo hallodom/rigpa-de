@@ -33,7 +33,7 @@
 /* Full-bleed root, constrained menu content */
 .rigpa-mega-menu-root .rigpa-mega-menu-inner {
   width: 100%;
-  max-width: 890px;
+  max-width: 990px;
   margin-inline: auto;
   padding-inline: 1.5rem;
 }
@@ -123,7 +123,7 @@
 
 /* Dropdown panel card — fixed width, independent of root */
 .rigpa-mega-menu-root .rigpa-mega-menu-dropdown-inner {
-  width: 890px;
+  width: 990px;
   max-width: calc(100vw - 3rem);
   margin-inline: auto;
   padding-block: 1.5rem;
@@ -279,6 +279,80 @@
 
 .rigpa-mega-menu-root .rigpa-mega-menu-panel-featured-cta:hover {
   text-decoration: underline;
+}
+
+/*
+ * Featured centres — two compact cards stacked in the featured column.
+ * Each card is a small image with a title (and optional one-line desc) below.
+ */
+.rigpa-mega-menu-root .rigpa-mega-menu-panel-featured--centres {
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card {
+  display: block !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  background: #fff !important;
+  border: 1px solid #e5e5e5 !important;
+  border-radius: 0.5rem !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  transition: box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card:hover,
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card:focus {
+  box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.12) !important;
+  transform: translateY(-1px) !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card-image-wrap {
+  display: block !important;
+  aspect-ratio: 16 / 9;
+  overflow: hidden !important;
+  background: #f5f5f5;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card-image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card-title {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #171717 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  padding: 0.625rem 0.75rem 0.125rem !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card-title:only-child,
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card-image-wrap + .rigpa-mega-menu-centre-card-title:last-child {
+  padding-bottom: 0.625rem !important;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-centre-card-desc {
+  display: block !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  color: #737373 !important;
+  line-height: 1.5 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  padding: 0 0.75rem 0.625rem !important;
+  margin: 0 !important;
 }
 
 .rigpa-mega-menu-root img,
@@ -508,7 +582,7 @@
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-nav {
   width: 100% !important;
-  max-width: 890px !important;
+  max-width: 990px !important;
   margin-inline: auto !important;
   padding-inline: 1.5rem !important;
   padding-top: 0.5rem !important;
