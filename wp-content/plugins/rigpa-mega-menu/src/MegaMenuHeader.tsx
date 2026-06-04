@@ -372,7 +372,6 @@ export default function MegaMenuHeader({
                   </>
                 )}
               </svg>
-              <span className="rigpa-mega-menu-mobile-toggle-label">{menuLabel}</span>
             </button>
           )}
         </div>
