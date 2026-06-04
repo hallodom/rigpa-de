@@ -1,0 +1,33 @@
+---
+description: Always rebuild the relevant dist .zip after changing plugin source
+alwaysApply: true
+---
+
+# Rebuild dist zips after plugin changes
+
+Whenever you change a file under `wp-content/plugins/<plugin>/`, you MUST
+rebuild that plugin's distributable zip in `dist/` before finishing the task.
+The build steps (Vite bundle, images, etc.) are wrapped by the Makefile/scripts,
+so always go through `make`, never zip by hand.
+
+## Plugin → command → output
+
+| Changed path | Run | Produces |
+|---|---|---|
+| `wp-content/plugins/rigpa-mega-menu/**` | `make package-mega-menu` | `dist/rigpa-mega-menu.zip` |
+| `wp-content/plugins/rigpa-de-map/**` | `make package-plugin` | `dist/rigpa-de-map.zip` |
+
+Both targets rebuild the compiled assets first (`make build-mega-menu` /
+`make build-map`), so a single command covers source edits in `src/`,
+`assets/`, `includes/`, or the main plugin PHP file.
+
+## Rules
+
+- Edit the **source** (`src/*.tsx`, `src/index.css`, PHP in `includes/`),
+  never the compiled `assets/js/*.js` or `assets/css/*.css` directly — they are
+  build artifacts and will be overwritten.
+- After editing, run the matching `make package-*` command from the repo root.
+- If a change spans both plugins, rebuild both zips.
+- Verify the zip was refreshed (mtime/size changed) before reporting done.
+- Skip the rebuild only for changes that don't ship in the plugin (e.g.
+  `docker-compose*.yml`, `Makefile`, `README.md`, files under `scripts/`).
