@@ -364,23 +364,28 @@
   }
 }
 
-/* Mobile accordion — grid-template-rows trick for smooth height animation */
+/*
+ * Mobile accordion — grid-template-rows trick for smooth height animation.
+ * Animation-critical props use !important so global Elementor/theme CSS
+ * (e.g. `* { transition: ... }`, container `display`/`overflow` resets)
+ * can't silently disable the slide and make it snap open.
+ */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  display: grid !important;
+  grid-template-rows: 0fr !important;
+  transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open {
-  grid-template-rows: 1fr;
+  grid-template-rows: 1fr !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion-inner {
-  min-height: 0;
-  overflow: hidden;
+  min-height: 0 !important;
+  overflow: hidden !important;
   padding-bottom: 0;
   transform: translateY(-6px);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-accordion-inner {
@@ -390,8 +395,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion-inner {
-    transition: none;
-    transform: none;
+    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -474,26 +479,30 @@
   border: 0;
 }
 
-/* Mobile panel — height expands from zero */
+/*
+ * Mobile panel — height expands from zero. Animation-critical props use
+ * !important so Elementor/theme global CSS can't override display/transition/
+ * overflow and turn the slide-open into an instant snap.
+ */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel {
   border: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  display: grid !important;
+  grid-template-rows: 0fr !important;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1) !important;
   pointer-events: none;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel.rigpa-mega-menu-mobile-panel--open {
-  grid-template-rows: 1fr;
+  grid-template-rows: 1fr !important;
   pointer-events: auto;
 }
 
 /* Inner wrapper required for grid height trick */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel-content {
-  min-height: 0;
-  overflow: hidden;
+  min-height: 0 !important;
+  overflow: hidden !important;
   background: #fff;
 }
 
@@ -717,10 +726,10 @@
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel,
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion,
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-chevron {
-    transition: none;
+    transition: none !important;
   }
 
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion--open .rigpa-mega-menu-mobile-link-item {
-    transition: none;
+    transition: none !important;
   }
 }

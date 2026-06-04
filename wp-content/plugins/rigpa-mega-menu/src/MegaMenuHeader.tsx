@@ -133,8 +133,6 @@ export default function MegaMenuHeader({
   const [panelVisible, setPanelVisible] = useState(false);
   const [panelLeft, setPanelLeft] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileRendered, setMobileRendered] = useState(false);
-  const [mobileVisible, setMobileVisible] = useState(false);
   const [mobileExpandedIndex, setMobileExpandedIndex] = useState<number | null>(null);
 
   const calculatePanelLeft = useCallback((index: number) => {
@@ -226,27 +224,6 @@ export default function MegaMenuHeader({
     const timer = window.setTimeout(() => setRenderedIndex(null), 280);
     return () => window.clearTimeout(timer);
   }, [activeIndex]);
-
-  useEffect(() => {
-    if (mobileOpen) {
-      setMobileRendered(true);
-      // Double rAF: the panel mounts at `grid-template-rows: 0fr`, and we must
-      // let the browser commit that starting layout before flipping to `1fr`,
-      // otherwise the open transition is skipped and the panel pops open.
-      let innerFrame = 0;
-      const outerFrame = requestAnimationFrame(() => {
-        innerFrame = requestAnimationFrame(() => setMobileVisible(true));
-      });
-      return () => {
-        cancelAnimationFrame(outerFrame);
-        cancelAnimationFrame(innerFrame);
-      };
-    }
-
-    setMobileVisible(false);
-    const timer = window.setTimeout(() => setMobileRendered(false), 280);
-    return () => window.clearTimeout(timer);
-  }, [mobileOpen]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -420,12 +397,14 @@ export default function MegaMenuHeader({
         </div>
       )}
 
-      {!isDesktop && mobileRendered && (
+      {!isDesktop && (
         <div
           id={`${baseId}-mobile-menu`}
           className={`rigpa-mega-menu-mobile-panel ${
-            mobileVisible ? "rigpa-mega-menu-mobile-panel--open" : ""
+            mobileOpen ? "rigpa-mega-menu-mobile-panel--open" : ""
           }`}
+          aria-hidden={!mobileOpen}
+          inert={!mobileOpen}
         >
           <div className="rigpa-mega-menu-mobile-panel-content">
           <nav aria-label={menuLabel} className="rigpa-mega-menu-mobile-nav">
