@@ -34,7 +34,100 @@ function rigpa_de_map_sanitize_location_url($url) {
 }
 
 /**
- * @return array{left: array<int, array{id: string, name: string, region: string, url: string, coords: array{x: int, y: int}}>, right: array<int, array{id: string, name: string, region: string, url: string, coords: array{x: int, y: int}}>}
+ * Sanitize a location image URL from admin input.
+ *
+ * @param string $url Raw URL from admin input.
+ * @return string Sanitized URL or empty string if invalid.
+ */
+function rigpa_de_map_sanitize_location_image($url) {
+    $url = trim((string) wp_unslash($url));
+    if ($url === '') {
+        return '';
+    }
+
+    return esc_url_raw($url);
+}
+
+/**
+ * Bundled image filename stem for a location (handles aliases).
+ *
+ * @param string $location_id Location slug.
+ * @return string
+ */
+function rigpa_de_map_default_image_file_id($location_id) {
+    $aliases = array(
+        'dharma-mati-berlin' => 'berlin',
+    );
+
+    return $aliases[$location_id] ?? $location_id;
+}
+
+/**
+ * URL of the bundled default image for a location, or empty if none exists.
+ *
+ * @param string $location_id Location slug.
+ * @return string
+ */
+function rigpa_de_map_default_image_url($location_id) {
+    $file_id = rigpa_de_map_default_image_file_id($location_id);
+    $path    = RIGPA_DE_MAP_PATH . 'assets/images/' . $file_id . '.jpg';
+
+    if (!file_exists($path)) {
+        return '';
+    }
+
+    return RIGPA_DE_MAP_URL . 'assets/images/' . $file_id . '.jpg';
+}
+
+/**
+ * @return array<string, string>
+ */
+function rigpa_de_map_get_saved_images() {
+    $images = get_option(RIGPA_DE_MAP_IMAGES_OPTION, array());
+
+    return is_array($images) ? $images : array();
+}
+
+/**
+ * Resolve the effective image URL for a location on the front end.
+ *
+ * @param string               $location_id   Location slug.
+ * @param array<string, string>|null $saved_images Saved overrides (optional).
+ * @return string Resolved URL, or empty string when explicitly cleared / unavailable.
+ */
+function rigpa_de_map_get_location_image_url($location_id, $saved_images = null) {
+    if ($saved_images === null) {
+        $saved_images = rigpa_de_map_get_saved_images();
+    }
+
+    if (!array_key_exists($location_id, $saved_images)) {
+        return rigpa_de_map_default_image_url($location_id);
+    }
+
+    return (string) $saved_images[$location_id];
+}
+
+/**
+ * Admin image field state: default, custom, or none.
+ *
+ * @param string               $location_id   Location slug.
+ * @param array<string, string> $saved_images Saved overrides.
+ * @return string One of default, custom, none.
+ */
+function rigpa_de_map_get_location_image_state($location_id, $saved_images) {
+    if (!array_key_exists($location_id, $saved_images)) {
+        return 'default';
+    }
+
+    if ($saved_images[$location_id] === '') {
+        return 'none';
+    }
+
+    return 'custom';
+}
+
+/**
+ * @return array{left: array<int, array{id: string, name: string, region: string, url: string, image: string, coords: array{x: int, y: int}}>, right: array<int, array{id: string, name: string, region: string, url: string, image: string, coords: array{x: int, y: int}}>}
  */
 function rigpa_de_map_get_locations() {
     $locations = array(
@@ -163,9 +256,11 @@ function rigpa_de_map_get_locations() {
         ),
     );
 
-    $saved_urls = get_option(RIGPA_DE_MAP_URLS_OPTION, array());
-    if (!is_array($saved_urls) || $saved_urls === array()) {
-        return $locations;
+    $saved_urls   = get_option(RIGPA_DE_MAP_URLS_OPTION, array());
+    $saved_images = rigpa_de_map_get_saved_images();
+
+    if (!is_array($saved_urls)) {
+        $saved_urls = array();
     }
 
     foreach (array('left', 'right') as $column) {
@@ -174,9 +269,13 @@ function rigpa_de_map_get_locations() {
         }
         foreach ($locations[$column] as $index => $item) {
             $id = $item['id'] ?? '';
-            if ($id !== '' && isset($saved_urls[$id])) {
+            if ($id === '') {
+                continue;
+            }
+            if (isset($saved_urls[$id])) {
                 $locations[$column][$index]['url'] = $saved_urls[$id];
             }
+            $locations[$column][$index]['image'] = rigpa_de_map_get_location_image_url($id, $saved_images);
         }
     }
 

@@ -11,6 +11,7 @@ class Rigpa_De_Map_Admin {
 
     const MENU_SLUG = 'rigpa-de-map';
     const OPTION_KEY = RIGPA_DE_MAP_URLS_OPTION;
+    const IMAGES_OPTION_KEY = RIGPA_DE_MAP_IMAGES_OPTION;
 
     public static function init() {
         if (!is_admin()) {
@@ -19,6 +20,7 @@ class Rigpa_De_Map_Admin {
 
         add_action('admin_menu', array(__CLASS__, 'register_menu'));
         add_action('admin_init', array(__CLASS__, 'handle_save'));
+        add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
     }
 
     public static function register_menu() {
@@ -60,6 +62,35 @@ class Rigpa_De_Map_Admin {
 
         update_option(self::OPTION_KEY, $urls, false);
 
+        $images = array();
+        if (isset($_POST['location_image_state']) && is_array($_POST['location_image_state'])) {
+            foreach ($_POST['location_image_state'] as $id => $state) {
+                $id = sanitize_key($id);
+                if ($id === '') {
+                    continue;
+                }
+
+                $state = sanitize_key($state);
+                if ($state === 'default') {
+                    continue;
+                }
+
+                if ($state === 'none') {
+                    $images[$id] = '';
+                    continue;
+                }
+
+                if ($state === 'custom') {
+                    $url = isset($_POST['location_image'][$id])
+                        ? rigpa_de_map_sanitize_location_image($_POST['location_image'][$id])
+                        : '';
+                    $images[$id] = $url;
+                }
+            }
+        }
+
+        update_option(self::IMAGES_OPTION_KEY, $images, false);
+
         wp_safe_redirect(
             add_query_arg(
                 array(
@@ -80,6 +111,33 @@ class Rigpa_De_Map_Admin {
         return is_array($urls) ? $urls : array();
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public static function get_saved_images() {
+        return rigpa_de_map_get_saved_images();
+    }
+
+    /**
+     * Load the media library frame + picker script on our settings page only.
+     *
+     * @param string $hook Current admin page hook suffix.
+     */
+    public static function enqueue_assets($hook) {
+        if ($hook !== 'tools_page_' . self::MENU_SLUG) {
+            return;
+        }
+
+        wp_enqueue_media();
+        wp_enqueue_script(
+            'rigpa-de-map-admin-media',
+            RIGPA_DE_MAP_URL . 'assets/js/admin-media.js',
+            array('jquery'),
+            RIGPA_DE_MAP_VERSION,
+            true
+        );
+    }
+
     public static function render_page() {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have permission to access this page.', 'rigpa-de-map'));
@@ -87,6 +145,7 @@ class Rigpa_De_Map_Admin {
 
         $locations = rigpa_de_map_get_locations();
         $saved_urls = self::get_saved_urls();
+        $saved_images = self::get_saved_images();
         $updated = isset($_GET['updated']) && $_GET['updated'] === '1';
 
         $css_path = RIGPA_DE_MAP_PATH . 'assets/css/rigpa-de-map.css';
@@ -134,13 +193,13 @@ class Rigpa_De_Map_Admin {
 
                 <h2><?php esc_html_e('Locations', 'rigpa-de-map'); ?></h2>
                 <p class="description">
-                    <?php esc_html_e('Set the “View details” link for each location. Use a full URL (https://…) or a site-relative path (/centres/berlin). Leave blank to show the label without a link.', 'rigpa-de-map'); ?>
+                    <?php esc_html_e('Set the “View details” link and hover-card image for each location. URLs may be full (https://…) or site-relative (/centres/berlin). Leave the URL blank to show the label without a link.', 'rigpa-de-map'); ?>
                 </p>
 
-                <?php self::render_location_table(__('Left column', 'rigpa-de-map'), $locations['left'] ?? array(), $saved_urls); ?>
-                <?php self::render_location_table(__('Right column', 'rigpa-de-map'), $locations['right'] ?? array(), $saved_urls); ?>
+                <?php self::render_location_table(__('Left column', 'rigpa-de-map'), $locations['left'] ?? array(), $saved_urls, $saved_images); ?>
+                <?php self::render_location_table(__('Right column', 'rigpa-de-map'), $locations['right'] ?? array(), $saved_urls, $saved_images); ?>
 
-                <?php submit_button(__('Save URLs', 'rigpa-de-map')); ?>
+                <?php submit_button(__('Save settings', 'rigpa-de-map')); ?>
             </form>
         </div>
         <?php
@@ -151,8 +210,9 @@ class Rigpa_De_Map_Admin {
      * @param string $title
      * @param array<int, array{id: string, name: string, region: string, url: string, coords: array{x: int, y: int}}> $items
      * @param array<string, string> $saved_urls
+     * @param array<string, string> $saved_images
      */
-    private static function render_location_table($title, $items, $saved_urls) {
+    private static function render_location_table($title, $items, $saved_urls, $saved_images) {
         ?>
         <h3><?php echo esc_html($title); ?></h3>
         <table class="widefat striped rigpa-de-map-admin__table">
@@ -160,6 +220,7 @@ class Rigpa_De_Map_Admin {
                 <tr>
                     <th scope="col"><?php esc_html_e('Name', 'rigpa-de-map'); ?></th>
                     <th scope="col"><?php esc_html_e('Type', 'rigpa-de-map'); ?></th>
+                    <th scope="col"><?php esc_html_e('Image', 'rigpa-de-map'); ?></th>
                     <th scope="col"><?php esc_html_e('View details URL', 'rigpa-de-map'); ?></th>
                 </tr>
             </thead>
@@ -176,6 +237,9 @@ class Rigpa_De_Map_Admin {
                             <span class="description"><?php echo esc_html($id); ?></span>
                         </td>
                         <td><?php echo esc_html($item['region'] !== '' ? $item['region'] : '—'); ?></td>
+                        <td class="rigpa-de-map-admin__image-cell">
+                            <?php self::render_location_image_field($id, $saved_images); ?>
+                        </td>
                         <td>
                             <input
                                 type="text"
@@ -189,6 +253,70 @@ class Rigpa_De_Map_Admin {
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <?php
+    }
+
+    /**
+     * @param string               $id           Location slug.
+     * @param array<string, string> $saved_images Saved image overrides.
+     */
+    private static function render_location_image_field($id, $saved_images) {
+        $state       = rigpa_de_map_get_location_image_state($id, $saved_images);
+        $default_url = rigpa_de_map_default_image_url($id);
+        $custom_url  = ($state === 'custom') ? (string) $saved_images[$id] : '';
+
+        if ($state === 'default') {
+            $preview_url = $default_url;
+        } elseif ($state === 'custom') {
+            $preview_url = $custom_url;
+        } else {
+            $preview_url = '';
+        }
+
+        $show_preview = $preview_url !== '';
+        $show_remove  = $state === 'custom' || ($state === 'default' && $default_url !== '');
+        ?>
+        <div
+            class="rigpa-de-map-image-field"
+            data-default-url="<?php echo esc_attr($default_url); ?>"
+        >
+            <input
+                type="hidden"
+                class="rigpa-de-map-image-state"
+                name="location_image_state[<?php echo esc_attr($id); ?>]"
+                value="<?php echo esc_attr($state); ?>"
+            />
+            <input
+                type="text"
+                class="rigpa-de-map-image-input"
+                name="location_image[<?php echo esc_attr($id); ?>]"
+                value="<?php echo esc_attr($custom_url); ?>"
+                style="display:none;"
+            />
+            <img
+                class="rigpa-de-map-image-preview"
+                src="<?php echo esc_url($preview_url); ?>"
+                alt=""
+                style="<?php echo $show_preview ? '' : 'display:none;'; ?>"
+            />
+            <span class="rigpa-de-map-image-buttons">
+                <button
+                    type="button"
+                    class="button button-small rigpa-de-map-image-select"
+                    data-title="<?php esc_attr_e('Select or upload image', 'rigpa-de-map'); ?>"
+                    data-button="<?php esc_attr_e('Use this image', 'rigpa-de-map'); ?>"
+                >
+                    <?php esc_html_e('Select image', 'rigpa-de-map'); ?>
+                </button>
+                <button
+                    type="button"
+                    class="button button-small rigpa-de-map-image-remove"
+                    style="<?php echo $show_remove ? '' : 'display:none;'; ?>"
+                >
+                    <?php esc_html_e('Remove', 'rigpa-de-map'); ?>
+                </button>
+            </span>
+        </div>
         <?php
     }
 
@@ -229,6 +357,29 @@ class Rigpa_De_Map_Admin {
             }
             .rigpa-de-map-admin__table td {
                 vertical-align: middle;
+            }
+            .rigpa-de-map-admin__image-cell {
+                min-width: 120px;
+            }
+            .rigpa-de-map-image-field {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .rigpa-de-map-image-preview {
+                max-width: 80px;
+                max-height: 48px;
+                width: auto;
+                height: auto;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid #c3c4c7;
+            }
+            .rigpa-de-map-image-buttons {
+                display: inline-flex;
+                flex-wrap: wrap;
+                gap: 6px;
             }
         </style>
         <?php

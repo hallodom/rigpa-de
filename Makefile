@@ -30,6 +30,7 @@ build-map:
 	cd "Replicate Design" && npm install && npm run build:wp
 	mkdir -p wp-content/plugins/rigpa-de-map/assets/images
 	cp "Replicate Design/src/assets/images/"*.jpg wp-content/plugins/rigpa-de-map/assets/images/
+	cp wp-content/plugins/rigpa-de-map/includes/admin-media.js wp-content/plugins/rigpa-de-map/assets/js/admin-media.js
 
 build-mega-menu:
 	mkdir -p wp-content/plugins/rigpa-mega-menu/assets/images

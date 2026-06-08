@@ -17,7 +17,9 @@ required=(
   "${PLUGIN_DIR}/includes/class-rigpa-de-map.php"
   "${PLUGIN_DIR}/includes/class-rigpa-de-map-admin.php"
   "${PLUGIN_DIR}/includes/locations.php"
+  "${PLUGIN_DIR}/includes/admin-media.js"
   "${PLUGIN_DIR}/assets/js/rigpa-de-map.js"
+  "${PLUGIN_DIR}/assets/js/admin-media.js"
   "${PLUGIN_DIR}/assets/css/rigpa-de-map.css"
   "${PLUGIN_DIR}/assets/germany-vector.svg"
 )
