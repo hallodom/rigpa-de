@@ -143,29 +143,34 @@ class Rigpa_Mega_Menu_Duplicator {
             return $copied;
         }
 
-        // Append the built-in "Groups" section after the copied items, exactly as
-        // the seeder installs it (section + location links + featured-centre cards).
-        if (function_exists('rigpa_mega_menu_get_groups_section')) {
-            $groups_section = rigpa_mega_menu_get_groups_section($lang);
-            if (is_array($groups_section) && !empty($groups_section['label'])) {
-                Rigpa_Mega_Menu_Seeder::seed_section($target_id, $groups_section);
+        // Append the built-in "Near You" section after the copied items
+        // (all location links + featured Dharma Mati panel).
+        if (function_exists('rigpa_mega_menu_get_near_you_section')) {
+            $near_you_section = rigpa_mega_menu_get_near_you_section($lang);
+            if (is_array($near_you_section) && !empty($near_you_section['label'])) {
+                Rigpa_Mega_Menu_Seeder::seed_section($target_id, $near_you_section);
                 $copied['sections'] = (int) $copied['sections'] + 1;
-                $copied['links']    = (int) $copied['links'] + count((array) ($groups_section['items'] ?? array()));
+                $copied['links']    = (int) $copied['links'] + count((array) ($near_you_section['items'] ?? array()));
             }
         }
 
         Rigpa_Mega_Menu_Seeder::assign_location($target_id, $location);
 
-        $description_sync = Rigpa_Mega_Menu_Description_Sync::add_lang($lang);
+        // Sync descriptions and featured panels for both languages so whichever
+        // menu already exists also picks up the seeded data.
         $descriptions_updated = 0;
-        if (!is_wp_error($description_sync)) {
-            $descriptions_updated = (int) $description_sync['updated'];
-        }
+        $featured_updated     = 0;
 
-        $featured_sync = Rigpa_Mega_Menu_Description_Sync::apply_featured_lang($lang);
-        $featured_updated = 0;
-        if (!is_wp_error($featured_sync)) {
-            $featured_updated = (int) $featured_sync['updated'];
+        foreach (array('english', 'german') as $sync_lang) {
+            $description_sync = Rigpa_Mega_Menu_Description_Sync::add_lang($sync_lang);
+            if (!is_wp_error($description_sync)) {
+                $descriptions_updated += (int) $description_sync['updated'];
+            }
+
+            $featured_sync = Rigpa_Mega_Menu_Description_Sync::apply_featured_lang($sync_lang);
+            if (!is_wp_error($featured_sync)) {
+                $featured_updated += (int) $featured_sync['updated'];
+            }
         }
 
         return array(

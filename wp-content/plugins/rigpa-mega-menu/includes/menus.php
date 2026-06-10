@@ -208,7 +208,8 @@ function rigpa_mega_menu_get_menus($lang) {
 }
 
 /**
- * Build the "Groups" section: all German locations + two featured centre cards.
+ * Build the "In Deiner Nähe" / "Near You" section: all German locations
+ * plus international retreat centres, with Dharma Mati Berlin as featured.
  *
  * Location list mirrors the Rigpa.de map data (rigpa-de-map plugin) but is kept
  * here so the mega menu has no hard dependency on the map plugin.
@@ -216,19 +217,19 @@ function rigpa_mega_menu_get_menus($lang) {
  * @param string $lang english|german
  * @return array<string, mixed>
  */
-function rigpa_mega_menu_get_groups_section($lang) {
+function rigpa_mega_menu_get_near_you_section($lang) {
     $location_names = array(
         'Aachen',
         'Bad Saarow',
-        'Dharma Mati Berlin',
         'Bielefeld',
         'Bremen',
+        'Dharma Mati Berlin',
         'Düsseldorf',
         'Frankfurt',
         'Freiburg',
-        'Hannover',
         'Fürth',
         'Hamburg',
+        'Hannover',
         'Heidelberg',
         'Kassel',
         'Köln',
@@ -243,42 +244,30 @@ function rigpa_mega_menu_get_groups_section($lang) {
     }
 
     if ($lang === 'german') {
+        $items[] = array('title' => 'Internationale Retreatzentren', 'description' => '', 'url' => '#');
+
         return array(
-            'label'           => 'Gruppen',
-            'items'           => $items,
-            'featuredCentres' => array(
-                array(
-                    'title'       => 'Dzogchen Beara',
-                    'description' => 'Retreatzentrum · Irland',
-                    'image'       => rigpa_mega_menu_asset_url('dzogchen-beara.jpg'),
-                    'url'         => 'https://www.dzogchenbeara.org/',
-                ),
-                array(
-                    'title'       => 'Lerab Ling',
-                    'description' => 'Retreatzentrum · Frankreich',
-                    'image'       => rigpa_mega_menu_asset_url('lerab-ling.jpg'),
-                    'url'         => 'https://www.lerabling.org/',
-                ),
+            'label'    => 'In Deiner Nähe',
+            'items'    => $items,
+            'featured' => array(
+                'title'       => 'Dharma Mati Berlin',
+                'description' => 'Unser Rigpa-Zentrum in Berlin',
+                'image'       => rigpa_mega_menu_asset_url('featured-visit.jpg'),
+                'url'         => '#',
             ),
         );
     }
 
+    $items[] = array('title' => 'International Retreat Centres', 'description' => '', 'url' => '#');
+
     return array(
-        'label'           => 'Groups',
-        'items'           => $items,
-        'featuredCentres' => array(
-            array(
-                'title'       => 'Dzogchen Beara',
-                'description' => 'Retreat centre · Ireland',
-                'image'       => rigpa_mega_menu_asset_url('dzogchen-beara.jpg'),
-                'url'         => 'https://www.dzogchenbeara.org/',
-            ),
-            array(
-                'title'       => 'Lerab Ling',
-                'description' => 'Retreat centre · France',
-                'image'       => rigpa_mega_menu_asset_url('lerab-ling.jpg'),
-                'url'         => 'https://www.lerabling.org/',
-            ),
+        'label'    => 'Near You',
+        'items'    => $items,
+        'featured' => array(
+            'title'       => 'Dharma Mati Berlin',
+            'description' => 'Our Rigpa centre in Berlin',
+            'image'       => rigpa_mega_menu_asset_url('featured-visit.jpg'),
+            'url'         => '#',
         ),
     );
 }
@@ -289,94 +278,66 @@ function rigpa_mega_menu_get_groups_section($lang) {
 function rigpa_mega_menu_get_english_menus() {
     $menus = array(
         array(
-            'label' => 'Meditate',
+            'label' => 'New Here?',
             'items' => array(
-                array('title' => 'Introduction to Meditation', 'description' => 'Learn the fundamentals of meditation practice', 'url' => '/introduction-to-meditation/'),
-                array('title' => 'Daily Practice', 'description' => 'Join our daily meditation sessions', 'url' => '/daily-practice/'),
-                array('title' => 'Guided Sessions', 'description' => 'Audio and video guided meditations', 'url' => '/guided-sessions/'),
-                array('title' => 'Meditation Times', 'description' => 'View our weekly schedule', 'url' => '/meditation-times/'),
-                array('title' => 'Online Meditation', 'description' => 'Practice with us from anywhere', 'url' => '/online-meditation/'),
-                array('title' => 'One-on-One Guidance', 'description' => 'Personal instruction with experienced teachers', 'url' => '/one-on-one-guidance/'),
-            ),
-            'featured' => array(
-                'title'       => 'New to Meditation?',
-                'description' => 'Start your journey with our beginner-friendly introduction course',
-                'image'       => rigpa_mega_menu_asset_url('featured-meditate.jpg'),
-                'url'         => '/new-to-meditation/',
+                array('title' => 'Meditate Now', 'description' => 'Start your meditation practice today', 'url' => '#'),
+                array('title' => 'Discover Compassion', 'description' => 'Explore the path of compassion', 'url' => '#'),
+                array('title' => 'Offerings for Beginners', 'description' => 'First steps in meditation and Buddhism', 'url' => '#'),
+                array('title' => 'Overview', 'description' => 'All offerings at a glance', 'url' => '#'),
+                array('title' => 'Bodhi Courses', 'description' => 'Study programmes and courses from Bodhi', 'url' => '#'),
+                array('title' => 'What is Buddhism?', 'description' => 'An introduction to Buddhist teachings', 'url' => '#'),
+                array('title' => 'Find a Group', 'description' => 'Connect with practitioners near you', 'url' => '#'),
             ),
         ),
         array(
-            'label' => 'What We Offer',
+            'label' => 'Courses & Events',
             'items' => array(
-                array('title' => 'Courses & Programs', 'description' => 'Multi-week programs and study courses', 'url' => '/courses-programs/'),
-                array('title' => 'Retreats', 'description' => 'Residential and day retreats throughout the year', 'url' => '/retreats/'),
-                array('title' => 'Workshops', 'description' => 'Single-day and weekend intensive workshops', 'url' => '/workshops/'),
-                array('title' => 'Teacher Training', 'description' => 'Comprehensive programs for aspiring teachers', 'url' => '/teacher-training/'),
-                array('title' => 'Online Offerings', 'description' => 'Live-streamed and recorded teachings', 'url' => '/online-offerings/'),
-                array('title' => 'Private Instruction', 'description' => 'Personalized guidance and mentorship', 'url' => '/private-instruction/'),
+                array('title' => 'All Courses and Events', 'description' => 'Browse all upcoming events', 'url' => '#'),
+                array('title' => 'Online Programme', 'description' => 'Digital courses and live streams', 'url' => '#'),
+                array('title' => 'For Beginners', 'description' => 'Events for newcomers', 'url' => '#'),
+                array('title' => 'Healing, Illness & Loss', 'description' => 'Support during difficult times', 'url' => '#'),
+                array('title' => 'Today', 'description' => "Today's events and activities", 'url' => '#'),
+                array('title' => 'Children & Families', 'description' => 'Programmes for young people and families', 'url' => '#'),
+                array('title' => 'Sangha', 'description' => 'Events for sangha members', 'url' => '#'),
             ),
             'featured' => array(
-                'title'       => 'Upcoming Retreats',
-                'description' => 'Explore our spring and summer retreat schedule',
+                'title'       => 'Highlights & Retreats',
+                'description' => 'Special events and retreat opportunities',
                 'image'       => rigpa_mega_menu_asset_url('featured-retreats.jpg'),
-                'url'         => '/upcoming-retreats/',
+                'url'         => '#',
             ),
         ),
-        array(
-            'label' => 'Community',
-            'items' => array(
-                array('title' => 'Our Sangha', 'description' => 'Meet our vibrant practice community', 'url' => '/our-sangha/'),
-                array('title' => 'Join Us', 'description' => 'Become a member of our community', 'url' => '/join-us/'),
-                array('title' => 'Events Calendar', 'description' => 'View all upcoming events and activities', 'url' => '/events-calendar/'),
-                array('title' => 'Volunteer', 'description' => 'Support our community through service', 'url' => '/volunteer/'),
-                array('title' => 'Connect', 'description' => 'Practice groups and study circles', 'url' => '/connect/'),
-                array('title' => 'Newsletter', 'description' => 'Stay informed with monthly updates', 'url' => '/newsletter/'),
-            ),
-        ),
+        rigpa_mega_menu_get_near_you_section('english'),
         array(
             'label' => 'Resources',
             'items' => array(
-                array('title' => 'Teachings Library', 'description' => 'Archive of dharma talks and teachings', 'url' => '/teachings-library/'),
-                array('title' => 'Articles & Essays', 'description' => 'Written teachings and contemplations', 'url' => '/articles-essays/'),
-                array('title' => 'Audio & Video', 'description' => 'Recorded talks and guided practices', 'url' => '/audio-video/'),
-                array('title' => 'Recommended Books', 'description' => 'Curated reading lists for study', 'url' => '/recommended-books/'),
-                array('title' => 'Practice Guides', 'description' => 'Downloadable meditation instructions', 'url' => '/practice-guides/'),
-                array('title' => 'FAQs', 'description' => 'Common questions about practice and programs', 'url' => '/faqs/'),
+                array('title' => 'Prayer Requests', 'description' => 'Submit names for dedication and prayers', 'url' => '#'),
+                array('title' => 'Accompanying Illness and Loss', 'description' => 'Support and guidance for life, loss, and dying', 'url' => '#'),
+                array('title' => 'Teachings Online', 'description' => 'Online courses and study programmes', 'url' => '#'),
+                array('title' => 'The Tibetan Book of Living and Dying', 'description' => 'Resources on the classic text by Sogyal Rinpoche', 'url' => '#'),
+                array('title' => 'Rigpawiki', 'description' => 'Online encyclopedia of Tibetan Buddhism', 'url' => '#'),
+                array('title' => 'Sukhavati Hospice', 'description' => 'End-of-life care and accompaniment', 'url' => '#'),
+                array('title' => 'Tibetan Buddhist Calendar', 'description' => 'Important dates and practice days', 'url' => '#'),
+                array('title' => 'Shedra Studies Nepal', 'description' => 'Study college in Nepal', 'url' => '#'),
+                array('title' => 'Shop', 'description' => 'Books, practice materials, and gifts', 'url' => '#'),
             ),
         ),
         array(
-            'label' => 'About',
+            'label' => 'About Us',
             'items' => array(
-                array('title' => 'Our History', 'description' => 'The story of our center and lineage', 'url' => '/our-history/'),
-                array('title' => 'Teachers', 'description' => 'Meet our resident and visiting teachers', 'url' => '/teachers/'),
-                array('title' => 'Philosophy', 'description' => 'Our approach to Buddhist practice', 'url' => '/philosophy/'),
-                array('title' => 'Location & Facilities', 'description' => 'Visit our meditation center', 'url' => '/location-facilities/'),
-                array('title' => 'Contact', 'description' => 'Get in touch with our team', 'url' => '/contact/'),
-                array('title' => 'Careers', 'description' => 'Join our staff and teaching team', 'url' => '/careers/'),
-            ),
-        ),
-        array(
-            'label' => 'New Here?',
-            'items' => array(
-                array('title' => 'Discover Buddhism', 'description' => 'Introduction to Buddhist philosophy and practice', 'url' => '/discover-buddhism/'),
-                array('title' => 'Meditate Now', 'description' => 'Start your meditation practice today', 'url' => '/meditate-now/'),
-                array('title' => 'Spiritual Path in Rigpa', 'description' => 'Learn about our approach to the path', 'url' => '/spiritual-path-in-rigpa/'),
-                array('title' => 'Find a Group', 'description' => 'Connect with practitioners near you', 'url' => '/find-a-group/'),
-                array('title' => 'Personal Guidance', 'description' => 'One-on-one support for your journey', 'url' => '/personal-guidance/'),
-                array('title' => 'Get Involved', 'description' => 'Join our community and volunteer', 'url' => '/get-involved/'),
-                array('title' => 'Subscribe to Newsletter', 'description' => 'Stay updated with monthly insights', 'url' => '/subscribe-newsletter/'),
-                array('title' => 'FAQ', 'description' => 'Common questions about practice and programs', 'url' => '/faq/'),
-            ),
-            'featured' => array(
-                'title'       => 'Welcome to Rigpa',
-                'description' => 'Begin your journey with meditation and discover the wisdom of Tibetan Buddhism',
-                'image'       => rigpa_mega_menu_asset_url('featured-welcome.jpg'),
-                'url'         => '/welcome-to-rigpa/',
+                array('title' => 'About Rigpa', 'description' => 'Our history and mission', 'url' => '#'),
+                array('title' => 'A Complete Buddhist Path', 'description' => 'The path of wisdom and compassion', 'url' => '#'),
+                array('title' => 'Our Teachers and Lineage', 'description' => 'Meet our teachers and spiritual lineage', 'url' => '#'),
+                array('title' => 'Rigpa as a Community', 'description' => 'Our vibrant practice community', 'url' => '#'),
+                array('title' => 'For Children, Families & Young People', 'description' => 'Programmes for the next generation', 'url' => '#'),
+                array('title' => 'Ethics and Diversity', 'description' => 'Our values and commitments', 'url' => '#'),
+                array('title' => 'Team', 'description' => 'Staff and organisational structure', 'url' => '#'),
+                array('title' => 'Jobs & Volunteering', 'description' => 'Opportunities to contribute', 'url' => '#'),
+                array('title' => 'Become a Member', 'description' => 'Join our community', 'url' => '#'),
+                array('title' => 'Contact & Press', 'description' => 'Get in touch with us', 'url' => '#'),
             ),
         ),
     );
-
-    $menus[] = rigpa_mega_menu_get_groups_section('english');
 
     return $menus;
 }
@@ -387,100 +348,66 @@ function rigpa_mega_menu_get_english_menus() {
 function rigpa_mega_menu_get_german_menus() {
     $menus = array(
         array(
-            'label' => 'Angebote',
+            'label' => 'Neu hier?',
             'items' => array(
-                array('title' => 'Meditieren Lernen', 'description' => 'Grundlagen der Meditationspraxis erlernen', 'url' => '/de-meditieren-lernen/'),
-                array('title' => 'Buddhismus entdecken', 'description' => 'Die buddhistische Lehre kennenlernen', 'url' => '/de-buddhismus-entdecken/'),
-                array('title' => 'Retreats & Highlights', 'description' => 'Besondere Veranstaltungen und Rückzugsorte', 'url' => '/de-retreats-highlights/'),
-                array('title' => 'Online Programm', 'description' => 'Digitale Kurse und Live-Übertragungen', 'url' => '/de-online-programm/'),
-                array('title' => 'Heilung, Krankheit, Verlust & Sterben', 'description' => 'Unterstützung in schwierigen Lebensphasen', 'url' => '/de-heilung-krankheit-verlust-sterben/'),
-                array('title' => 'Familien & Jugendliche', 'description' => 'Programme für junge Menschen und Familien', 'url' => '/de-familien-jugendliche/'),
+                array('title' => 'Jetzt Meditieren', 'description' => 'Beginnen Sie noch heute mit der Meditation', 'url' => '#'),
+                array('title' => 'Mitgefühl entdecken', 'description' => 'Den Weg des Mitgefühls kennenlernen', 'url' => '#'),
+                array('title' => 'Angebote für Einsteiger*innen', 'description' => 'Erste Schritte in Meditation und Buddhismus', 'url' => '#'),
+                array('title' => 'Übersicht', 'description' => 'Alle Angebote auf einen Blick', 'url' => '#'),
+                array('title' => 'Bodhi - Kurse', 'description' => 'Studienprogramme und Kurse von Bodhi', 'url' => '#'),
+                array('title' => 'Was ist Buddhismus?', 'description' => 'Einführung in die buddhistische Lehre', 'url' => '#'),
+                array('title' => 'Gruppe finden', 'description' => 'Verbinden Sie sich mit Praktizierenden in Ihrer Nähe', 'url' => '#'),
+            ),
+        ),
+        array(
+            'label' => 'Kurse & Termine',
+            'items' => array(
+                array('title' => 'Alle Kurse und Termine', 'description' => 'Alle Veranstaltungen auf einen Blick', 'url' => '#'),
+                array('title' => 'Online Programm', 'description' => 'Digitale Kurse und Live-Übertragungen', 'url' => '#'),
+                array('title' => 'Für Einsteiger*innen', 'description' => 'Veranstaltungen für Neulinge', 'url' => '#'),
+                array('title' => 'Heilung, Krankheit & Verlust', 'description' => 'Unterstützung in schwierigen Lebensphasen', 'url' => '#'),
+                array('title' => 'Heute', 'description' => 'Heutige Termine und Aktivitäten', 'url' => '#'),
+                array('title' => 'Kinder & Familien', 'description' => 'Programme für junge Menschen und Familien', 'url' => '#'),
+                array('title' => 'Sangha', 'description' => 'Veranstaltungen für Sangha-Mitglieder', 'url' => '#'),
             ),
             'featured' => array(
-                'title'       => 'Frühjahrsretreat 2026',
-                'description' => 'Entdecken Sie unser besonderes Retreat-Programm für Frühling und Sommer',
+                'title'       => 'Highlights & Retreats',
+                'description' => 'Besondere Veranstaltungen und Rückzugsorte',
                 'image'       => rigpa_mega_menu_asset_url('featured-retreats.jpg'),
-                'url'         => '/de-fruehjahrsretreat-2026/',
+                'url'         => '#',
             ),
         ),
-        array(
-            'label' => 'Schnellzugriff',
-            'items' => array(
-                array('title' => 'Programm Kalender - Übersicht', 'description' => 'Alle Veranstaltungen auf einen Blick', 'url' => '/de-programm-kalender/'),
-                array('title' => 'Heute', 'description' => 'Heutige Termine und Aktivitäten', 'url' => '/de-heute/'),
-                array('title' => 'International', 'description' => 'Globale Veranstaltungen und Zentren', 'url' => '/de-international/'),
-                array('title' => 'Newsletter abonnieren', 'description' => 'Bleiben Sie informiert mit monatlichen Updates', 'url' => '/de-newsletter-abonnieren/'),
-            ),
-        ),
-        array(
-            'label' => 'In Deiner Nähe',
-            'items' => array(
-                array('title' => 'Berlin Dharma Mali', 'description' => 'Unser Zentrum in Berlin', 'url' => '/de-berlin-dharma-mali/'),
-                array('title' => 'Bremen', 'description' => 'Meditationsgruppe in Bremen', 'url' => '/de-bremen/'),
-                array('title' => 'Hamburg', 'description' => 'Praxisgruppe in Hamburg', 'url' => '/de-hamburg/'),
-                array('title' => 'München', 'description' => 'Zentrum in München', 'url' => '/de-muenchen/'),
-                array('title' => 'Köln', 'description' => 'Gemeinschaft in Köln', 'url' => '/de-koeln/'),
-                array('title' => 'Online', 'description' => 'Virtuelle Sangha weltweit', 'url' => '/de-online/'),
-            ),
-            'featured' => array(
-                'title'       => 'Besuchen Sie uns',
-                'description' => 'Finden Sie ein Zentrum in Ihrer Nähe und werden Sie Teil unserer Gemeinschaft',
-                'image'       => rigpa_mega_menu_asset_url('featured-visit.jpg'),
-                'url'         => '/de-besuchen-sie-uns/',
-            ),
-        ),
+        rigpa_mega_menu_get_near_you_section('german'),
         array(
             'label' => 'Ressourcen',
             'items' => array(
-                array('title' => 'Jetzt meditieren', 'description' => 'Sofort mit geführten Meditationen beginnen', 'url' => '/de-jetzt-meditieren/'),
-                array('title' => 'Blog', 'description' => 'Artikel und Lehren', 'url' => '/de-blog/'),
-                array('title' => 'Gebetswünsche', 'description' => 'Teilen Sie Ihre Anliegen', 'url' => '/de-gebetswuensche/'),
-                array('title' => 'Begleitung bei Tod und Verlust', 'description' => 'Unterstützung in schwierigen Zeiten', 'url' => '/de-begleitung-tod-verlust/'),
-                array('title' => 'Persönliche Beratung', 'description' => 'Individuelle spirituelle Führung', 'url' => '/de-persoenliche-beratung/'),
-                array('title' => 'Belehrungen online', 'description' => 'Archiv von Dharma-Vorträgen', 'url' => '/de-belehrungen-online/'),
-                array('title' => 'Tibetisches Buch vom Leben und Sterben', 'description' => 'Studienressourcen zum klassischen Text', 'url' => '/de-tibetisches-buch-leben-sterben/'),
-                array('title' => 'Rigpa Wiki', 'description' => 'Umfassendes Wissensarchiv', 'url' => '/de-rigpa-wiki/'),
-                array('title' => 'Shop', 'description' => 'Bücher, Meditationshilfen und mehr', 'url' => '/de-shop/'),
+                array('title' => 'Gebetswünsche', 'description' => 'Namen für Widmungen und Gebete einreichen', 'url' => '#'),
+                array('title' => 'Begleitung bei Krankheit und Verlust', 'description' => 'Unterstützung und Orientierung zu Leben, Verlust und Sterben', 'url' => '#'),
+                array('title' => 'Belehrungen Online', 'description' => 'Online-Kurse und Studienprogramme', 'url' => '#'),
+                array('title' => 'Tibetisches Buch vom Leben und Sterben', 'description' => 'Ressourcen zum klassischen Text von Sogyal Rinpoche', 'url' => '#'),
+                array('title' => 'Rigpawiki', 'description' => 'Online-Nachschlagewerk zum tibetischen Buddhismus', 'url' => '#'),
+                array('title' => 'Hospiz Sukhavati', 'description' => 'Begleitung am Lebensende', 'url' => '#'),
+                array('title' => 'Tibetisch-Buddhistischer Kalender', 'description' => 'Wichtige Termine und Übungstage im buddhistischen Kalender', 'url' => '#'),
+                array('title' => 'Shedra Studium Nepal', 'description' => 'Studienkolleg in Nepal', 'url' => '#'),
+                array('title' => 'Shop', 'description' => 'Bücher, Übungsmaterialien und mehr', 'url' => '#'),
             ),
         ),
         array(
-            'label' => 'Wer wir sind',
+            'label' => 'Über uns',
             'items' => array(
-                array('title' => 'Über Rigpa', 'description' => 'Geschichte und Mission unserer Organisation', 'url' => '/de-ueber-rigpa/'),
-                array('title' => 'Spiritueller Pfad in Rigpa', 'description' => 'Unser Ansatz zur buddhistischen Praxis', 'url' => '/de-spiritueller-pfad/'),
-                array('title' => 'Linie & Lehrende', 'description' => 'Unsere Lehrer und spirituelle Abstammung', 'url' => '/de-linie-lehrende/'),
-                array('title' => 'Sangha & Community', 'description' => 'Unsere lebendige Praxisgemeinschaft', 'url' => '/de-sangha-community/'),
-                array('title' => 'Kinder, Familien, Junge Menschen', 'description' => 'Programme für die nächste Generation', 'url' => '/de-kinder-familien/'),
-                array('title' => 'Ethik & Diversität', 'description' => 'Unsere Werte und Verpflichtungen', 'url' => '/de-ethik-diversitaet/'),
-                array('title' => 'Team', 'description' => 'Mitarbeiter und Organisationsstruktur', 'url' => '/de-team/'),
-                array('title' => 'Jobs & Ehrenamt', 'description' => 'Möglichkeiten zur Mitarbeit', 'url' => '/de-jobs-ehrenamt/'),
-                array('title' => 'Mitglied werden', 'description' => 'Teil unserer Gemeinschaft werden', 'url' => '/de-mitglied-werden/'),
-                array('title' => 'Internationale Zentren', 'description' => 'Rigpa-Zentren weltweit', 'url' => '/de-internationale-zentren/'),
-                array('title' => 'Kontakt & Presse', 'description' => 'Nehmen Sie Kontakt mit uns auf', 'url' => '/de-kontakt-presse/'),
-            ),
-        ),
-        array(
-            'label' => 'Neu hier?',
-            'items' => array(
-                array('title' => 'Buddhismus entdecken', 'description' => 'Einführung in buddhistische Philosophie und Praxis', 'url' => '/de-buddhismus-entdecken/'),
-                array('title' => 'Jetzt meditieren', 'description' => 'Beginnen Sie noch heute mit der Meditation', 'url' => '/de-jetzt-meditieren/'),
-                array('title' => 'Spiritueller Pfad in Rigpa', 'description' => 'Erfahren Sie mehr über unseren Ansatz zum Pfad', 'url' => '/de-spiritueller-pfad/'),
-                array('title' => 'Gruppe finden', 'description' => 'Verbinden Sie sich mit Praktizierenden in Ihrer Nähe', 'url' => '/de-gruppe-finden/'),
-                array('title' => 'Persönliche Beratung', 'description' => 'Individuelle Unterstützung für Ihre Reise', 'url' => '/de-persoenliche-beratung/'),
-                array('title' => 'Mitmachen', 'description' => 'Werden Sie Teil unserer Gemeinschaft', 'url' => '/de-mitmachen/'),
-                array('title' => 'Newsletter abonnieren', 'description' => 'Bleiben Sie mit monatlichen Updates informiert', 'url' => '/de-newsletter-abonnieren/'),
-                array('title' => 'FAQ', 'description' => 'Häufig gestellte Fragen zu Praxis und Programmen', 'url' => '/faq/'),
-            ),
-            'featured' => array(
-                'title'       => 'Willkommen bei Rigpa',
-                'description' => 'Beginnen Sie Ihre Reise mit Meditation und entdecken Sie die Weisheit des tibetischen Buddhismus',
-                'image'       => rigpa_mega_menu_asset_url('featured-welcome.jpg'),
-                'url'         => '/de-willkommen-bei-rigpa/',
+                array('title' => 'Über Rigpa', 'description' => 'Geschichte und Mission unserer Organisation', 'url' => '#'),
+                array('title' => 'Ein vollständiger Buddhistischer Pfad', 'description' => 'Der Weg der Weisheit und des Mitgefühls', 'url' => '#'),
+                array('title' => 'Linie und Lehrende', 'description' => 'Unsere Lehrer und spirituelle Abstammung', 'url' => '#'),
+                array('title' => 'Rigpa als Gemeinschaft', 'description' => 'Unsere lebendige Praxisgemeinschaft', 'url' => '#'),
+                array('title' => 'Für Kinder, Familien & Junge Menschen', 'description' => 'Programme für die nächste Generation', 'url' => '#'),
+                array('title' => 'Ethik und Diversität', 'description' => 'Unsere Werte und Verpflichtungen', 'url' => '#'),
+                array('title' => 'Team', 'description' => 'Mitarbeiter und Organisationsstruktur', 'url' => '#'),
+                array('title' => 'Jobs & Ehrenamt', 'description' => 'Möglichkeiten zur Mitarbeit', 'url' => '#'),
+                array('title' => 'Mitglied werden', 'description' => 'Teil unserer Gemeinschaft werden', 'url' => '#'),
+                array('title' => 'Kontakt & Presse', 'description' => 'Nehmen Sie Kontakt mit uns auf', 'url' => '#'),
             ),
         ),
     );
-
-    $menus[] = rigpa_mega_menu_get_groups_section('german');
 
     return $menus;
 }

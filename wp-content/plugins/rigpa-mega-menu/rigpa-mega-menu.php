@@ -27,5 +27,21 @@ require_once RIGPA_MEGA_MENU_PATH . 'includes/class-rigpa-mega-menu-duplicator.p
 require_once RIGPA_MEGA_MENU_PATH . 'includes/class-rigpa-mega-menu.php';
 require_once RIGPA_MEGA_MENU_PATH . 'includes/class-rigpa-mega-menu-admin.php';
 
+register_deactivation_hook(__FILE__, 'rigpa_mega_menu_deactivate');
+
+/**
+ * On deactivation, unassign plugin menu locations so the theme
+ * does not reference slots that no longer render anything.
+ */
+function rigpa_mega_menu_deactivate() {
+    $locations = get_theme_mod('nav_menu_locations', array());
+    if (!is_array($locations)) {
+        return;
+    }
+
+    unset($locations['rigpa-mega-menu-en'], $locations['rigpa-mega-menu-de']);
+    set_theme_mod('nav_menu_locations', $locations);
+}
+
 Rigpa_Mega_Menu::init();
 Rigpa_Mega_Menu_Admin::init();
