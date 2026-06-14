@@ -1,0 +1,43 @@
+---
+description: Always use lean-ctx MCP tools for reads, search, and shell when available
+alwaysApply: true
+---
+
+# Always use lean-ctx when available
+
+The `user-lean-ctx` MCP server is enabled in this workspace and replaces the
+native read / search / shell tools for almost every routine operation. Using
+it cuts token usage massively (cached re-reads, compressed shell output,
+auto-summarised file maps) and gives consistent behaviour across plugins.
+
+## Mandatory tool mapping
+
+| Instead of                          | You MUST use                                     |
+|-------------------------------------|--------------------------------------------------|
+| `Read` / cat / head / tail          | `CallMcpTool user-lean-ctx ctx_read`             |
+| `Grep` / rg / find                  | `CallMcpTool user-lean-ctx ctx_search`           |
+| `Shell` / bash one-liners           | `CallMcpTool user-lean-ctx ctx_shell`            |
+| ls / directory listing              | `CallMcpTool user-lean-ctx ctx_tree`             |
+| Semantic / "where does X happen?"   | `CallMcpTool user-lean-ctx ctx_semantic_search`  |
+
+Native `Edit`, `StrReplace`, `Write`, `Delete`, `Glob`, `TodoWrite`,
+`ReadLints`, and the Cursor task / mode tools stay as-is — lean-ctx only
+replaces read-style operations.
+
+## Rules
+
+- Default to lean-ctx for every read, search, shell, or directory listing.
+  Only fall back to the native tool if a lean-ctx call has just failed for a
+  concrete reason (e.g. the MCP server is unreachable) and note why.
+- When the schema isn't obvious, list the tool descriptor under
+  `~/.cursor/projects/<project>/mcps/user-lean-ctx/tools/` before the first
+  call in a session so arguments are correct.
+- `ctx_read` modes: prefer `full` for files you're about to edit, `signatures`
+  / `map` for orientation, `lines:N-M` for slicing big files, `diff` after an
+  edit to confirm the change.
+- `ctx_shell` is for arbitrary commands (make, docker compose, git status,
+  wp-cli, npm, etc.). Add `raw=true` only when you specifically need
+  uncompressed output (large logs you have to grep through inline).
+- Do NOT echo lean-ctx's wake-up briefings, project memory, or auto-context
+  blocks back to the user — they are agent context only.
+- This rule sits alongside `rebuild-dist-zip.mdc`; both apply.
