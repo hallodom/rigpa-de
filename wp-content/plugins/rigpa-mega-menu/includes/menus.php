@@ -284,6 +284,97 @@ function rigpa_mega_menu_get_groups_section($lang) {
 }
 
 /**
+ * Curated set of section headings that should receive an auto-applied
+ * featured callout when a menu is copied into a mega menu location.
+ *
+ * Every other top-level item stays empty so editors fill them in via the
+ * standard mega menu admin UI. Each entry lists the title variants used to
+ * match against the source nav menu (case-insensitive, leading emoji/punct
+ * tolerant) and the featured config for both languages.
+ *
+ * @return array<int, array{
+ *     key: string,
+ *     variants: array<int, string>,
+ *     featured: array{english: array{title:string,description:string,image:string,url:string}, german: array{title:string,description:string,image:string,url:string}}
+ * }>
+ */
+function rigpa_mega_menu_get_auto_featured_sections() {
+    return array(
+        array(
+            'key'      => 'near_you',
+            'variants' => array(
+                'In Deiner Nähe',
+                'In deiner Nähe',
+                'In Deiner Naehe',
+                'Near You',
+                'Near you',
+                'In Your Area',
+            ),
+            'featured' => array(
+                'german' => array(
+                    'title'       => 'Besuchen Sie uns',
+                    'description' => 'Finden Sie ein Zentrum in Ihrer Nähe und werden Sie Teil unserer Gemeinschaft',
+                    'image'       => rigpa_mega_menu_asset_url('featured-visit.jpg'),
+                    'url'         => '/de-besuchen-sie-uns/',
+                ),
+                'english' => array(
+                    'title'       => 'Visit Us',
+                    'description' => 'Find a centre near you and become part of our community',
+                    'image'       => rigpa_mega_menu_asset_url('featured-visit.jpg'),
+                    'url'         => '/visit-us/',
+                ),
+            ),
+            'featured_centres' => array(
+                'german' => array(
+                    array(
+                        'title'       => 'Dharma Mati Berlin',
+                        'description' => 'Rigpa-Zentrum in Berlin',
+                        'image'       => rigpa_mega_menu_asset_url('dharma-mati.jpg'),
+                        'url'         => 'https://www.dharma-mati.de/',
+                    ),
+                ),
+                'english' => array(
+                    array(
+                        'title'       => 'Dharma Mati Berlin',
+                        'description' => 'Rigpa centre in Berlin',
+                        'image'       => rigpa_mega_menu_asset_url('dharma-mati.jpg'),
+                        'url'         => 'https://www.dharma-mati.de/',
+                    ),
+                ),
+            ),
+        ),
+        array(
+            'key'      => 'termine',
+            'variants' => array(
+                'Termine & Angebot',
+                'Termine und Angebot',
+                'Kurse & Termine',
+                'Kurse und Termine',
+                'Termine',
+                'Courses & Events',
+                'Courses and Events',
+                'Events & Courses',
+                'Upcoming Events',
+            ),
+            'featured' => array(
+                'german' => array(
+                    'title'       => 'Aktuelles Programm',
+                    'description' => 'Entdecken Sie unsere kommenden Kurse, Retreats und Veranstaltungen',
+                    'image'       => rigpa_mega_menu_asset_url('featured-retreats.jpg'),
+                    'url'         => '/de-programm/',
+                ),
+                'english' => array(
+                    'title'       => 'Upcoming Events',
+                    'description' => 'Browse our upcoming courses, retreats and events',
+                    'image'       => rigpa_mega_menu_asset_url('featured-retreats.jpg'),
+                    'url'         => '/upcoming-events/',
+                ),
+            ),
+        ),
+    );
+}
+
+/**
  * @return array<int, array<string, mixed>>
  */
 function rigpa_mega_menu_get_english_menus() {
@@ -366,12 +457,6 @@ function rigpa_mega_menu_get_english_menus() {
                 array('title' => 'Get Involved', 'description' => 'Join our community and volunteer', 'url' => '/get-involved/'),
                 array('title' => 'Subscribe to Newsletter', 'description' => 'Stay updated with monthly insights', 'url' => '/subscribe-newsletter/'),
                 array('title' => 'FAQ', 'description' => 'Common questions about practice and programs', 'url' => '/faq/'),
-            ),
-            'featured' => array(
-                'title'       => 'Welcome to Rigpa',
-                'description' => 'Begin your journey with meditation and discover the wisdom of Tibetan Buddhism',
-                'image'       => rigpa_mega_menu_asset_url('featured-welcome.jpg'),
-                'url'         => '/welcome-to-rigpa/',
             ),
         ),
     );
@@ -470,12 +555,6 @@ function rigpa_mega_menu_get_german_menus() {
                 array('title' => 'Mitmachen', 'description' => 'Werden Sie Teil unserer Gemeinschaft', 'url' => '/de-mitmachen/'),
                 array('title' => 'Newsletter abonnieren', 'description' => 'Bleiben Sie mit monatlichen Updates informiert', 'url' => '/de-newsletter-abonnieren/'),
                 array('title' => 'FAQ', 'description' => 'Häufig gestellte Fragen zu Praxis und Programmen', 'url' => '/faq/'),
-            ),
-            'featured' => array(
-                'title'       => 'Willkommen bei Rigpa',
-                'description' => 'Beginnen Sie Ihre Reise mit Meditation und entdecken Sie die Weisheit des tibetischen Buddhismus',
-                'image'       => rigpa_mega_menu_asset_url('featured-welcome.jpg'),
-                'url'         => '/de-willkommen-bei-rigpa/',
             ),
         ),
     );

@@ -143,16 +143,11 @@ class Rigpa_Mega_Menu_Duplicator {
             return $copied;
         }
 
-        // Append the built-in "Groups" section after the copied items, exactly as
-        // the seeder installs it (section + location links + featured-centre cards).
-        if (function_exists('rigpa_mega_menu_get_groups_section')) {
-            $groups_section = rigpa_mega_menu_get_groups_section($lang);
-            if (is_array($groups_section) && !empty($groups_section['label'])) {
-                Rigpa_Mega_Menu_Seeder::seed_section($target_id, $groups_section);
-                $copied['sections'] = (int) $copied['sections'] + 1;
-                $copied['links']    = (int) $copied['links'] + count((array) ($groups_section['items'] ?? array()));
-            }
-        }
+        // Groups section is intentionally NOT appended on copy. The static
+        // fallback render (see rigpa_mega_menu_get_english_menus / _german_menus)
+        // still uses rigpa_mega_menu_get_groups_section() when no nav menu is
+        // configured for the location, but copied menus get only the items
+        // that exist in the source main menu.
 
         Rigpa_Mega_Menu_Seeder::assign_location($target_id, $location);
 
@@ -162,11 +157,12 @@ class Rigpa_Mega_Menu_Duplicator {
             $descriptions_updated = (int) $description_sync['updated'];
         }
 
-        $featured_sync = Rigpa_Mega_Menu_Description_Sync::apply_featured_lang($lang);
-        $featured_updated = 0;
-        if (!is_wp_error($featured_sync)) {
-            $featured_updated = (int) $featured_sync['updated'];
-        }
+        // Top-level sections must NOT receive auto-applied featured panels on
+        // copy (users manage those manually) — with a narrow curated exception
+        // list defined in rigpa_mega_menu_get_auto_featured_sections() so a
+        // few key sections always carry their default image/text on copy and
+        // can then be edited via the standard mega menu admin UI.
+        $featured_updated = self::apply_auto_featured($target_id, $lang);
 
         return array(
             'source_menu_name'     => (string) $source_menu->name,
@@ -223,10 +219,10 @@ class Rigpa_Mega_Menu_Duplicator {
                     'menu-item-parent-id'   => $parent_new,
                     'menu-item-position'    => (int) $item->menu_order,
                     'menu-item-type'        => (string) $item->type,
-                    'menu-item-title'       => (string) $item->title,
+                    'menu-item-title'       => self::strip_emoji((string) $item->title),
                     'menu-item-url'         => (string) $item->url,
-                    'menu-item-description' => (string) $item->description,
-                    'menu-item-attr-title'  => (string) $item->attr_title,
+                    'menu-item-description' => self::strip_emoji((string) $item->description),
+                    'menu-item-attr-title'  => self::strip_emoji((string) $item->attr_title),
                     'menu-item-target'      => (string) $item->target,
                     'menu-item-xfn'         => (string) $item->xfn,
                     'menu-item-status'      => 'publish',
@@ -259,6 +255,178 @@ class Rigpa_Mega_Menu_Duplicator {
             'sections' => $sections,
             'links'    => $links,
         );
+    }
+
+    /**
+     * Apply curated featured callouts (e.g. In Deiner Nähe, Termine & Angebot)
+     * to the matching top-level items in the target menu. The list of sections
+     * to auto-populate is defined in rigpa_mega_menu_get_auto_featured_sections().
+     *
+     * @param int    $target_menu_id
+     * @param string $lang english|german
+     * @return int Number of items whose featured meta was written.
+     */
+    private static function apply_auto_featured($target_menu_id, $lang) {
+        if (!function_exists('rigpa_mega_menu_get_auto_featured_sections')) {
+            return 0;
+        }
+
+        $sections = rigpa_mega_menu_get_auto_featured_sections();
+        if (!is_array($sections) || $sections === array()) {
+            return 0;
+        }
+
+        $items = wp_get_nav_menu_items($target_menu_id, array('update_post_term_cache' => false));
+        if (!is_array($items) || $items === array()) {
+            return 0;
+        }
+
+        // Pre-compute normalized needles + sanitized featured config per section.
+        $compiled = array();
+        foreach ($sections as $section) {
+            $variants = isset($section['variants']) && is_array($section['variants'])
+                ? $section['variants']
+                : array();
+            $needles = array();
+            foreach ($variants as $variant) {
+                $needle = self::normalize_title((string) $variant);
+                if ($needle !== '') {
+                    $needles[$needle] = true;
+                }
+            }
+            if ($needles === array()) {
+                continue;
+            }
+
+            $featured_clean = null;
+            $featured_raw   = $section['featured'][$lang] ?? null;
+            if (is_array($featured_raw)) {
+                $featured_clean = Rigpa_Mega_Menu_Sanitize::featured($featured_raw);
+            }
+
+            $centres_clean = null;
+            $centres_raw   = $section['featured_centres'][$lang] ?? null;
+            if (is_array($centres_raw) && $centres_raw !== array()) {
+                $sanitized = Rigpa_Mega_Menu_Sanitize::featured_centres($centres_raw);
+                if (is_array($sanitized) && $sanitized !== array()) {
+                    $centres_clean = $sanitized;
+                }
+            }
+
+            if ($featured_clean === null && $centres_clean === null) {
+                continue;
+            }
+
+            $compiled[] = array(
+                'needles'  => $needles,
+                'featured' => $featured_clean,
+                'centres'  => $centres_clean,
+            );
+        }
+
+        if ($compiled === array()) {
+            return 0;
+        }
+
+        $updated = 0;
+        foreach ($items as $item) {
+            if (!$item instanceof WP_Post) {
+                continue;
+            }
+            if ((int) $item->menu_item_parent !== 0) {
+                continue;
+            }
+            $normalized = self::normalize_title((string) $item->title);
+            if ($normalized === '') {
+                continue;
+            }
+
+            foreach ($compiled as $section) {
+                if (!isset($section['needles'][$normalized])) {
+                    continue;
+                }
+                $touched = false;
+                if (is_array($section['featured'])) {
+                    update_post_meta((int) $item->ID, '_rigpa_mega_menu_featured', $section['featured']);
+                    $touched = true;
+                }
+                if (is_array($section['centres'])) {
+                    update_post_meta((int) $item->ID, '_rigpa_mega_menu_featured_centres', $section['centres']);
+                    $touched = true;
+                }
+                if ($touched) {
+                    $updated++;
+                }
+                break;
+            }
+        }
+
+        return $updated;
+    }
+
+    /**
+     * Lowercase, strip leading emoji / status glyphs and punctuation, collapse
+     * whitespace. Used for matching section heading variants.
+     *
+     * @param string $title
+     * @return string
+     */
+    private static function normalize_title($title) {
+        $title = wp_strip_all_tags($title);
+        $title = html_entity_decode($title, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // Remove common leading emoji/status markers used in the source menu
+        // (e.g. ☑️, ⏳, 🔤) and any surrounding whitespace/punctuation.
+        $title = preg_replace('/^[^\p{L}\p{N}]+/u', '', $title) ?? $title;
+        $title = preg_replace('/[^\p{L}\p{N}]+$/u', '', $title) ?? $title;
+        $title = preg_replace('/\s+/u', ' ', $title) ?? $title;
+        return function_exists('mb_strtolower') ? mb_strtolower(trim($title), 'UTF-8') : strtolower(trim($title));
+    }
+
+    /**
+     * Strip emoji, pictographs, dingbats, variation selectors and zero-width
+     * joiners from a string, then collapse whitespace and trim. Used so menu
+     * item titles like "☑️ Donate" or "🔤 Compassion" land in the target as
+     * "Donate" / "Compassion".
+     *
+     * @param string $text
+     * @return string
+     */
+    private static function strip_emoji($text) {
+        if ($text === '') {
+            return $text;
+        }
+
+        // Unicode ranges covering the bulk of emoji + pictographs + dingbats
+        // + regional indicators, plus the ZWJ and variation selectors used to
+        // compose multi-codepoint emoji.
+        $pattern = '/['
+            . '\x{1F300}-\x{1F5FF}'   // Misc Symbols & Pictographs
+            . '\x{1F600}-\x{1F64F}'   // Emoticons
+            . '\x{1F680}-\x{1F6FF}'   // Transport & Map
+            . '\x{1F700}-\x{1F77F}'   // Alchemical
+            . '\x{1F780}-\x{1F7FF}'   // Geometric Shapes Extended
+            . '\x{1F800}-\x{1F8FF}'   // Supplemental Arrows-C
+            . '\x{1F900}-\x{1F9FF}'   // Supplemental Symbols & Pictographs
+            . '\x{1FA00}-\x{1FA6F}'   // Chess Symbols / Symbols & Pictographs Ext-A
+            . '\x{1FA70}-\x{1FAFF}'   // Symbols & Pictographs Ext-A
+            . '\x{2600}-\x{26FF}'     // Misc Symbols (☀, ☑, ⏳…)
+            . '\x{2700}-\x{27BF}'     // Dingbats (✅, ✨, ✉…)
+            . '\x{1F1E6}-\x{1F1FF}'   // Regional Indicators (flags)
+            . '\x{FE00}-\x{FE0F}'     // Variation Selectors
+            . '\x{200D}'              // Zero-width joiner
+            . '\x{20E3}'              // Combining enclosing keycap
+            . '\x{2B00}-\x{2BFF}'     // Misc Symbols & Arrows
+            . '\x{2300}-\x{23FF}'     // Misc Technical (⏰, ⌛…)
+            . ']/u';
+
+        $cleaned = preg_replace($pattern, '', $text);
+        if ($cleaned === null) {
+            // Regex failed (e.g. invalid UTF-8); fall back to the original.
+            return trim($text);
+        }
+
+        $cleaned = preg_replace('/\s+/u', ' ', $cleaned) ?? $cleaned;
+        return trim($cleaned);
     }
 
     /**

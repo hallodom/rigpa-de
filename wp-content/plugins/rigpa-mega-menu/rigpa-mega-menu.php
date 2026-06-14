@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('RIGPA_MEGA_MENU_VERSION', '1.0.1');
+define('RIGPA_MEGA_MENU_VERSION', '1.0.2');
 define('RIGPA_MEGA_MENU_PATH', plugin_dir_path(__FILE__));
 define('RIGPA_MEGA_MENU_URL', plugin_dir_url(__FILE__));
 

@@ -159,7 +159,7 @@ export default function MegaMenuHeader({
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const PANEL_WIDTH = 890;
+  const PANEL_WIDTH = 992;
   const SCREEN_MARGIN = 48;      // minimum gap from viewport edges
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
