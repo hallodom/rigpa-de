@@ -58,18 +58,16 @@
 .rigpa-mega-menu-root .rigpa-mega-menu-header-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 56px;
 }
 
-/* Desktop nav — single row, no wrapping. column-gap is fluid so items
-   compact at narrower widths and breathe at wider ones, letting us keep
-   the desktop nav visible down to small-laptop widths without wrap. */
 .rigpa-mega-menu-root .rigpa-mega-menu-desktop-nav {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   column-gap: clamp(0.5rem, 1.6vw, 1.5rem);
+  margin-inline: auto;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-nav-item {
@@ -526,7 +524,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem;
+  margin: 0;
+  padding: 0.625rem 0;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--rigpa-mega-menu-item-color, #ffffff);
@@ -561,6 +560,25 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--rigpa-mega-menu-item-color, #ffffff);
+}
+
+@media (max-width: 767px) {
+  .rigpa-mega-menu-root .rigpa-mega-menu-inner {
+    padding-inline: 1rem !important;
+  }
+
+  .rigpa-mega-menu-root .rigpa-mega-menu-header-row {
+    min-height: 48px !important;
+  }
+
+  .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle {
+    padding: 0.5rem 0 !important;
+    margin: 0 !important;
+  }
+
+  .rigpa-mega-menu-root .rigpa-mega-menu-mobile-nav {
+    padding-inline: 1rem !important;
+  }
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-sr-only {
