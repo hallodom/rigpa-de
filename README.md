@@ -240,6 +240,25 @@ This compiles React/Tailwind from `wp-content/plugins/rigpa-mega-menu/src/` into
 
 Alias: `[rigpa-mega-menu]`. Language override: `[rigpa_mega_menu lang="german"]` or `lang="english"`. Default `lang="auto"` follows the WordPress locale (`de_DE` → German).
 
+Per-page appearance overrides (useful for interior pages without a dark hero, where the default white-on-transparent header would be invisible): `[rigpa_mega_menu transparent="false" color="#171717"]`. Both attributes are optional and fall back to the global settings on **Tools → Mega Menu** when omitted.
+
+### Per-page header overrides (no shortcode required)
+
+When the mega menu is mounted from a theme template part / nav-menu location (i.e. no shortcode is called on the page), use the **Mega Menu Header** metabox in the Page editor sidebar to override transparency and text colour for that page only. Options:
+
+- **Header style** — Inherit / Solid (white background) / Transparent (over hero).
+- **Menu text colour** — leave blank to auto-derive (white when transparent, dark when solid), or enter a hex like `#171717` to override.
+
+**Defaults**: the built-in default is **solid + dark text** (`#171717`) so interior pages work out of the box. The homepage (or any page over a hero image / video) sets Header style = Transparent in its metabox; text colour then auto-derives to white without needing a separate override.
+
+Both the shortcode path and the slot-renderer path resolve appearance through the `rigpa_mega_menu_is_transparent` and `rigpa_mega_menu_text_color` filters, so the metabox values apply regardless of mount method. Plugin/theme code can hook the same filters for programmatic overrides:
+
+```php
+add_filter('rigpa_mega_menu_is_transparent', function ($transparent, $context) {
+    return is_page('about') ? false : $transparent;
+}, 10, 2);
+```
+
 ### Languages
 
 The plugin supports **two menu languages**, each backed by its own nav menu and location:

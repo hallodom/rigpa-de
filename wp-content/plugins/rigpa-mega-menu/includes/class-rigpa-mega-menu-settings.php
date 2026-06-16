@@ -12,13 +12,19 @@ class Rigpa_Mega_Menu_Settings {
     const OPTION_TRANSPARENT     = 'rigpa_mega_menu_transparent';
     const OPTION_MENU_TEXT_COLOR = 'rigpa_mega_menu_text_color';
 
-    const DEFAULT_MENU_TEXT_COLOR = '#ffffff';
+    const DEFAULT_SOLID_TEXT_COLOR       = '#171717';
+    const DEFAULT_TRANSPARENT_TEXT_COLOR = '#ffffff';
 
     /**
-     * Whether the header bar uses a transparent background (default: on).
+     * Whether the header bar uses a transparent background (default: off / solid).
+     *
+     * Most pages render the menu over a light page background, so the
+     * built-in default is solid + dark text. Pages that sit over a hero
+     * image or video (e.g. the homepage) can flip this on per-page via
+     * the Mega Menu Header metabox.
      */
     public static function is_transparent() {
-        $value = get_option(self::OPTION_TRANSPARENT, '1');
+        $value = get_option(self::OPTION_TRANSPARENT, '0');
 
         return $value !== '0' && $value !== false;
     }
@@ -31,13 +37,31 @@ class Rigpa_Mega_Menu_Settings {
     }
 
     /**
-     * Hex colour for top-level menu bar item labels (default: white).
+     * Hex colour for top-level menu bar item labels.
+     *
+     * When no explicit colour has been saved, the default is derived
+     * from $transparent: white on a transparent header (over a hero
+     * background), dark on a solid header (light page background).
+     * Pass null to inherit the resolved value of the global transparency
+     * setting.
+     *
+     * @param bool|null $transparent
      */
-    public static function get_menu_text_color() {
-        $stored = get_option(self::OPTION_MENU_TEXT_COLOR, self::DEFAULT_MENU_TEXT_COLOR);
-        $color  = sanitize_hex_color((string) $stored);
+    public static function get_menu_text_color($transparent = null) {
+        $stored = (string) get_option(self::OPTION_MENU_TEXT_COLOR, '');
+        $color  = $stored === '' ? '' : (string) sanitize_hex_color($stored);
 
-        return $color ? $color : self::DEFAULT_MENU_TEXT_COLOR;
+        if ($color !== '') {
+            return $color;
+        }
+
+        if ($transparent === null) {
+            $transparent = self::is_transparent();
+        }
+
+        return $transparent
+            ? self::DEFAULT_TRANSPARENT_TEXT_COLOR
+            : self::DEFAULT_SOLID_TEXT_COLOR;
     }
 
     /**
@@ -45,10 +69,11 @@ class Rigpa_Mega_Menu_Settings {
      */
     public static function set_menu_text_color($color) {
         $sanitized = sanitize_hex_color($color);
-        update_option(
-            self::OPTION_MENU_TEXT_COLOR,
-            $sanitized ? $sanitized : self::DEFAULT_MENU_TEXT_COLOR
-        );
+        if ($sanitized) {
+            update_option(self::OPTION_MENU_TEXT_COLOR, $sanitized);
+        } else {
+            delete_option(self::OPTION_MENU_TEXT_COLOR);
+        }
     }
 
     /**

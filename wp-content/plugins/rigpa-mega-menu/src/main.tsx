@@ -31,6 +31,12 @@ function applyMenuTextColor(node: HTMLElement, color?: string) {
   if (!color) {
     return;
   }
+  // A per-instance value emitted via inline style on the wrapper (e.g. a
+  // shortcode attr or per-page meta override) takes precedence over the
+  // localized global default.
+  if (node.style.getPropertyValue("--rigpa-mega-menu-item-color")) {
+    return;
+  }
   node.style.setProperty("--rigpa-mega-menu-item-color", color);
 }
 

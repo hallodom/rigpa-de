@@ -29,13 +29,46 @@ class Rigpa_Mega_Menu {
     public static function render_shortcode($atts = array()) {
         $atts = shortcode_atts(
             array(
-                'lang' => 'auto',
+                'lang'        => 'auto',
+                'transparent' => null,
+                'color'       => null,
             ),
             $atts,
             'rigpa_mega_menu'
         );
 
-        self::$resolved_lang = rigpa_mega_menu_resolve_lang($atts['lang']);
+        return self::render_root_markup(array(
+            'lang'        => $atts['lang'],
+            'transparent' => $atts['transparent'],
+            'color'       => $atts['color'],
+            'source'      => 'shortcode',
+        ));
+    }
+
+    /**
+     * Render the mega-menu root mount element.
+     *
+     * Shared entry point for the shortcode and any non-shortcode mount path
+     * (e.g. a theme template part rendering the header via a nav-menu
+     * location). Pass `transparent` / `color` to seed the per-instance
+     * override; both run through the `rigpa_mega_menu_is_transparent`
+     * and `rigpa_mega_menu_text_color` filters so per-page meta and
+     * other extensions can apply.
+     *
+     * @param array{lang?:string, transparent?:mixed, color?:mixed, source?:string} $args
+     */
+    public static function render_root_markup($args = array()) {
+        $args = array_merge(
+            array(
+                'lang'        => 'auto',
+                'transparent' => null,
+                'color'       => null,
+                'source'      => 'manual',
+            ),
+            is_array($args) ? $args : array()
+        );
+
+        self::$resolved_lang = rigpa_mega_menu_resolve_lang($args['lang']);
         self::enqueue_assets();
 
         self::$instance_count++;
@@ -43,17 +76,74 @@ class Rigpa_Mega_Menu {
             ? 'rigpa-mega-menu-root'
             : 'rigpa-mega-menu-root-' . self::$instance_count;
 
-        $mode_class = Rigpa_Mega_Menu_Settings::is_transparent()
+        $context = array(
+            'source' => (string) $args['source'],
+            'args'   => $args,
+        );
+
+        // Resolve transparency first so the colour default can derive from
+        // the *final* transparency state (transparent → white, solid → dark
+        // when no explicit colour override is set).
+        $transparent = self::resolve_transparent_attr($args['transparent']);
+        $transparent = (bool) apply_filters('rigpa_mega_menu_is_transparent', $transparent, $context);
+
+        $color = self::resolve_color_attr($args['color'], $transparent);
+        $color_filtered = apply_filters('rigpa_mega_menu_text_color', $color, $context);
+        $color_sanitized = is_string($color_filtered) ? sanitize_hex_color($color_filtered) : '';
+        $color = $color_sanitized ? $color_sanitized : $color;
+
+        $mode_class = $transparent
             ? 'rigpa-mega-menu-root--transparent'
             : 'rigpa-mega-menu-root--solid';
+
+        $style_attr = sprintf(
+            ' style="%s"',
+            esc_attr('--rigpa-mega-menu-item-color:' . $color . ';')
+        );
 
         return sprintf(
             '<div id="%s" class="rigpa-mega-menu-wrapper rigpa-mega-menu-root %s"%s role="navigation" aria-label="%s"></div>',
             esc_attr($id),
             esc_attr($mode_class),
-            Rigpa_Mega_Menu_Settings::get_root_color_style_attribute(),
+            $style_attr,
             esc_attr__('Main', 'rigpa-mega-menu')
         );
+    }
+
+    /**
+     * Resolve the `transparent` shortcode attribute, falling back to the
+     * global setting when the attribute is missing or unparseable.
+     */
+    private static function resolve_transparent_attr($value) {
+        if ($value === null || $value === '') {
+            return Rigpa_Mega_Menu_Settings::is_transparent();
+        }
+
+        $parsed = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($parsed === null) {
+            return Rigpa_Mega_Menu_Settings::is_transparent();
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Resolve the `color` shortcode attribute, falling back to the global
+     * setting when the attribute is missing or not a valid hex colour.
+     * The fallback is transparency-aware: white on a transparent header,
+     * dark on a solid one when no explicit colour has been saved.
+     *
+     * @param mixed $value
+     * @param bool  $transparent
+     */
+    private static function resolve_color_attr($value, $transparent) {
+        if ($value === null || $value === '') {
+            return Rigpa_Mega_Menu_Settings::get_menu_text_color($transparent);
+        }
+
+        $sanitized = sanitize_hex_color((string) $value);
+
+        return $sanitized ? $sanitized : Rigpa_Mega_Menu_Settings::get_menu_text_color($transparent);
     }
 
     public static function enqueue_assets() {
@@ -111,6 +201,17 @@ class Rigpa_Mega_Menu {
             '.rigpa-mega-menu-root {' . Rigpa_Mega_Menu_Settings::get_root_color_style_declaration() . '}'
         );
 
+        // Full-bleed alignment fix. The CSS breakout below (margin-left: calc(50% - 50vw))
+        // only lands at the viewport origin when the menu's host element happens to sit at
+        // the horizontal centre of the viewport. Inside some Elementor layouts the host is
+        // off-centre on mobile, so the formula overshoots and pushes the header (and the
+        // mobile burger toggle) off-screen. This measures the host's real left edge and pins
+        // the wrapper to the viewport origin, recomputed on load and resize.
+        wp_add_inline_script(
+            'rigpa-mega-menu',
+            self::get_fullbleed_fix_js()
+        );
+
         wp_add_inline_style(
             'rigpa-mega-menu',
             '.rigpa-mega-menu-wrapper, .rigpa-mega-menu-root { width: 100vw !important; max-width: 100vw !important; margin-left: calc(50% - 50vw) !important; margin-right: calc(50% - 50vw) !important; position: relative; overflow: visible !important; z-index: 9999; }'
@@ -124,12 +225,67 @@ class Rigpa_Mega_Menu {
             '.wp-block-group:has(.rigpa-mega-menu-root), header:has(.rigpa-mega-menu-root), .wp-block-template-part:has(.rigpa-mega-menu-root) { overflow: visible !important; }'
         );
 
+        // The mobile menu panel must overlay the page rather than occupy layout
+        // space. In normal flow its expansion grows the header and pushes sibling
+        // header elements (site logo, login/account) down. Anchoring it absolutely
+        // to the (position:relative) header keeps the header height fixed when open.
+        wp_add_inline_style(
+            'rigpa-mega-menu',
+            '.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel { position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 60 !important; }'
+        );
+
         wp_add_inline_style(
             'rigpa-mega-menu',
             self::get_hardening_css()
         );
 
         add_action('wp_print_styles', array(__CLASS__, 'reorder_stylesheet'), 9999);
+    }
+
+    /**
+     * Runtime full-bleed alignment.
+     *
+     * The CSS full-bleed uses `margin-left: calc(50% - 50vw)`, which only resolves
+     * to the viewport origin when the menu's host element is horizontally centred.
+     * Some Elementor layouts place the (zero-width) host off-centre on mobile, so the
+     * header is dragged off-screen and the burger toggle becomes invisible. This pass
+     * measures the host's actual left edge and pins the wrapper to x=0 with a 100vw
+     * width, re-running on load, after late hydration, and on resize.
+     */
+    private static function get_fullbleed_fix_js() {
+        return <<<'JS'
+(function () {
+    var SEL = '.rigpa-mega-menu-wrapper, .rigpa-mega-menu-root';
+    function align() {
+        var nodes = document.querySelectorAll(SEL);
+        for (var i = 0; i < nodes.length; i++) {
+            var el = nodes[i];
+            el.style.setProperty('margin-left', '0', 'important');
+            el.style.setProperty('margin-right', '0', 'important');
+            var left = el.getBoundingClientRect().left;
+            el.style.setProperty('margin-left', (-left) + 'px', 'important');
+            el.style.setProperty('margin-right', '0', 'important');
+        }
+    }
+    function schedule() {
+        align();
+        if (window.requestAnimationFrame) { window.requestAnimationFrame(align); }
+        setTimeout(align, 150);
+        setTimeout(align, 600);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', schedule);
+    } else {
+        schedule();
+    }
+    window.addEventListener('load', schedule);
+    var rt;
+    window.addEventListener('resize', function () {
+        clearTimeout(rt);
+        rt = setTimeout(align, 100);
+    });
+})();
+JS;
     }
 
     /**

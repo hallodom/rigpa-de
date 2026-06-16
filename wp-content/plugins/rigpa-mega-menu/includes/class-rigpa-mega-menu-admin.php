@@ -470,7 +470,7 @@ class Rigpa_Mega_Menu_Admin {
 
         $menu_status       = self::get_menu_location_status();
         $transparent       = Rigpa_Mega_Menu_Settings::is_transparent();
-        $menu_text_color   = Rigpa_Mega_Menu_Settings::get_menu_text_color();
+        $menu_text_color   = Rigpa_Mega_Menu_Settings::get_menu_text_color($transparent);
         $main_menu         = Rigpa_Mega_Menu_Duplicator::resolve_main_menu();
         $seed_success      = isset($_GET['seed_success']) && $_GET['seed_success'] === '1';
         $copy_success      = isset($_GET['copy_success']) && $_GET['copy_success'] === '1';
@@ -607,6 +607,18 @@ class Rigpa_Mega_Menu_Admin {
                         <code>[rigpa_mega_menu lang="english"]</code>,
                         <code>[rigpa_mega_menu lang="auto"]</code>
                     </p>
+                    <p class="description">
+                        <?php esc_html_e('Per-page appearance override (for interior pages with light backgrounds):', 'rigpa-mega-menu'); ?>
+                        <code>[rigpa_mega_menu transparent="false" color="#171717"]</code>
+                    </p>
+                    <p class="description">
+                        <?php
+                        esc_html_e(
+                            'When the menu is mounted from a theme template part instead of the shortcode, set the override on the page itself via the "Mega Menu Header" metabox in the Page editor (sidebar).',
+                            'rigpa-mega-menu'
+                        );
+                        ?>
+                    </p>
                 </div>
 
                 <div class="rigpa-mega-menu-admin__panel">
@@ -648,7 +660,7 @@ class Rigpa_Mega_Menu_Admin {
                                     </span>
                                 </label>
                                 <p class="description">
-                                    <?php esc_html_e('When on (default), the menu bar has no background colour and no borders. When off, the menu bar uses a solid white background.', 'rigpa-mega-menu'); ?>
+                                    <?php esc_html_e('Default is off (solid white background, dark text) so interior pages over a light background work out of the box. Turn on for sites whose homepage / landing page sits over a hero image or video — or leave off globally and enable it per page via the Mega Menu Header metabox.', 'rigpa-mega-menu'); ?>
                                 </p>
                             </td>
                         </tr>

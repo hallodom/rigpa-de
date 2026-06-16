@@ -604,8 +604,9 @@
   background-image: none !important;
   display: grid !important;
   grid-template-rows: 0fr !important;
-  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  transition: grid-template-rows 0.4s cubic-bezier(0.65, 0, 0.35, 1) !important;
   pointer-events: none;
+  will-change: grid-template-rows;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel.rigpa-mega-menu-mobile-panel--open {
@@ -613,11 +614,22 @@
   pointer-events: auto;
 }
 
-/* Inner wrapper required for grid height trick */
+/* Inner wrapper required for grid height trick. Drop shadow only paints
+ * when the panel is open (opacity 0 → 1 swallows it while collapsed) and
+ * the GPU-accelerated opacity transition smooths the perceived framerate
+ * of the grid-template-rows animation alongside it. */
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel-content {
   min-height: 0 !important;
   overflow: hidden !important;
   background: #fff;
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transition: opacity 0.32s cubic-bezier(0.65, 0, 0.35, 1) 0.04s;
+  will-change: opacity;
+}
+
+.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel--open .rigpa-mega-menu-mobile-panel-content {
+  opacity: 1;
 }
 
 .rigpa-mega-menu-root .rigpa-mega-menu-mobile-nav {
@@ -840,6 +852,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel,
+  .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel-content,
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-accordion,
   .rigpa-mega-menu-root .rigpa-mega-menu-mobile-chevron {
     transition: none !important;
