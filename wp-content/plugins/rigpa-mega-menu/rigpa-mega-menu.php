@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Rigpa Mega Menu
  * Description: Interactive header mega menu with Elementor-compatible shortcode.
- * Version: 1.0.4
+ * Version: 1.0.6
  * Author: Rigpa DE
  * Text Domain: rigpa-mega-menu
  * Requires at least: 6.0
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('RIGPA_MEGA_MENU_VERSION', '1.0.4');
+define('RIGPA_MEGA_MENU_VERSION', '1.0.6');
 define('RIGPA_MEGA_MENU_PATH', plugin_dir_path(__FILE__));
 define('RIGPA_MEGA_MENU_URL', plugin_dir_url(__FILE__));
 

@@ -229,9 +229,26 @@ class Rigpa_Mega_Menu {
         // space. In normal flow its expansion grows the header and pushes sibling
         // header elements (site logo, login/account) down. Anchoring it absolutely
         // to the (position:relative) header keeps the header height fixed when open.
+        // The +28px top offset opens the panel just below the (taller, centred) site
+        // logo so it isn't clipped on mobile; pages that hide the theme header can
+        // override this back to 100% via per-page CSS.
         wp_add_inline_style(
             'rigpa-mega-menu',
-            '.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel { position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 60 !important; }'
+            '.rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel { position: absolute !important; top: calc(100% + 28px) !important; left: 0 !important; right: 0 !important; width: 100% !important; z-index: 60 !important; }'
+        );
+
+        // Mobile burger: larger icon, larger tap target, and a snappier open/close.
+        // - The icon is bumped from 18px to 28px (visual size only).
+        // - padding 12px + matching negative margin grows the hit area to ~52px
+        //   without shifting where the icon visually sits.
+        // - touch-action:manipulation removes the ~300ms iOS tap delay.
+        // - the panel/content transitions are shortened so open/close feels immediate.
+        wp_add_inline_style(
+            'rigpa-mega-menu',
+            '.rigpa-mega-menu-root svg.rigpa-mega-menu-mobile-toggle-icon { width: 28px !important; height: 28px !important; }'
+            . ' .rigpa-mega-menu-root .rigpa-mega-menu-header .rigpa-mega-menu-mobile-toggle { padding: 12px !important; margin: -12px !important; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }'
+            . ' .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel { transition: grid-template-rows 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important; }'
+            . ' .rigpa-mega-menu-root .rigpa-mega-menu-mobile-panel-content { transition: opacity 0.16s ease !important; }'
         );
 
         wp_add_inline_style(
