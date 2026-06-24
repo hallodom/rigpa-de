@@ -99,15 +99,23 @@ class Rigpa_De_Map {
             true
         );
 
-        $locations = rigpa_de_map_get_locations();
-        $copy      = rigpa_de_map_get_copy();
+        $country_slug = rigpa_de_map_get_default_country();
+        $country      = rigpa_de_map_get_country($country_slug);
+        $locations    = rigpa_de_map_get_locations($country_slug);
+        $copy         = rigpa_de_map_get_copy($country_slug);
+        $map_url      = RIGPA_DE_MAP_URL . 'assets/maps/' . $country['map']['svg'];
 
         wp_localize_script(
             'rigpa-de-map',
             'rigpaDeMap',
             array(
                 'assetsUrl'        => RIGPA_DE_MAP_URL . 'assets/',
-                'germanyVectorUrl' => RIGPA_DE_MAP_URL . 'assets/germany-vector.svg',
+                'country'          => $country_slug,
+                'countryLabel'     => $country['label'],
+                'mapVectorUrl'     => $map_url,
+                'mapWidth'         => $country['map']['width'],
+                'mapHeight'        => $country['map']['height'],
+                'germanyVectorUrl' => $map_url,
                 'locations'        => $locations,
                 'copy'             => $copy,
             )
