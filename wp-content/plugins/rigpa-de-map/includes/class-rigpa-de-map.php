@@ -100,6 +100,7 @@ class Rigpa_De_Map {
         );
 
         $locations = rigpa_de_map_get_locations();
+        $copy      = rigpa_de_map_get_copy();
 
         wp_localize_script(
             'rigpa-de-map',
@@ -108,6 +109,7 @@ class Rigpa_De_Map {
                 'assetsUrl'        => RIGPA_DE_MAP_URL . 'assets/',
                 'germanyVectorUrl' => RIGPA_DE_MAP_URL . 'assets/germany-vector.svg',
                 'locations'        => $locations,
+                'copy'             => $copy,
             )
         );
 

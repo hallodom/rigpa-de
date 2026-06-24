@@ -49,6 +49,66 @@ function rigpa_de_map_sanitize_location_image($url) {
 }
 
 /**
+ * Default editable copy shown by the map.
+ *
+ * @return array<string, string>
+ */
+function rigpa_de_map_default_copy() {
+    return array(
+        'title'                => 'Rigpa Standorte Deutschland',
+        'subtitle'             => 'Meditation und tibetischer Buddhismus in Ihrer Nähe',
+        'country_label'        => 'Germany',
+        'view_details_label'   => 'View details',
+        'international_prefix' => 'To view our international centres worldwide, visit',
+        'international_link'   => 'rigpa.org',
+        'international_url'    => 'https://rigpa.org/',
+        'international_suffix' => '.',
+    );
+}
+
+/**
+ * @param string $key Copy field key.
+ * @param string $value Raw field value.
+ * @return string
+ */
+function rigpa_de_map_sanitize_copy_value($key, $value) {
+    $value = trim((string) wp_unslash($value));
+
+    if ($key === 'international_url') {
+        return esc_url_raw($value);
+    }
+
+    return sanitize_text_field($value);
+}
+
+/**
+ * @return array<string, string>
+ */
+function rigpa_de_map_get_copy() {
+    $copy = get_option(RIGPA_DE_MAP_COPY_OPTION, array());
+    $copy = is_array($copy) ? $copy : array();
+
+    return array_merge(rigpa_de_map_default_copy(), array_intersect_key($copy, rigpa_de_map_default_copy()));
+}
+
+/**
+ * @return array<string, array{name?: string, region?: string}>
+ */
+function rigpa_de_map_get_saved_location_texts() {
+    $texts = get_option(RIGPA_DE_MAP_LOCATION_TEXTS_OPTION, array());
+
+    return is_array($texts) ? $texts : array();
+}
+
+/**
+ * @param string $value Raw location text.
+ * @return string
+ */
+function rigpa_de_map_sanitize_location_text($value) {
+    return sanitize_text_field(trim((string) wp_unslash($value)));
+}
+
+/**
  * Bundled image filename stem for a location (handles aliases).
  *
  * @param string $location_id Location slug.
@@ -256,8 +316,9 @@ function rigpa_de_map_get_locations() {
         ),
     );
 
-    $saved_urls   = get_option(RIGPA_DE_MAP_URLS_OPTION, array());
-    $saved_images = rigpa_de_map_get_saved_images();
+    $saved_urls           = get_option(RIGPA_DE_MAP_URLS_OPTION, array());
+    $saved_images         = rigpa_de_map_get_saved_images();
+    $saved_location_texts = rigpa_de_map_get_saved_location_texts();
 
     if (!is_array($saved_urls)) {
         $saved_urls = array();
@@ -274,6 +335,14 @@ function rigpa_de_map_get_locations() {
             }
             if (isset($saved_urls[$id])) {
                 $locations[$column][$index]['url'] = $saved_urls[$id];
+            }
+            if (isset($saved_location_texts[$id]) && is_array($saved_location_texts[$id])) {
+                if (isset($saved_location_texts[$id]['name']) && $saved_location_texts[$id]['name'] !== '') {
+                    $locations[$column][$index]['name'] = $saved_location_texts[$id]['name'];
+                }
+                if (array_key_exists('region', $saved_location_texts[$id])) {
+                    $locations[$column][$index]['region'] = $saved_location_texts[$id]['region'];
+                }
             }
             $locations[$column][$index]['image'] = rigpa_de_map_get_location_image_url($id, $saved_images);
         }

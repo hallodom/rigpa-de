@@ -12,6 +12,8 @@ class Rigpa_De_Map_Admin {
     const MENU_SLUG = 'rigpa-de-map';
     const OPTION_KEY = RIGPA_DE_MAP_URLS_OPTION;
     const IMAGES_OPTION_KEY = RIGPA_DE_MAP_IMAGES_OPTION;
+    const COPY_OPTION_KEY = RIGPA_DE_MAP_COPY_OPTION;
+    const LOCATION_TEXTS_OPTION_KEY = RIGPA_DE_MAP_LOCATION_TEXTS_OPTION;
 
     public static function init() {
         if (!is_admin()) {
@@ -61,6 +63,34 @@ class Rigpa_De_Map_Admin {
         }
 
         update_option(self::OPTION_KEY, $urls, false);
+
+        $copy = rigpa_de_map_default_copy();
+        if (isset($_POST['map_copy']) && is_array($_POST['map_copy'])) {
+            foreach ($copy as $key => $default) {
+                $copy[$key] = isset($_POST['map_copy'][$key])
+                    ? rigpa_de_map_sanitize_copy_value($key, $_POST['map_copy'][$key])
+                    : $default;
+            }
+        }
+
+        update_option(self::COPY_OPTION_KEY, $copy, false);
+
+        $location_texts = array();
+        if (isset($_POST['location_text']) && is_array($_POST['location_text'])) {
+            foreach ($_POST['location_text'] as $id => $fields) {
+                $id = sanitize_key($id);
+                if ($id === '' || !is_array($fields)) {
+                    continue;
+                }
+
+                $location_texts[$id] = array(
+                    'name'   => isset($fields['name']) ? rigpa_de_map_sanitize_location_text($fields['name']) : '',
+                    'region' => isset($fields['region']) ? rigpa_de_map_sanitize_location_text($fields['region']) : '',
+                );
+            }
+        }
+
+        update_option(self::LOCATION_TEXTS_OPTION_KEY, $location_texts, false);
 
         $images = array();
         if (isset($_POST['location_image_state']) && is_array($_POST['location_image_state'])) {
@@ -119,6 +149,13 @@ class Rigpa_De_Map_Admin {
     }
 
     /**
+     * @return array<string, string>
+     */
+    public static function get_saved_copy() {
+        return rigpa_de_map_get_copy();
+    }
+
+    /**
      * Load the media library frame + picker script on our settings page only.
      *
      * @param string $hook Current admin page hook suffix.
@@ -146,6 +183,7 @@ class Rigpa_De_Map_Admin {
         $locations = rigpa_de_map_get_locations();
         $saved_urls = self::get_saved_urls();
         $saved_images = self::get_saved_images();
+        $saved_copy = self::get_saved_copy();
         $updated = isset($_GET['updated']) && $_GET['updated'] === '1';
 
         $css_path = RIGPA_DE_MAP_PATH . 'assets/css/rigpa-de-map.css';
@@ -191,9 +229,11 @@ class Rigpa_De_Map_Admin {
                 <?php wp_nonce_field('rigpa_de_map_save'); ?>
                 <input type="hidden" name="rigpa_de_map_save" value="1" />
 
+                <?php self::render_copy_fields($saved_copy); ?>
+
                 <h2><?php esc_html_e('Locations', 'rigpa-de-map'); ?></h2>
                 <p class="description">
-                    <?php esc_html_e('Set the “View details” link and hover-card image for each location. URLs may be full (https://…) or site-relative (/centres/berlin). Leave the URL blank to show the label without a link.', 'rigpa-de-map'); ?>
+                    <?php esc_html_e('Set the visible text, “View details” link and hover-card image for each location. URLs may be full (https://…) or site-relative (/centres/berlin). Leave the URL blank to show the label without a link.', 'rigpa-de-map'); ?>
                 </p>
 
                 <?php self::render_location_table(__('Left column', 'rigpa-de-map'), $locations['left'] ?? array(), $saved_urls, $saved_images); ?>
@@ -204,6 +244,45 @@ class Rigpa_De_Map_Admin {
         </div>
         <?php
         self::print_styles();
+    }
+
+    /**
+     * @param array<string, string> $copy
+     */
+    private static function render_copy_fields($copy) {
+        $fields = array(
+            'title'                => __('Heading', 'rigpa-de-map'),
+            'subtitle'             => __('Subheading', 'rigpa-de-map'),
+            'country_label'        => __('Hover-card country label', 'rigpa-de-map'),
+            'view_details_label'   => __('Hover-card link label', 'rigpa-de-map'),
+            'international_prefix' => __('International centres text before link', 'rigpa-de-map'),
+            'international_link'   => __('International centres link text', 'rigpa-de-map'),
+            'international_url'    => __('International centres URL', 'rigpa-de-map'),
+            'international_suffix' => __('International centres text after link', 'rigpa-de-map'),
+        );
+        ?>
+        <h2><?php esc_html_e('Map text', 'rigpa-de-map'); ?></h2>
+        <table class="form-table rigpa-de-map-admin__copy-table" role="presentation">
+            <tbody>
+                <?php foreach ($fields as $key => $label) : ?>
+                    <tr>
+                        <th scope="row">
+                            <label for="rigpa-de-map-copy-<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label>
+                        </th>
+                        <td>
+                            <input
+                                type="<?php echo $key === 'international_url' ? 'url' : 'text'; ?>"
+                                id="rigpa-de-map-copy-<?php echo esc_attr($key); ?>"
+                                name="map_copy[<?php echo esc_attr($key); ?>]"
+                                value="<?php echo esc_attr($copy[$key] ?? ''); ?>"
+                                class="regular-text"
+                            />
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php
     }
 
     /**
@@ -232,11 +311,24 @@ class Rigpa_De_Map_Admin {
                     ?>
                     <tr>
                         <td>
-                            <strong><?php echo esc_html($item['name']); ?></strong>
+                            <input
+                                type="text"
+                                name="location_text[<?php echo esc_attr($id); ?>][name]"
+                                value="<?php echo esc_attr($item['name']); ?>"
+                                class="regular-text"
+                            />
                             <br />
                             <span class="description"><?php echo esc_html($id); ?></span>
                         </td>
-                        <td><?php echo esc_html($item['region'] !== '' ? $item['region'] : '—'); ?></td>
+                        <td>
+                            <input
+                                type="text"
+                                name="location_text[<?php echo esc_attr($id); ?>][region]"
+                                value="<?php echo esc_attr($item['region']); ?>"
+                                class="regular-text"
+                                placeholder="<?php esc_attr_e('Centre, Group, etc.', 'rigpa-de-map'); ?>"
+                            />
+                        </td>
                         <td class="rigpa-de-map-admin__image-cell">
                             <?php self::render_location_image_field($id, $saved_images); ?>
                         </td>

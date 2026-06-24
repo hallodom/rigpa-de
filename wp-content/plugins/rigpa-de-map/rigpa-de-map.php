@@ -18,6 +18,8 @@ define('RIGPA_DE_MAP_PATH', plugin_dir_path(__FILE__));
 define('RIGPA_DE_MAP_URL', plugin_dir_url(__FILE__));
 define('RIGPA_DE_MAP_URLS_OPTION', 'rigpa_de_map_urls');
 define('RIGPA_DE_MAP_IMAGES_OPTION', 'rigpa_de_map_images');
+define('RIGPA_DE_MAP_COPY_OPTION', 'rigpa_de_map_copy');
+define('RIGPA_DE_MAP_LOCATION_TEXTS_OPTION', 'rigpa_de_map_location_texts');
 
 require_once RIGPA_DE_MAP_PATH . 'includes/locations.php';
 require_once RIGPA_DE_MAP_PATH . 'includes/class-rigpa-de-map.php';
