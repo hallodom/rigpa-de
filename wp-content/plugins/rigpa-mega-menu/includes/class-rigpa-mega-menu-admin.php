@@ -873,13 +873,25 @@ class Rigpa_Mega_Menu_Admin {
                     if (empty($featured_sections)) :
                     ?>
                         <p class="rigpa-mega-menu-admin__status rigpa-mega-menu-admin__status--warn">
-                            <?php esc_html_e('No mega menus assigned yet. Copy or seed menus first.', 'rigpa-mega-menu'); ?>
+                            <?php esc_html_e('No menus are assigned to the mega-menu locations yet. Assign a menu under Appearance → Menus → Manage Locations first.', 'rigpa-mega-menu'); ?>
                         </p>
                     <?php else : ?>
                         <?php foreach ($featured_sections as $group) : ?>
                             <h3 style="margin: 1.5rem 0 0.5rem; font-size: 13px; text-transform: uppercase; color: #646970;">
                                 <?php echo esc_html($group['menu_name']); ?>
                             </h3>
+                            <?php if (!empty($group['location_labels'])) : ?>
+                                <p class="description" style="margin-top: -0.25rem;">
+                                    <?php
+                                    echo esc_html(
+                                        sprintf(
+                                            __('Assigned to: %s', 'rigpa-mega-menu'),
+                                            implode(', ', $group['location_labels'])
+                                        )
+                                    );
+                                    ?>
+                                </p>
+                            <?php endif; ?>
                             <table class="widefat striped rigpa-mega-menu-admin__table" style="margin-bottom: 1rem;">
                                 <thead>
                                     <tr>
@@ -1050,18 +1062,28 @@ class Rigpa_Mega_Menu_Admin {
     }
 
     /**
-     * Get top-level section items with their current featured meta for the admin editor.
+     * Get top-level section items from the currently assigned mega-menu locations.
      *
-     * @return array<int, array{menu_name: string, sections: array<int, array{item_id: int, label: string, featured: array{title: string, description: string, image: string, url: string}}>}>
+     * If multiple plugin locations point at the same WordPress menu, show that
+     * menu once. Featured panel meta is stored on nav menu item IDs, so duplicate
+     * rows would edit the same records twice.
+     *
+     * @return array<int, array<string, mixed>>
      */
     private static function get_featured_sections() {
         $groups = array();
+        $groups_by_menu_id = array();
         $locations = get_nav_menu_locations();
 
-        foreach (array('rigpa-mega-menu-en' => 'english', 'rigpa-mega-menu-de' => 'german') as $location => $lang) {
+        foreach (self::get_mega_menu_locations() as $location => $label) {
             $menu_id = isset($locations[$location]) ? (int) $locations[$location] : 0;
             $menu = $menu_id > 0 ? wp_get_nav_menu_object($menu_id) : false;
             if (!$menu instanceof WP_Term) {
+                continue;
+            }
+
+            if (isset($groups_by_menu_id[(int) $menu->term_id])) {
+                $groups[$groups_by_menu_id[(int) $menu->term_id]]['location_labels'][] = $label;
                 continue;
             }
 
@@ -1114,9 +1136,11 @@ class Rigpa_Mega_Menu_Admin {
             }
 
             if (!empty($sections)) {
+                $groups_by_menu_id[(int) $menu->term_id] = count($groups);
                 $groups[] = array(
-                    'menu_name' => (string) $menu->name,
-                    'sections'  => $sections,
+                    'menu_name'       => (string) $menu->name,
+                    'location_labels' => array($label),
+                    'sections'        => $sections,
                 );
             }
         }
@@ -1125,20 +1149,28 @@ class Rigpa_Mega_Menu_Admin {
     }
 
     /**
+     * @return array<string, string>
+     */
+    private static function get_mega_menu_locations() {
+        return array(
+            'rigpa-mega-menu-en' => __('Mega Menu (English)', 'rigpa-mega-menu'),
+            'rigpa-mega-menu-de' => __('Mega Menu (German)', 'rigpa-mega-menu'),
+        );
+    }
+
+    /**
      * @return array<int, array{location: string, label: string, menu_name: string, assigned: bool}>
      */
     private static function get_menu_location_status() {
         $locations = get_nav_menu_locations();
-        $rows = array(
-            array(
-                'location' => 'rigpa-mega-menu-en',
-                'label'    => __('Mega Menu (English)', 'rigpa-mega-menu'),
-            ),
-            array(
-                'location' => 'rigpa-mega-menu-de',
-                'label'    => __('Mega Menu (German)', 'rigpa-mega-menu'),
-            ),
-        );
+        $rows = array();
+
+        foreach (self::get_mega_menu_locations() as $location => $label) {
+            $rows[] = array(
+                'location' => $location,
+                'label'    => $label,
+            );
+        }
 
         foreach ($rows as $index => $row) {
             $menu_id = isset($locations[$row['location']]) ? (int) $locations[$row['location']] : 0;
