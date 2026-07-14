@@ -284,6 +284,21 @@ Adding a third language would require a new menu location and code changes; only
 
 Bootstrap activates the plugin when built assets exist (after `make build-mega-menu`).
 
+### Live header logo click target
+
+On `de.rigpa.mindfuldev.one`, the Elementor logo column can sit underneath the full-width mega menu layer. Symptom: only the top/bottom of the logo links to the homepage because the transparent menu wrapper intercepts clicks through the middle.
+
+Fix this in WordPress **Appearance → Customise → Additional CSS** (or open `/wp-admin/customize.php?return=%2F&autofocus%5Bsection%5D=custom_css`) and append:
+
+```css
+.elementor-10092 .elementor-element.elementor-element-42a26978 {
+    position: relative;
+    z-index: 10001 !important;
+}
+```
+
+Publish the Customizer change, then verify the logo column computes to `z-index: 10001` and clicks across the logo hit the home link. This is intentionally kept as site-level CSS because the affected Elementor element IDs belong to the live header template, not the reusable mega menu plugin.
+
 ### How menu content works
 
 The mega menu reads its structure from **WordPress navigation menus** stored in the database (`Appearance → Menus`), not from the theme’s header menu.
