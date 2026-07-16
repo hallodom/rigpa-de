@@ -21,8 +21,8 @@ const TARGETS = {
   },
   belgium: {
     admin: 'Belgium',
-    width: 360,
-    height: 360,
+    width: 520,
+    height: 400,
     bbox: [2, 49, 7, 52],
   },
   canada: {
@@ -39,14 +39,14 @@ const TARGETS = {
   },
   ireland: {
     admin: 'Ireland',
-    width: 380,
-    height: 520,
+    width: 520,
+    height: 460,
     bbox: [-11, 51, -5, 56],
   },
   italy: {
     admin: 'Italy',
-    width: 420,
-    height: 560,
+    width: 520,
+    height: 520,
     bbox: [6, 35, 19, 48],
   },
   netherlands: {
@@ -63,8 +63,8 @@ const TARGETS = {
   },
   switzerland: {
     admin: 'Switzerland',
-    width: 380,
-    height: 330,
+    width: 460,
+    height: 350,
     bbox: [5, 45, 11, 48],
   },
   uk: {
