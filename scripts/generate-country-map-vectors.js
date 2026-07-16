@@ -8,6 +8,9 @@ const DATA_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector
 const ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(ROOT, 'map-vectors');
 const PADDING = 8;
+const MAP_FILL = '#E6E6E6';
+const MAP_STROKE = '#828282';
+const MAP_STROKE_WIDTH = 3;
 
 const TARGETS = {
   australia: {
@@ -213,7 +216,7 @@ function svgForCountry(feature, target) {
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${target.width}" height="${target.height}" viewBox="0 0 ${target.width} ${target.height}" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="${d}" fill="#E9E9E9" stroke="#171717" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill-rule="evenodd"/>
+  <path d="${d}" fill="${MAP_FILL}" stroke="${MAP_STROKE}" stroke-width="${MAP_STROKE_WIDTH}" stroke-linejoin="round" stroke-linecap="round" fill-rule="evenodd"/>
 </svg>
 `;
 }
