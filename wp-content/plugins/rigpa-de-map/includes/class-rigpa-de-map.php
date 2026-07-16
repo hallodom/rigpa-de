@@ -18,6 +18,7 @@ class Rigpa_De_Map {
     public static function init() {
         add_shortcode('rigpa_de_map', array(__CLASS__, 'render_shortcode'));
         add_shortcode('rigpa-de-map', array(__CLASS__, 'render_shortcode'));
+        add_shortcode('rigpa_de_map_all_countries', array(__CLASS__, 'render_all_countries_shortcode'));
         add_filter('body_class', array(__CLASS__, 'filter_body_class'));
     }
 
@@ -52,14 +53,79 @@ class Rigpa_De_Map {
     public static function render_shortcode($atts = array()) {
         self::enqueue_assets();
 
+        $atts = shortcode_atts(
+            array(
+                'country' => '',
+            ),
+            is_array($atts) ? $atts : array(),
+            'rigpa_de_map'
+        );
+        $country_slug = self::resolve_country($atts['country']);
+        $payload = self::get_map_payload($country_slug);
+
         self::$instance_count++;
         $id = self::$instance_count === 1
             ? 'rigpa-de-map-root'
             : 'rigpa-de-map-root-' . self::$instance_count;
 
         return sprintf(
-            '<div id="%s" class="rigpa-de-map-wrapper rigpa-de-map-root"></div>',
-            esc_attr($id)
+            '<div id="%s" class="rigpa-de-map-wrapper rigpa-de-map-root" data-rigpa-de-map-config="%s"></div>',
+            esc_attr($id),
+            esc_attr(wp_json_encode($payload))
+        );
+    }
+
+    public static function render_all_countries_shortcode() {
+        $countries = rigpa_de_map_get_country_registry();
+        $output = '<div class="rigpa-de-map-all-countries">';
+
+        foreach ($countries as $slug => $country) {
+            $output .= sprintf(
+                '<section class="rigpa-de-map-country-preview" aria-label="%s">',
+                esc_attr($country['label'])
+            );
+            $output .= self::render_shortcode(array('country' => $slug));
+            $output .= '</section>';
+        }
+
+        $output .= '</div>';
+
+        return $output;
+    }
+
+    /**
+     * @param string $country
+     * @return string
+     */
+    private static function resolve_country($country) {
+        $country = sanitize_key($country);
+        if ($country === '') {
+            return rigpa_de_map_get_default_country();
+        }
+
+        $countries = rigpa_de_map_get_country_registry();
+
+        return isset($countries[$country]) ? $country : rigpa_de_map_get_default_country();
+    }
+
+    /**
+     * @param string $country_slug
+     * @return array<string, mixed>
+     */
+    private static function get_map_payload($country_slug) {
+        $country   = rigpa_de_map_get_country($country_slug);
+        $map_url   = RIGPA_DE_MAP_URL . 'assets/maps/' . $country['map']['svg'];
+
+        return array(
+            'assetsUrl'        => RIGPA_DE_MAP_URL . 'assets/',
+            'country'          => $country_slug,
+            'countryLabel'     => $country['label'],
+            'mapVectorUrl'     => $map_url,
+            'mapWidth'         => $country['map']['width'],
+            'mapHeight'        => $country['map']['height'],
+            'germanyVectorUrl' => $map_url,
+            'locations'        => rigpa_de_map_get_locations($country_slug),
+            'copy'             => rigpa_de_map_get_copy($country_slug),
         );
     }
 
@@ -99,31 +165,19 @@ class Rigpa_De_Map {
             true
         );
 
-        $country_slug = rigpa_de_map_get_default_country();
-        $country      = rigpa_de_map_get_country($country_slug);
-        $locations    = rigpa_de_map_get_locations($country_slug);
-        $copy         = rigpa_de_map_get_copy($country_slug);
-        $map_url      = RIGPA_DE_MAP_URL . 'assets/maps/' . $country['map']['svg'];
+        $payload = self::get_map_payload(rigpa_de_map_get_default_country());
 
         wp_localize_script(
             'rigpa-de-map',
             'rigpaDeMap',
-            array(
-                'assetsUrl'        => RIGPA_DE_MAP_URL . 'assets/',
-                'country'          => $country_slug,
-                'countryLabel'     => $country['label'],
-                'mapVectorUrl'     => $map_url,
-                'mapWidth'         => $country['map']['width'],
-                'mapHeight'        => $country['map']['height'],
-                'germanyVectorUrl' => $map_url,
-                'locations'        => $locations,
-                'copy'             => $copy,
-            )
+            $payload
         );
 
         wp_add_inline_style(
             'rigpa-de-map',
-            '.rigpa-de-map-wrapper { width: 100%; min-height: 1px; }'
+            '.rigpa-de-map-wrapper { width: 100%; min-height: 1px; }
+            .rigpa-de-map-all-countries { display: flex; flex-direction: column; gap: 4rem; width: 100%; }
+            .rigpa-de-map-country-preview { width: 100%; }'
         );
 
         wp_add_inline_style(
