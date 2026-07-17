@@ -352,7 +352,6 @@ class Rigpa_De_Map_Admin {
             'international_prefix' => __('International centres text before link', 'rigpa-de-map'),
             'international_link'   => __('International centres link text', 'rigpa-de-map'),
             'international_url'    => __('International centres URL', 'rigpa-de-map'),
-            'international_suffix' => __('International centres text after link', 'rigpa-de-map'),
         );
         ?>
         <h2><?php esc_html_e('Map text', 'rigpa-de-map'); ?></h2>

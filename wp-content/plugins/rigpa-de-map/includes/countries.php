@@ -22,7 +22,6 @@ function rigpa_de_map_country_copy($country_slug, $country_label) {
             'international_prefix' => 'To view our international centres worldwide, visit',
             'international_link'   => 'rigpa.org',
             'international_url'    => 'https://rigpa.org/',
-            'international_suffix' => '.',
         );
     }
 
@@ -34,7 +33,6 @@ function rigpa_de_map_country_copy($country_slug, $country_label) {
         'international_prefix' => 'To view our international centres worldwide, visit',
         'international_link'   => 'rigpa.org',
         'international_url'    => 'https://rigpa.org/',
-        'international_suffix' => '.',
     );
 }
 
