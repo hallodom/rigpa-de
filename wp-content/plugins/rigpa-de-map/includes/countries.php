@@ -102,23 +102,23 @@ function rigpa_de_map_get_country_registry() {
             'label'     => 'Netherlands',
             'map'       => array('svg' => 'netherlands.svg', 'width' => 420, 'height' => 520),
             'locations' => rigpa_de_map_split_locations(array(
-                rigpa_de_map_location('amsterdam', 'Amsterdam', 'Centre', 'https://rigpa.org/centres/amsterdam/', 170, 232),
-                rigpa_de_map_location('groningen', 'Groningen', 'Centre', 'https://rigpa.org/centres/groningen/', 346, 85),
-                rigpa_de_map_location('schoorl', 'Schoorl', 'Group', 'https://rigpa.org/centres/schoorl/', 149, 176),
+                rigpa_de_map_location('amsterdam', 'Amsterdam', 'Centre', 'https://rigpa.org/centres/amsterdam/', 177, 237),
+                rigpa_de_map_location('groningen', 'Groningen', 'Centre', 'https://rigpa.org/centres/groningen/', 323, 115),
+                rigpa_de_map_location('schoorl', 'Schoorl', 'Group', 'https://rigpa.org/centres/schoorl/', 159, 190),
             )),
         ),
         'uk' => array(
             'label'     => 'UK',
             'map'       => array('svg' => 'uk.svg', 'width' => 430, 'height' => 620),
             'locations' => rigpa_de_map_split_locations(array(
-                rigpa_de_map_location('birmingham', 'Birmingham', 'Group', 'https://rigpa.org/centres/birmingham/', 257, 488),
-                rigpa_de_map_location('london', 'London', 'Centre', 'https://rigpa.org/centres/london/', 312, 538),
-                rigpa_de_map_location('london-cornwall', 'London – Cornwall', 'Group', 'https://rigpa.org/centres/london-cornwall/', 170, 591),
-                rigpa_de_map_location('london-norwich', 'London – Norwich', 'Group', 'https://rigpa.org/centres/london-norwich/', 356, 481),
-                rigpa_de_map_location('london-south-west', 'London – South-West', 'Group', 'https://rigpa.org/centres/london-south-west/', 303, 540),
-                rigpa_de_map_location('manchester', 'Manchester', 'Group', 'https://rigpa.org/centres/manchester/', 245, 438),
-                rigpa_de_map_location('south-downs', 'South Downs', 'Centre', 'https://rigpa.org/centres/south-downs/', 288, 565),
-                rigpa_de_map_location('tarset', 'Tarset', 'Group', 'https://rigpa.org/centres/tarset/', 241, 343),
+                rigpa_de_map_location('birmingham', 'Birmingham', 'Group', 'https://rigpa.org/centres/birmingham/', 253, 470),
+                rigpa_de_map_location('london', 'London', 'Centre', 'https://rigpa.org/centres/london/', 302, 515),
+                rigpa_de_map_location('london-cornwall', 'London – Cornwall', 'Group', 'https://rigpa.org/centres/london-cornwall/', 175, 563),
+                rigpa_de_map_location('london-norwich', 'London – Norwich', 'Group', 'https://rigpa.org/centres/london-norwich/', 342, 464),
+                rigpa_de_map_location('london-south-west', 'London – South-West', 'Group', 'https://rigpa.org/centres/london-south-west/', 294, 517),
+                rigpa_de_map_location('manchester', 'Manchester', 'Group', 'https://rigpa.org/centres/manchester/', 242, 425),
+                rigpa_de_map_location('south-downs', 'South Downs', 'Centre', 'https://rigpa.org/centres/south-downs/', 281, 540),
+                rigpa_de_map_location('tarset', 'Tarset', 'Group', 'https://rigpa.org/centres/tarset/', 239, 339),
             )),
         ),
         'australia' => array(
@@ -179,7 +179,7 @@ function rigpa_de_map_get_country_registry() {
             'label'     => 'Belgium',
             'map'       => array('svg' => 'belgium.svg', 'width' => 520, 'height' => 400),
             'locations' => rigpa_de_map_split_locations(array(
-                rigpa_de_map_location('bruxelles', 'Brussels', 'Centre', 'https://rigpa.org/centres/bruxelles/', 249, 135),
+                rigpa_de_map_location('bruxelles', 'Brussels', 'Centre', 'https://rigpa.org/centres/bruxelles/', 252, 154),
             )),
         ),
         'italy' => array(
@@ -197,10 +197,10 @@ function rigpa_de_map_get_country_registry() {
             'label'     => 'Switzerland',
             'map'       => array('svg' => 'switzerland.svg', 'width' => 460, 'height' => 350),
             'locations' => rigpa_de_map_split_locations(array(
-                rigpa_de_map_location('basel', 'Basel', 'Group', 'https://rigpa.org/centres/basel/', 168, 66),
-                rigpa_de_map_location('geneva', 'Geneva', 'Centre', 'https://rigpa.org/centres/geneva/', 25, 263),
-                rigpa_de_map_location('neuchatel', 'Neuchâtel', 'Centre', 'https://rigpa.org/centres/neuchatel/', 103, 149),
-                rigpa_de_map_location('zurich', 'Zürich', 'Centre', 'https://rigpa.org/centres/zurich/', 263, 93),
+                rigpa_de_map_location('basel', 'Basel', 'Group', 'https://rigpa.org/centres/basel/', 182, 90),
+                rigpa_de_map_location('geneva', 'Geneva', 'Centre', 'https://rigpa.org/centres/geneva/', 70, 244),
+                rigpa_de_map_location('neuchatel', 'Neuchâtel', 'Centre', 'https://rigpa.org/centres/neuchatel/', 130, 155),
+                rigpa_de_map_location('zurich', 'Zürich', 'Centre', 'https://rigpa.org/centres/zurich/', 256, 111),
             )),
         ),
         'france' => array(

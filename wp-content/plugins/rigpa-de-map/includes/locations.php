@@ -141,18 +141,23 @@ function rigpa_de_map_default_image_file_id($location_id) {
  */
 function rigpa_de_map_default_image_url($location_id, $country = null) {
     $country = $country === null ? rigpa_de_map_get_default_country() : rigpa_de_map_sanitize_country($country);
-    if ($country !== 'germany') {
-        return '';
+    $country_path = RIGPA_DE_MAP_PATH . 'assets/images/countries/' . $country . '.jpg';
+
+    if (file_exists($country_path)) {
+        return RIGPA_DE_MAP_URL . 'assets/images/countries/' . $country . '.jpg';
     }
 
-    $file_id = rigpa_de_map_default_image_file_id($location_id);
-    $path    = RIGPA_DE_MAP_PATH . 'assets/images/' . $file_id . '.jpg';
+    if ($country === 'germany') {
+        $file_id = rigpa_de_map_default_image_file_id($location_id);
+        $path    = RIGPA_DE_MAP_PATH . 'assets/images/' . $file_id . '.jpg';
 
-    if (!file_exists($path)) {
-        return '';
+        if (!file_exists($path)) {
+            return '';
+        }
+
+        return RIGPA_DE_MAP_URL . 'assets/images/' . $file_id . '.jpg';
     }
-
-    return RIGPA_DE_MAP_URL . 'assets/images/' . $file_id . '.jpg';
+    return '';
 }
 
 /**
@@ -174,17 +179,20 @@ function rigpa_de_map_get_saved_images($country = null) {
 /**
  * Resolve the effective image URL for a location on the front end.
  *
- * @param string               $location_id   Location slug.
+ * @param string                    $location_id   Location slug.
  * @param array<string, string>|null $saved_images Saved overrides (optional).
+ * @param string|null               $country       Country slug.
  * @return string Resolved URL, or empty string when explicitly cleared / unavailable.
  */
-function rigpa_de_map_get_location_image_url($location_id, $saved_images = null) {
+function rigpa_de_map_get_location_image_url($location_id, $saved_images = null, $country = null) {
+    $country = $country === null ? rigpa_de_map_get_default_country() : rigpa_de_map_sanitize_country($country);
+
     if ($saved_images === null) {
-        $saved_images = rigpa_de_map_get_saved_images();
+        $saved_images = rigpa_de_map_get_saved_images($country);
     }
 
     if (!array_key_exists($location_id, $saved_images)) {
-        return rigpa_de_map_default_image_url($location_id);
+        return rigpa_de_map_default_image_url($location_id, $country);
     }
 
     return (string) $saved_images[$location_id];
@@ -245,7 +253,7 @@ function rigpa_de_map_get_locations($country = null) {
                     $locations[$column][$index]['region'] = $saved_location_texts[$id]['region'];
                 }
             }
-            $locations[$column][$index]['image'] = rigpa_de_map_get_location_image_url($id, $saved_images);
+            $locations[$column][$index]['image'] = rigpa_de_map_get_location_image_url($id, $saved_images, $country);
         }
     }
 

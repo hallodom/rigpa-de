@@ -23,6 +23,7 @@ const TARGETS = {
     admin: 'Belgium',
     width: 520,
     height: 400,
+    padding: 64,
     bbox: [2, 49, 7, 52],
   },
   canada: {
@@ -53,6 +54,7 @@ const TARGETS = {
     admin: 'Netherlands',
     width: 420,
     height: 520,
+    padding: 42,
     bbox: [3, 50, 8, 54],
   },
   spain: {
@@ -65,12 +67,14 @@ const TARGETS = {
     admin: 'Switzerland',
     width: 460,
     height: 350,
+    padding: 56,
     bbox: [5, 45, 11, 48],
   },
   uk: {
     admin: 'United Kingdom',
     width: 430,
     height: 620,
+    padding: 38,
     bbox: [-9, 49, 3, 61],
   },
   usa: {
@@ -168,7 +172,8 @@ function round(value) {
 function makeProjector(bounds, width, height) {
   const mapWidth = bounds.maxX - bounds.minX;
   const mapHeight = bounds.maxY - bounds.minY;
-  const scale = Math.min((width - PADDING * 2) / mapWidth, (height - PADDING * 2) / mapHeight);
+  const padding = bounds.padding ?? PADDING;
+  const scale = Math.min((width - padding * 2) / mapWidth, (height - padding * 2) / mapHeight);
   const offsetX = (width - mapWidth * scale) / 2;
   const offsetY = (height - mapHeight * scale) / 2;
 
@@ -211,7 +216,7 @@ function svgForCountry(feature, target) {
   }
 
   const bounds = projectedBbox(polygons);
-  const project = makeProjector(bounds, target.width, target.height);
+  const project = makeProjector({ ...bounds, padding: target.padding }, target.width, target.height);
   const d = polygons.map((polygon) => polygonPath(polygon, project)).join('');
 
   return `<?xml version="1.0" encoding="UTF-8"?>

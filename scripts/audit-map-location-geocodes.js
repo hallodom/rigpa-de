@@ -11,15 +11,15 @@ const PADDING = 8;
 
 const TARGETS = {
   australia: { admin: 'Australia', width: 620, height: 430, bbox: [110, -45, 155, -9] },
-  belgium: { admin: 'Belgium', width: 520, height: 400, bbox: [2, 49, 7, 52] },
+  belgium: { admin: 'Belgium', width: 520, height: 400, padding: 64, bbox: [2, 49, 7, 52] },
   canada: { admin: 'Canada', width: 650, height: 420, bbox: [-142, 41, -52, 84] },
   france: { admin: 'France', width: 520, height: 520, bbox: [-6, 41, 10, 52] },
   ireland: { admin: 'Ireland', width: 520, height: 460, bbox: [-11, 51, -5, 56] },
   italy: { admin: 'Italy', width: 520, height: 520, bbox: [6, 35, 19, 48] },
-  netherlands: { admin: 'Netherlands', width: 420, height: 520, bbox: [3, 50, 8, 54] },
+  netherlands: { admin: 'Netherlands', width: 420, height: 520, padding: 42, bbox: [3, 50, 8, 54] },
   spain: { admin: 'Spain', width: 520, height: 420, bbox: [-19, 27, 5, 44] },
-  switzerland: { admin: 'Switzerland', width: 460, height: 350, bbox: [5, 45, 11, 48] },
-  uk: { admin: 'United Kingdom', width: 430, height: 620, bbox: [-9, 49, 3, 61] },
+  switzerland: { admin: 'Switzerland', width: 460, height: 350, padding: 56, bbox: [5, 45, 11, 48] },
+  uk: { admin: 'United Kingdom', width: 430, height: 620, padding: 38, bbox: [-9, 49, 3, 61] },
   usa: { admin: 'United States of America', width: 650, height: 420, bbox: [-125, 24, -66, 50] },
 };
 
@@ -98,8 +98,8 @@ function projectFor(feature, target) {
   const minY = Math.min(...points.map(([, lat]) => mercatorY(lat)));
   const maxY = Math.max(...points.map(([, lat]) => mercatorY(lat)));
   const scale = Math.min(
-    (target.width - PADDING * 2) / (maxX - minX),
-    (target.height - PADDING * 2) / (maxY - minY),
+    (target.width - (target.padding ?? PADDING) * 2) / (maxX - minX),
+    (target.height - (target.padding ?? PADDING) * 2) / (maxY - minY),
   );
   const offsetX = (target.width - (maxX - minX) * scale) / 2;
   const offsetY = (target.height - (maxY - minY) * scale) / 2;

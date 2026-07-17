@@ -33,6 +33,10 @@ build-map:
 	cp map-vectors/*.svg wp-content/plugins/rigpa-de-map/assets/maps/
 	mkdir -p wp-content/plugins/rigpa-de-map/assets/images
 	cp "Replicate Design/src/assets/images/"*.jpg wp-content/plugins/rigpa-de-map/assets/images/
+	mkdir -p wp-content/plugins/rigpa-de-map/assets/images/countries
+	@if ls "Replicate Design/src/assets/images/countries/"*.jpg >/dev/null 2>&1; then \
+		cp "Replicate Design/src/assets/images/countries/"*.jpg wp-content/plugins/rigpa-de-map/assets/images/countries/; \
+	fi
 	cp wp-content/plugins/rigpa-de-map/includes/admin-media.js wp-content/plugins/rigpa-de-map/assets/js/admin-media.js
 
 build-mega-menu:
