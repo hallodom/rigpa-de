@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress admin UI for Rigpa.de Map (Tools → Map).
+ * WordPress admin UI for Rigpa Centre Maps (Tools → Maps).
  */
 
 if (!defined('ABSPATH')) {
@@ -28,8 +28,8 @@ class Rigpa_De_Map_Admin {
 
     public static function register_menu() {
         add_management_page(
-            __('Map', 'rigpa-de-map'),
-            __('Map', 'rigpa-de-map'),
+            __('Maps', 'rigpa-de-map'),
+            __('Maps', 'rigpa-de-map'),
             'manage_options',
             self::MENU_SLUG,
             array(__CLASS__, 'render_page')
@@ -216,7 +216,7 @@ class Rigpa_De_Map_Admin {
 
         ?>
         <div class="wrap rigpa-de-map-admin">
-            <h1><?php esc_html_e('Map', 'rigpa-de-map'); ?></h1>
+            <h1><?php esc_html_e('Maps', 'rigpa-de-map'); ?></h1>
 
             <?php if ($updated) : ?>
                 <div class="notice notice-success is-dismissible">

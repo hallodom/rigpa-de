@@ -1,6 +1,6 @@
 <?php
 /**
- * Rigpa.de Map shortcode and assets.
+ * Rigpa Centre Maps shortcode and assets.
  */
 
 if (!defined('ABSPATH')) {
