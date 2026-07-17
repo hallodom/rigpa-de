@@ -141,22 +141,29 @@ function rigpa_de_map_default_image_file_id($location_id) {
  */
 function rigpa_de_map_default_image_url($location_id, $country = null) {
     $country = $country === null ? rigpa_de_map_get_default_country() : rigpa_de_map_sanitize_country($country);
-    $country_path = RIGPA_DE_MAP_PATH . 'assets/images/countries/' . $country . '.jpg';
+    $file_id = rigpa_de_map_default_image_file_id($location_id);
 
+    // Country-scoped location image, e.g. assets/images/uk/london.jpg.
+    $scoped_rel  = 'assets/images/' . $country . '/' . $file_id . '.jpg';
+    $scoped_path = RIGPA_DE_MAP_PATH . $scoped_rel;
+    if (file_exists($scoped_path)) {
+        return RIGPA_DE_MAP_URL . $scoped_rel;
+    }
+
+    // Legacy Germany city images live at assets/images/{id}.jpg.
+    if ($country === 'germany') {
+        $path = RIGPA_DE_MAP_PATH . 'assets/images/' . $file_id . '.jpg';
+        if (file_exists($path)) {
+            return RIGPA_DE_MAP_URL . 'assets/images/' . $file_id . '.jpg';
+        }
+    }
+
+    // Fall back to the country hero image for locations without their own asset.
+    $country_path = RIGPA_DE_MAP_PATH . 'assets/images/countries/' . $country . '.jpg';
     if (file_exists($country_path)) {
         return RIGPA_DE_MAP_URL . 'assets/images/countries/' . $country . '.jpg';
     }
 
-    if ($country === 'germany') {
-        $file_id = rigpa_de_map_default_image_file_id($location_id);
-        $path    = RIGPA_DE_MAP_PATH . 'assets/images/' . $file_id . '.jpg';
-
-        if (!file_exists($path)) {
-            return '';
-        }
-
-        return RIGPA_DE_MAP_URL . 'assets/images/' . $file_id . '.jpg';
-    }
     return '';
 }
 

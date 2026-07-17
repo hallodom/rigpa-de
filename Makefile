@@ -37,6 +37,15 @@ build-map:
 	@if ls "Replicate Design/src/assets/images/countries/"*.jpg >/dev/null 2>&1; then \
 		cp "Replicate Design/src/assets/images/countries/"*.jpg wp-content/plugins/rigpa-de-map/assets/images/countries/; \
 	fi
+	# Country-scoped location images, e.g. uk/london.jpg (UK London only).
+	@for dir in "Replicate Design/src/assets/images/"*/; do \
+		name="$$(basename "$$dir")"; \
+		if [ "$$name" = "countries" ]; then continue; fi; \
+		mkdir -p "wp-content/plugins/rigpa-de-map/assets/images/$$name"; \
+		if ls "$$dir"*.jpg >/dev/null 2>&1; then \
+			cp "$$dir"*.jpg "wp-content/plugins/rigpa-de-map/assets/images/$$name/"; \
+		fi; \
+	done
 	cp wp-content/plugins/rigpa-de-map/includes/admin-media.js wp-content/plugins/rigpa-de-map/assets/js/admin-media.js
 
 build-mega-menu:
