@@ -167,7 +167,25 @@ Add to any page or post:
 [rigpa_de_map]
 ```
 
+Renders the **default country** set under **Tools → Map**.
+
+Pin a specific country:
+
+```
+[rigpa_de_map country="uk"]
+```
+
+Valid `country` slugs: `germany`, `netherlands`, `uk`, `australia`, `canada`, `ireland`, `usa`, `belgium`, `italy`, `switzerland`, `france`, `spain`. Invalid or omitted values fall back to the site default.
+
+Show every country map on one page:
+
+```
+[rigpa_de_map_all_countries]
+```
+
 Alias: `[rigpa-de-map]`. In Elementor, use the **Shortcode** widget.
+
+On **Tools → Map**, use **Country to edit** to switch which country’s text, images and links you are editing (without changing the site default). **Default country** is what bare `[rigpa_de_map]` uses.
 
 Bootstrap activates the plugin when the plugin directory exists (after `make build-map`). It does **not** change your homepage automatically.
 
