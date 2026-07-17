@@ -1,6 +1,6 @@
 <?php
 /**
- * WordPress admin UI for Rigpa.de Map (Tools → Map).
+ * WordPress admin UI for Rigpa Centre Maps (Tools → Maps).
  */
 
 if (!defined('ABSPATH')) {
@@ -14,6 +14,7 @@ class Rigpa_De_Map_Admin {
     const IMAGES_OPTION_KEY = RIGPA_DE_MAP_IMAGES_OPTION;
     const COPY_OPTION_KEY = RIGPA_DE_MAP_COPY_OPTION;
     const LOCATION_TEXTS_OPTION_KEY = RIGPA_DE_MAP_LOCATION_TEXTS_OPTION;
+    const COUNTRY_OPTION_KEY = RIGPA_DE_MAP_DEFAULT_COUNTRY_OPTION;
 
     public static function init() {
         if (!is_admin()) {
@@ -27,8 +28,8 @@ class Rigpa_De_Map_Admin {
 
     public static function register_menu() {
         add_management_page(
-            __('Map', 'rigpa-de-map'),
-            __('Map', 'rigpa-de-map'),
+            __('Maps', 'rigpa-de-map'),
+            __('Maps', 'rigpa-de-map'),
             'manage_options',
             self::MENU_SLUG,
             array(__CLASS__, 'render_page')
@@ -51,6 +52,17 @@ class Rigpa_De_Map_Admin {
             return;
         }
 
+        $default_country = isset($_POST['default_country'])
+            ? rigpa_de_map_sanitize_country(wp_unslash($_POST['default_country']))
+            : rigpa_de_map_get_default_country();
+        $editing_country = isset($_POST['editing_country'])
+            ? rigpa_de_map_sanitize_country(wp_unslash($_POST['editing_country']))
+            : rigpa_de_map_get_default_country();
+
+        update_option(self::COUNTRY_OPTION_KEY, $default_country, false);
+
+        $all_urls = get_option(self::OPTION_KEY, array());
+        $all_urls = is_array($all_urls) ? $all_urls : array();
         $urls = array();
         if (isset($_POST['location_url']) && is_array($_POST['location_url'])) {
             foreach ($_POST['location_url'] as $id => $url) {
@@ -62,9 +74,12 @@ class Rigpa_De_Map_Admin {
             }
         }
 
-        update_option(self::OPTION_KEY, $urls, false);
+        $all_urls[$editing_country] = $urls;
+        update_option(self::OPTION_KEY, $all_urls, false);
 
-        $copy = rigpa_de_map_default_copy();
+        $all_copy = get_option(self::COPY_OPTION_KEY, array());
+        $all_copy = is_array($all_copy) ? $all_copy : array();
+        $copy = rigpa_de_map_default_copy($editing_country);
         if (isset($_POST['map_copy']) && is_array($_POST['map_copy'])) {
             foreach ($copy as $key => $default) {
                 $copy[$key] = isset($_POST['map_copy'][$key])
@@ -73,8 +88,11 @@ class Rigpa_De_Map_Admin {
             }
         }
 
-        update_option(self::COPY_OPTION_KEY, $copy, false);
+        $all_copy[$editing_country] = $copy;
+        update_option(self::COPY_OPTION_KEY, $all_copy, false);
 
+        $all_location_texts = get_option(self::LOCATION_TEXTS_OPTION_KEY, array());
+        $all_location_texts = is_array($all_location_texts) ? $all_location_texts : array();
         $location_texts = array();
         if (isset($_POST['location_text']) && is_array($_POST['location_text'])) {
             foreach ($_POST['location_text'] as $id => $fields) {
@@ -90,8 +108,11 @@ class Rigpa_De_Map_Admin {
             }
         }
 
-        update_option(self::LOCATION_TEXTS_OPTION_KEY, $location_texts, false);
+        $all_location_texts[$editing_country] = $location_texts;
+        update_option(self::LOCATION_TEXTS_OPTION_KEY, $all_location_texts, false);
 
+        $all_images = get_option(self::IMAGES_OPTION_KEY, array());
+        $all_images = is_array($all_images) ? $all_images : array();
         $images = array();
         if (isset($_POST['location_image_state']) && is_array($_POST['location_image_state'])) {
             foreach ($_POST['location_image_state'] as $id => $state) {
@@ -119,13 +140,15 @@ class Rigpa_De_Map_Admin {
             }
         }
 
-        update_option(self::IMAGES_OPTION_KEY, $images, false);
+        $all_images[$editing_country] = $images;
+        update_option(self::IMAGES_OPTION_KEY, $all_images, false);
 
         wp_safe_redirect(
             add_query_arg(
                 array(
                     'page'    => self::MENU_SLUG,
                     'updated' => '1',
+                    'country' => $editing_country,
                 ),
                 admin_url('tools.php')
             )
@@ -136,23 +159,22 @@ class Rigpa_De_Map_Admin {
     /**
      * @return array<string, string>
      */
-    public static function get_saved_urls() {
-        $urls = get_option(self::OPTION_KEY, array());
-        return is_array($urls) ? $urls : array();
+    public static function get_saved_urls($country = null) {
+        return rigpa_de_map_get_saved_urls($country);
     }
 
     /**
      * @return array<string, string>
      */
-    public static function get_saved_images() {
-        return rigpa_de_map_get_saved_images();
+    public static function get_saved_images($country = null) {
+        return rigpa_de_map_get_saved_images($country);
     }
 
     /**
      * @return array<string, string>
      */
-    public static function get_saved_copy() {
-        return rigpa_de_map_get_copy();
+    public static function get_saved_copy($country = null) {
+        return rigpa_de_map_get_copy($country);
     }
 
     /**
@@ -180,19 +202,21 @@ class Rigpa_De_Map_Admin {
             wp_die(esc_html__('You do not have permission to access this page.', 'rigpa-de-map'));
         }
 
-        $locations = rigpa_de_map_get_locations();
-        $saved_urls = self::get_saved_urls();
-        $saved_images = self::get_saved_images();
-        $saved_copy = self::get_saved_copy();
+        $default_country = rigpa_de_map_get_default_country();
+        $editing_country = isset($_GET['country'])
+            ? rigpa_de_map_sanitize_country(wp_unslash($_GET['country']))
+            : $default_country;
+        $countries = rigpa_de_map_get_country_registry();
+        $locations = rigpa_de_map_get_locations($editing_country);
+        $saved_urls = self::get_saved_urls($editing_country);
+        $saved_images = self::get_saved_images($editing_country);
+        $saved_copy = self::get_saved_copy($editing_country);
         $updated = isset($_GET['updated']) && $_GET['updated'] === '1';
-
-        $css_path = RIGPA_DE_MAP_PATH . 'assets/css/rigpa-de-map.css';
-        $js_path  = RIGPA_DE_MAP_PATH . 'assets/js/rigpa-de-map.js';
-        $assets_ok = file_exists($css_path) && file_exists($js_path);
+        $country_slugs = array_keys($countries);
 
         ?>
         <div class="wrap rigpa-de-map-admin">
-            <h1><?php esc_html_e('Map', 'rigpa-de-map'); ?></h1>
+            <h1><?php esc_html_e('Maps', 'rigpa-de-map'); ?></h1>
 
             <?php if ($updated) : ?>
                 <div class="notice notice-success is-dismissible">
@@ -203,47 +227,117 @@ class Rigpa_De_Map_Admin {
             <div class="rigpa-de-map-admin__grid">
                 <div class="rigpa-de-map-admin__panel">
                     <h2><?php esc_html_e('Shortcode', 'rigpa-de-map'); ?></h2>
-                    <p><?php esc_html_e('Add the map to any page or post:', 'rigpa-de-map'); ?></p>
+                    <p><?php esc_html_e('Default country (site setting):', 'rigpa-de-map'); ?></p>
                     <code class="rigpa-de-map-admin__code">[rigpa_de_map]</code>
+                    <p><?php esc_html_e('Specific country:', 'rigpa-de-map'); ?></p>
+                    <code class="rigpa-de-map-admin__code">[rigpa_de_map country="uk"]</code>
+                    <p><?php esc_html_e('All countries on one page:', 'rigpa-de-map'); ?></p>
+                    <code class="rigpa-de-map-admin__code">[rigpa_de_map_all_countries]</code>
                     <p class="description">
                         <?php esc_html_e('Alias:', 'rigpa-de-map'); ?>
                         <code>[rigpa-de-map]</code>
                     </p>
-                </div>
-
-                <div class="rigpa-de-map-admin__panel">
-                    <h2><?php esc_html_e('Assets', 'rigpa-de-map'); ?></h2>
-                    <?php if ($assets_ok) : ?>
-                        <p class="rigpa-de-map-admin__status rigpa-de-map-admin__status--ok">
-                            <?php esc_html_e('Map assets are built and ready.', 'rigpa-de-map'); ?>
-                        </p>
-                    <?php else : ?>
-                        <p class="rigpa-de-map-admin__status rigpa-de-map-admin__status--warn">
-                            <?php esc_html_e('Map assets are missing. Run make build-map from the project root.', 'rigpa-de-map'); ?>
-                        </p>
-                    <?php endif; ?>
+                    <p class="description">
+                        <?php
+                        echo esc_html(
+                            sprintf(
+                                /* translators: %s: comma-separated country slugs */
+                                __('Country slugs: %s', 'rigpa-de-map'),
+                                implode(', ', $country_slugs)
+                            )
+                        );
+                        ?>
+                    </p>
                 </div>
             </div>
 
             <form method="post" action="">
                 <?php wp_nonce_field('rigpa_de_map_save'); ?>
                 <input type="hidden" name="rigpa_de_map_save" value="1" />
+                <input type="hidden" name="editing_country" value="<?php echo esc_attr($editing_country); ?>" />
 
+                <?php self::render_country_field($editing_country, $default_country, $countries); ?>
                 <?php self::render_copy_fields($saved_copy); ?>
 
-                <h2><?php esc_html_e('Locations', 'rigpa-de-map'); ?></h2>
+                <h2>
+                    <?php
+                    echo esc_html(
+                        sprintf(
+                            /* translators: %s: country label */
+                            __('Locations (%s)', 'rigpa-de-map'),
+                            $countries[$editing_country]['label'] ?? $editing_country
+                        )
+                    );
+                    ?>
+                </h2>
                 <p class="description">
                     <?php esc_html_e('Set the visible text, “View details” link and hover-card image for each location. URLs may be full (https://…) or site-relative (/centres/berlin). Leave the URL blank to show the label without a link.', 'rigpa-de-map'); ?>
                 </p>
 
-                <?php self::render_location_table(__('Left column', 'rigpa-de-map'), $locations['left'] ?? array(), $saved_urls, $saved_images); ?>
-                <?php self::render_location_table(__('Right column', 'rigpa-de-map'), $locations['right'] ?? array(), $saved_urls, $saved_images); ?>
+                <?php self::render_location_table(__('Left column', 'rigpa-de-map'), $locations['left'] ?? array(), $saved_urls, $saved_images, $editing_country); ?>
+                <?php self::render_location_table(__('Right column', 'rigpa-de-map'), $locations['right'] ?? array(), $saved_urls, $saved_images, $editing_country); ?>
 
                 <?php submit_button(__('Save settings', 'rigpa-de-map')); ?>
             </form>
         </div>
         <?php
         self::print_styles();
+    }
+
+    /**
+     * @param string $editing_country
+     * @param string $default_country
+     * @param array<string, array{label: string}> $countries
+     */
+    private static function render_country_field($editing_country, $default_country, $countries) {
+        $base_url = admin_url('tools.php?page=' . self::MENU_SLUG);
+        ?>
+        <h2><?php esc_html_e('Country', 'rigpa-de-map'); ?></h2>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <label for="rigpa-de-map-edit-country"><?php esc_html_e('Country to edit', 'rigpa-de-map'); ?></label>
+                    </th>
+                    <td>
+                        <select
+                            id="rigpa-de-map-edit-country"
+                            onchange="if (this.value) { window.location.href = this.value; }"
+                        >
+                            <?php foreach ($countries as $slug => $definition) : ?>
+                                <?php
+                                $url = add_query_arg('country', $slug, $base_url);
+                                ?>
+                                <option value="<?php echo esc_attr($url); ?>" <?php selected($editing_country, $slug); ?>>
+                                    <?php echo esc_html($definition['label']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">
+                            <?php esc_html_e('Switch countries to edit that country’s map text, images and links. Does not change the site default until you update Default country and save.', 'rigpa-de-map'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="rigpa-de-map-default-country"><?php esc_html_e('Default country', 'rigpa-de-map'); ?></label>
+                    </th>
+                    <td>
+                        <select id="rigpa-de-map-default-country" name="default_country">
+                            <?php foreach ($countries as $slug => $definition) : ?>
+                                <option value="<?php echo esc_attr($slug); ?>" <?php selected($default_country, $slug); ?>>
+                                    <?php echo esc_html($definition['label']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">
+                            <?php esc_html_e('Used by [rigpa_de_map] when no country attribute is set. Override per page with [rigpa_de_map country="uk"].', 'rigpa-de-map'); ?>
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <?php
     }
 
     /**
@@ -258,7 +352,6 @@ class Rigpa_De_Map_Admin {
             'international_prefix' => __('International centres text before link', 'rigpa-de-map'),
             'international_link'   => __('International centres link text', 'rigpa-de-map'),
             'international_url'    => __('International centres URL', 'rigpa-de-map'),
-            'international_suffix' => __('International centres text after link', 'rigpa-de-map'),
         );
         ?>
         <h2><?php esc_html_e('Map text', 'rigpa-de-map'); ?></h2>
@@ -290,8 +383,9 @@ class Rigpa_De_Map_Admin {
      * @param array<int, array{id: string, name: string, region: string, url: string, coords: array{x: int, y: int}}> $items
      * @param array<string, string> $saved_urls
      * @param array<string, string> $saved_images
+     * @param string $country
      */
-    private static function render_location_table($title, $items, $saved_urls, $saved_images) {
+    private static function render_location_table($title, $items, $saved_urls, $saved_images, $country) {
         ?>
         <h3><?php echo esc_html($title); ?></h3>
         <table class="widefat striped rigpa-de-map-admin__table">
@@ -330,7 +424,7 @@ class Rigpa_De_Map_Admin {
                             />
                         </td>
                         <td class="rigpa-de-map-admin__image-cell">
-                            <?php self::render_location_image_field($id, $saved_images); ?>
+                            <?php self::render_location_image_field($id, $saved_images, $country); ?>
                         </td>
                         <td>
                             <input
@@ -351,10 +445,11 @@ class Rigpa_De_Map_Admin {
     /**
      * @param string               $id           Location slug.
      * @param array<string, string> $saved_images Saved image overrides.
+     * @param string               $country      Country slug.
      */
-    private static function render_location_image_field($id, $saved_images) {
+    private static function render_location_image_field($id, $saved_images, $country) {
         $state       = rigpa_de_map_get_location_image_state($id, $saved_images);
-        $default_url = rigpa_de_map_default_image_url($id);
+        $default_url = rigpa_de_map_default_image_url($id, $country);
         $custom_url  = ($state === 'custom') ? (string) $saved_images[$id] : '';
 
         if ($state === 'default') {
@@ -437,12 +532,6 @@ class Rigpa_De_Map_Admin {
                 padding: 6px 10px;
                 border-radius: 4px;
                 font-size: 13px;
-            }
-            .rigpa-de-map-admin__status--ok {
-                color: #00a32a;
-            }
-            .rigpa-de-map-admin__status--warn {
-                color: #b32d2e;
             }
             .rigpa-de-map-admin__table {
                 margin-bottom: 24px;

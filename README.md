@@ -49,7 +49,7 @@ docker compose --profile tools run --rm wp-cli wp language core install de_DE --
 | `make wp ARGS="plugin list"` | Run WP-CLI |
 | `make reset` | `down -v` then `up` (factory reset)  |
 | `make prod-up` | Start with production overrides    |
-| `make build-map` | Build Rigpa.de Map plugin assets |
+| `make build-map` | Build Rigpa Centre Maps plugin assets |
 | `make build-mega-menu` | Build Rigpa Mega Menu plugin assets |
 | `make package-plugin` | Build assets and create `dist/rigpa-de-map.zip` for WP upload |
 | `make package-mega-menu` | Build assets and create `dist/rigpa-mega-menu.zip` for WP upload |
@@ -147,9 +147,9 @@ docker compose --profile tools run --rm wp-cli wp option update home 'https://ne
 docker compose --profile tools run --rm wp-cli wp option update siteurl 'https://new-domain.example'
 ```
 
-## Rigpa.de Map plugin
+## Rigpa Centre Maps plugin
 
-Interactive Germany locations map from the [Replicate Design](Replicate%20Design/) Figma export.
+Interactive maps of Rigpa centres and groups by country, from the [Replicate Design](Replicate%20Design/) Figma export.
 
 ### Build assets (required before first use)
 
@@ -167,14 +167,32 @@ Add to any page or post:
 [rigpa_de_map]
 ```
 
+Renders the **default country** set under **Tools → Maps**.
+
+Pin a specific country:
+
+```
+[rigpa_de_map country="uk"]
+```
+
+Valid `country` slugs: `germany`, `netherlands`, `uk`, `australia`, `canada`, `ireland`, `usa`, `belgium`, `italy`, `switzerland`, `france`, `spain`. Invalid or omitted values fall back to the site default.
+
+Show every country map on one page:
+
+```
+[rigpa_de_map_all_countries]
+```
+
 Alias: `[rigpa-de-map]`. In Elementor, use the **Shortcode** widget.
+
+On **Tools → Maps**, use **Country to edit** to switch which country’s text, images and links you are editing (without changing the site default). **Default country** is what bare `[rigpa_de_map]` uses.
 
 Bootstrap activates the plugin when the plugin directory exists (after `make build-map`). It does **not** change your homepage automatically.
 
 ### Testing the map on your homepage (manual)
 
 1. Build assets: `make build-map`
-2. Ensure the plugin is active: **Plugins → Rigpa.de Map**, or `make wp ARGS="plugin activate rigpa-de-map"`
+2. Ensure the plugin is active: **Plugins → Rigpa Centre Maps**, or `make wp ARGS="plugin activate rigpa-de-map"`
 3. Edit the page you use as the site front page
 4. Add `[rigpa_de_map]` in the block editor, or an Elementor **Shortcode** widget
 5. Update the page and view the site URL

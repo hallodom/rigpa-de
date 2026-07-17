@@ -51,7 +51,8 @@ if [ -f "${PLUGIN_DIR}/rigpa-de-map.php" ]; then
   for asset in \
     "${PLUGIN_DIR}/assets/js/rigpa-de-map.js" \
     "${PLUGIN_DIR}/assets/css/rigpa-de-map.css" \
-    "${PLUGIN_DIR}/assets/germany-vector.svg"
+    "${PLUGIN_DIR}/assets/germany-vector.svg" \
+    "${PLUGIN_DIR}/assets/maps/germany.svg"
   do
     if [ ! -f "$asset" ]; then
       echo "WARNING: Missing plugin asset: $asset"
