@@ -3,7 +3,7 @@
  * Plugin Name: Rigpa Centre Maps
  * Description: Interactive maps of Rigpa centres and groups by country, with editable locations, images and copy. Embed via shortcode (Elementor-compatible).
  * Version: 1.0.0
- * Author: Mindful of Design
+ * Author: Mindful Design
  * Text Domain: rigpa-de-map
  * Requires at least: 6.0
  * Requires PHP: 7.4
