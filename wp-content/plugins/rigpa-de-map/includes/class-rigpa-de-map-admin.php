@@ -214,10 +214,6 @@ class Rigpa_De_Map_Admin {
         $updated = isset($_GET['updated']) && $_GET['updated'] === '1';
         $country_slugs = array_keys($countries);
 
-        $css_path = RIGPA_DE_MAP_PATH . 'assets/css/rigpa-de-map.css';
-        $js_path  = RIGPA_DE_MAP_PATH . 'assets/js/rigpa-de-map.js';
-        $assets_ok = file_exists($css_path) && file_exists($js_path);
-
         ?>
         <div class="wrap rigpa-de-map-admin">
             <h1><?php esc_html_e('Map', 'rigpa-de-map'); ?></h1>
@@ -252,19 +248,6 @@ class Rigpa_De_Map_Admin {
                         );
                         ?>
                     </p>
-                </div>
-
-                <div class="rigpa-de-map-admin__panel">
-                    <h2><?php esc_html_e('Assets', 'rigpa-de-map'); ?></h2>
-                    <?php if ($assets_ok) : ?>
-                        <p class="rigpa-de-map-admin__status rigpa-de-map-admin__status--ok">
-                            <?php esc_html_e('Map assets are built and ready.', 'rigpa-de-map'); ?>
-                        </p>
-                    <?php else : ?>
-                        <p class="rigpa-de-map-admin__status rigpa-de-map-admin__status--warn">
-                            <?php esc_html_e('Map assets are missing. Run make build-map from the project root.', 'rigpa-de-map'); ?>
-                        </p>
-                    <?php endif; ?>
                 </div>
             </div>
 
@@ -550,12 +533,6 @@ class Rigpa_De_Map_Admin {
                 padding: 6px 10px;
                 border-radius: 4px;
                 font-size: 13px;
-            }
-            .rigpa-de-map-admin__status--ok {
-                color: #00a32a;
-            }
-            .rigpa-de-map-admin__status--warn {
-                color: #b32d2e;
             }
             .rigpa-de-map-admin__table {
                 margin-bottom: 24px;
