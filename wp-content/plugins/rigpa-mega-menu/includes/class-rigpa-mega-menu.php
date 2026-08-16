@@ -15,12 +15,47 @@ class Rigpa_Mega_Menu {
     /** @var int */
     private static $instance_count = 0;
 
-    /** @var string */
-    private static $resolved_lang = 'english';
-
     public static function init() {
         add_shortcode('rigpa_mega_menu', array(__CLASS__, 'render_shortcode'));
         add_shortcode('rigpa-mega-menu', array(__CLASS__, 'render_shortcode'));
+        add_action('wp_body_open', array(__CLASS__, 'render_location_menu'), 5);
+    }
+
+    /**
+     * Render the header directly from WordPress menu locations.
+     *
+     * Mega Menu wins when both locations have a menu, making the Display
+     * location checkboxes an immediate normal-versus-mega switch.
+     */
+    public static function render_location_menu() {
+        if (is_admin()) {
+            return;
+        }
+
+        $locations = get_nav_menu_locations();
+        if (!empty($locations[rigpa_mega_menu_location()])) {
+            echo self::render_root_markup(array('source' => 'location'));
+            return;
+        }
+
+        if (empty($locations[rigpa_standard_menu_location()])) {
+            return;
+        }
+
+        $menu = wp_nav_menu(array(
+            'theme_location' => rigpa_standard_menu_location(),
+            'container'      => false,
+            'menu_class'     => 'rigpa-standard-menu__list',
+            'fallback_cb'    => false,
+            'echo'           => false,
+        ));
+
+        if ($menu === '') {
+            return;
+        }
+
+        echo '<style>.rigpa-standard-menu{padding:1rem 3rem;background:#fff}.rigpa-standard-menu__list{display:flex;flex-wrap:wrap;gap:1.25rem;margin:0;padding:0;list-style:none}.rigpa-standard-menu__list a{color:#171717;text-decoration:none}.rigpa-standard-menu__list .sub-menu{display:none}</style>';
+        echo '<nav class="rigpa-standard-menu" aria-label="' . esc_attr__('Main', 'rigpa-mega-menu') . '">' . $menu . '</nav>';
     }
 
     /**
@@ -29,7 +64,6 @@ class Rigpa_Mega_Menu {
     public static function render_shortcode($atts = array()) {
         $atts = shortcode_atts(
             array(
-                'lang'        => 'auto',
                 'transparent' => null,
                 'color'       => null,
             ),
@@ -38,7 +72,6 @@ class Rigpa_Mega_Menu {
         );
 
         return self::render_root_markup(array(
-            'lang'        => $atts['lang'],
             'transparent' => $atts['transparent'],
             'color'       => $atts['color'],
             'source'      => 'shortcode',
@@ -55,12 +88,11 @@ class Rigpa_Mega_Menu {
      * and `rigpa_mega_menu_text_color` filters so per-page meta and
      * other extensions can apply.
      *
-     * @param array{lang?:string, transparent?:mixed, color?:mixed, source?:string} $args
+     * @param array{transparent?:mixed, color?:mixed, source?:string} $args
      */
     public static function render_root_markup($args = array()) {
         $args = array_merge(
             array(
-                'lang'        => 'auto',
                 'transparent' => null,
                 'color'       => null,
                 'source'      => 'manual',
@@ -68,7 +100,12 @@ class Rigpa_Mega_Menu {
             is_array($args) ? $args : array()
         );
 
-        self::$resolved_lang = rigpa_mega_menu_resolve_lang($args['lang']);
+        // The shortcode is only a mount point. Without an assigned WordPress
+        // menu, it must not render a stale built-in navigation.
+        if (rigpa_mega_menu_get_menus() === array()) {
+            return '';
+        }
+
         self::enqueue_assets();
 
         self::$instance_count++;
@@ -182,15 +219,20 @@ class Rigpa_Mega_Menu {
             true
         );
 
-        $menus = rigpa_mega_menu_get_menus(self::$resolved_lang);
+        $menus = rigpa_mega_menu_get_menus();
 
         wp_localize_script(
             'rigpa-mega-menu',
             'rigpaMegaMenu',
             array(
                 'assetsUrl'   => RIGPA_MEGA_MENU_URL . 'assets/',
-                'lang'        => self::$resolved_lang,
                 'menus'       => $menus,
+                'labels'      => array(
+                    'menu'      => __('Menu', 'rigpa-mega-menu'),
+                    'openMenu'  => __('Open menu', 'rigpa-mega-menu'),
+                    'closeMenu' => __('Close menu', 'rigpa-mega-menu'),
+                    'learnMore' => __('Learn more →', 'rigpa-mega-menu'),
+                ),
                 'transparent'   => Rigpa_Mega_Menu_Settings::is_transparent(),
                 'menuTextColor' => Rigpa_Mega_Menu_Settings::get_menu_text_color(),
             )

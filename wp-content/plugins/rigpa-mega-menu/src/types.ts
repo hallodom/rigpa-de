@@ -21,8 +21,13 @@ export interface MenuSection {
 
 export interface RigpaMegaMenuConfig {
   assetsUrl: string;
-  lang: "english" | "german";
   menus: MenuSection[];
+  labels: {
+    menu: string;
+    openMenu: string;
+    closeMenu: string;
+    learnMore: string;
+  };
   transparent?: boolean;
   menuTextColor?: string;
 }

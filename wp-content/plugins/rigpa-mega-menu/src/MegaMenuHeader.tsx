@@ -3,7 +3,12 @@ import type { MenuSection } from "./types";
 
 interface MegaMenuHeaderProps {
   menus: MenuSection[];
-  lang: "english" | "german";
+  labels: {
+    menu: string;
+    openMenu: string;
+    closeMenu: string;
+    learnMore: string;
+  };
   transparent?: boolean;
 }
 
@@ -28,14 +33,13 @@ function useMediaQuery(query: string): boolean {
 
 function MenuPanel({
   menu,
-  lang,
+  learnMore,
   panelId,
 }: {
   menu: MenuSection;
-  lang: "english" | "german";
+  learnMore: string;
   panelId: string;
 }) {
-  const learnMore = lang === "german" ? "Mehr erfahren →" : "Learn more →";
   const centres = menu.featuredCentres ?? [];
   const hasCentres = centres.length > 0;
   const hasFeatured = Boolean(menu.featured);
@@ -149,7 +153,7 @@ function MobileSectionLinks({
 
 export default function MegaMenuHeader({
   menus,
-  lang,
+  labels,
   transparent = true,
 }: MegaMenuHeaderProps) {
   const baseId = useId().replace(/:/g, "");
@@ -296,9 +300,9 @@ export default function MegaMenuHeader({
     return () => clearHoverTimeout();
   }, [clearHoverTimeout]);
 
-  const menuLabel = lang === "german" ? "Menü" : "Menu";
-  const openMenuLabel = lang === "german" ? "Menü öffnen" : "Open menu";
-  const closeMenuLabel = lang === "german" ? "Menü schließen" : "Close menu";
+  const menuLabel = labels.menu;
+  const openMenuLabel = labels.openMenu;
+  const closeMenuLabel = labels.closeMenu;
 
   const headerClass = transparent
     ? "rigpa-mega-menu-header rigpa-mega-menu-header--transparent"
@@ -423,7 +427,7 @@ export default function MegaMenuHeader({
           <div className="rigpa-mega-menu-dropdown-inner">
             <MenuPanel
               menu={menus[renderedIndex]}
-              lang={lang}
+              learnMore={labels.learnMore}
               panelId={`${baseId}-panel-${renderedIndex}`}
             />
           </div>

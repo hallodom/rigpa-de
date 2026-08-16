@@ -16,12 +16,8 @@ required=(
   "${PLUGIN_DIR}/rigpa-mega-menu.php"
   "${PLUGIN_DIR}/includes/class-rigpa-mega-menu.php"
   "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-admin.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-seeder.php"
-  "${PLUGIN_DIR}/includes/menu-descriptions.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-description-sync.php"
   "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-sanitize.php"
   "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-settings.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-duplicator.php"
   "${PLUGIN_DIR}/includes/menus.php"
   "${PLUGIN_DIR}/assets/js/rigpa-mega-menu.js"
   "${PLUGIN_DIR}/assets/css/rigpa-mega-menu.css"
@@ -33,12 +29,6 @@ for file in "${required[@]}"; do
     exit 1
   fi
 done
-
-image_count="$(find "${PLUGIN_DIR}/assets/images" -name '*.jpg' 2>/dev/null | wc -l | tr -d ' ')"
-if [ "${image_count}" -lt 1 ]; then
-  echo "ERROR: No featured images found in ${PLUGIN_DIR}/assets/images/" >&2
-  exit 1
-fi
 
 mkdir -p "${DIST_DIR}"
 rm -f "${ZIP_FILE}"

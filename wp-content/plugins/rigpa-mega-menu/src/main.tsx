@@ -52,7 +52,7 @@ function mountMegaMenu(node: HTMLElement, config: RigpaMegaMenuConfig) {
     <StrictMode>
       <MegaMenuHeader
         menus={config.menus}
-        lang={config.lang}
+        labels={config.labels}
         transparent={config.transparent !== false}
       />
     </StrictMode>
