@@ -47,18 +47,18 @@ function MenuPanel({
   return (
     <div
       id={panelId}
-      className={`rigpa-mega-menu-panel ${
-        hasFeatured || hasCentres ? "rigpa-mega-menu-panel--with-featured" : ""
+      className={`md-mega-menu-panel ${
+        hasFeatured || hasCentres ? "md-mega-menu-panel--with-featured" : ""
       }`}
     >
-      <div className="rigpa-mega-menu-panel-links">
+      <div className="md-mega-menu-panel-links">
         {menu.items.map((item, idx) => (
-          <a key={idx} href={item.url} className="rigpa-mega-menu-panel-link">
-            <span className="rigpa-mega-menu-panel-link-title">
+          <a key={idx} href={item.url} className="md-mega-menu-panel-link">
+            <span className="md-mega-menu-panel-link-title">
               {item.title}
             </span>
             {item.description && (
-              <span className="rigpa-mega-menu-panel-link-desc">
+              <span className="md-mega-menu-panel-link-desc">
                 {item.description}
               </span>
             )}
@@ -67,27 +67,27 @@ function MenuPanel({
       </div>
 
       {hasCentres ? (
-        <div className="rigpa-mega-menu-panel-featured rigpa-mega-menu-panel-featured--centres">
+        <div className="md-mega-menu-panel-featured md-mega-menu-panel-featured--centres">
           {centres.map((centre, idx) => (
             <a
               key={idx}
               href={centre.url || "#"}
-              className="rigpa-mega-menu-centre-card"
+              className="md-mega-menu-centre-card"
             >
               {centre.image && (
-                <span className="rigpa-mega-menu-centre-card-image-wrap">
+                <span className="md-mega-menu-centre-card-image-wrap">
                   <img
                     src={centre.image}
                     alt={centre.title}
-                    className="rigpa-mega-menu-centre-card-image"
+                    className="md-mega-menu-centre-card-image"
                   />
                 </span>
               )}
-              <span className="rigpa-mega-menu-centre-card-title">
+              <span className="md-mega-menu-centre-card-title">
                 {centre.title}
               </span>
               {centre.description && (
-                <span className="rigpa-mega-menu-centre-card-desc">
+                <span className="md-mega-menu-centre-card-desc">
                   {centre.description}
                 </span>
               )}
@@ -97,23 +97,23 @@ function MenuPanel({
       ) : (
         hasFeatured &&
         menu.featured && (
-          <div className="rigpa-mega-menu-panel-featured">
-            <div className="rigpa-mega-menu-panel-featured-image-wrap">
+          <div className="md-mega-menu-panel-featured">
+            <div className="md-mega-menu-panel-featured-image-wrap">
               <img
                 src={menu.featured.image}
                 alt={menu.featured.title}
-                className="rigpa-mega-menu-panel-featured-image"
+                className="md-mega-menu-panel-featured-image"
               />
             </div>
-            <div className="rigpa-mega-menu-panel-featured-title">
+            <div className="md-mega-menu-panel-featured-title">
               {menu.featured.title}
             </div>
-            <div className="rigpa-mega-menu-panel-featured-desc">
+            <div className="md-mega-menu-panel-featured-desc">
               {menu.featured.description}
             </div>
             <a
               href={menu.featured.url}
-              className="rigpa-mega-menu-panel-featured-cta"
+              className="md-mega-menu-panel-featured-cta"
             >
               {learnMore}
             </a>
@@ -132,15 +132,15 @@ function MobileSectionLinks({
   id: string;
 }) {
   return (
-    <ul id={id} className="rigpa-mega-menu-mobile-links">
+    <ul id={id} className="md-mega-menu-mobile-links">
       {menu.items.map((item, idx) => (
-        <li key={idx} className="rigpa-mega-menu-mobile-link-item">
-          <a href={item.url} className="rigpa-mega-menu-mobile-link">
-            <span className="rigpa-mega-menu-mobile-link-title">
+        <li key={idx} className="md-mega-menu-mobile-link-item">
+          <a href={item.url} className="md-mega-menu-mobile-link">
+            <span className="md-mega-menu-mobile-link-title">
               {item.title}
             </span>
             {item.description && (
-              <span className="rigpa-mega-menu-mobile-link-desc">
+              <span className="md-mega-menu-mobile-link-desc">
                 {item.description}
               </span>
             )}
@@ -305,15 +305,15 @@ export default function MegaMenuHeader({
   const closeMenuLabel = labels.closeMenu;
 
   const headerClass = transparent
-    ? "rigpa-mega-menu-header rigpa-mega-menu-header--transparent"
-    : "rigpa-mega-menu-header rigpa-mega-menu-header--solid";
+    ? "md-mega-menu-header md-mega-menu-header--transparent"
+    : "md-mega-menu-header md-mega-menu-header--solid";
 
   return (
     <div ref={rootRef} className={headerClass}>
-      <div ref={innerRef} className="rigpa-mega-menu-inner">
-        <div className="rigpa-mega-menu-header-row">
+      <div ref={innerRef} className="md-mega-menu-inner">
+        <div className="md-mega-menu-header-row">
           {isDesktop ? (
-            <nav className="rigpa-mega-menu-desktop-nav" aria-label={menuLabel}>
+            <nav className="md-mega-menu-desktop-nav" aria-label={menuLabel}>
               {menus.map((menu, index) => {
                 const panelId = `${baseId}-panel-${index}`;
                 const isOpen = activeIndex === index;
@@ -324,11 +324,11 @@ export default function MegaMenuHeader({
                   return (
                     <div
                       key={menu.label}
-                      className="rigpa-mega-menu-nav-item"
+                      className="md-mega-menu-nav-item"
                     >
                       <a
                         href={menu.url || "#"}
-                        className="rigpa-mega-menu-nav-btn"
+                        className="md-mega-menu-nav-btn"
                       >
                         {menu.label}
                       </a>
@@ -340,14 +340,14 @@ export default function MegaMenuHeader({
                   <div
                     key={menu.label}
                     ref={(el) => { itemRefs.current[index] = el; }}
-                    className="rigpa-mega-menu-nav-item"
+                    className="md-mega-menu-nav-item"
                     onMouseEnter={() => openDesktopPanel(index)}
                     onMouseLeave={scheduleCloseDesktopPanel}
                   >
                     <button
                       type="button"
-                      className={`rigpa-mega-menu-nav-btn ${
-                        isOpen ? "rigpa-mega-menu-nav-btn--active" : ""
+                      className={`md-mega-menu-nav-btn ${
+                        isOpen ? "md-mega-menu-nav-btn--active" : ""
                       }`}
                       aria-expanded={isOpen}
                       aria-controls={panelId}
@@ -359,7 +359,7 @@ export default function MegaMenuHeader({
                     >
                       {menu.label}
                       <svg
-                        className="rigpa-mega-menu-nav-chevron"
+                        className="md-mega-menu-nav-chevron"
                         width="10"
                         height="10"
                         viewBox="0 0 24 24"
@@ -379,7 +379,7 @@ export default function MegaMenuHeader({
           ) : (
             <button
               type="button"
-              className="rigpa-mega-menu-mobile-toggle"
+              className="md-mega-menu-mobile-toggle"
               aria-expanded={mobileOpen}
               aria-controls={`${baseId}-mobile-menu`}
               onClick={() => {
@@ -387,11 +387,11 @@ export default function MegaMenuHeader({
                 setMobileExpandedIndex(null);
               }}
             >
-              <span className="rigpa-mega-menu-sr-only">
+              <span className="md-mega-menu-sr-only">
                 {mobileOpen ? closeMenuLabel : openMenuLabel}
               </span>
               <svg
-                className="rigpa-mega-menu-mobile-toggle-icon"
+                className="md-mega-menu-mobile-toggle-icon"
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
@@ -417,14 +417,14 @@ export default function MegaMenuHeader({
 
       {isDesktop && renderedIndex !== null && (
         <div
-          className={`rigpa-mega-menu-dropdown ${
-            panelVisible ? "rigpa-mega-menu-dropdown--open" : ""
+          className={`md-mega-menu-dropdown ${
+            panelVisible ? "md-mega-menu-dropdown--open" : ""
           }`}
           style={{ left: `${panelLeft}px` }}
           onMouseEnter={clearHoverTimeout}
           onMouseLeave={scheduleCloseDesktopPanel}
         >
-          <div className="rigpa-mega-menu-dropdown-inner">
+          <div className="md-mega-menu-dropdown-inner">
             <MenuPanel
               menu={menus[renderedIndex]}
               learnMore={labels.learnMore}
@@ -437,14 +437,14 @@ export default function MegaMenuHeader({
       {!isDesktop && (
         <div
           id={`${baseId}-mobile-menu`}
-          className={`rigpa-mega-menu-mobile-panel ${
-            mobileOpen ? "rigpa-mega-menu-mobile-panel--open" : ""
+          className={`md-mega-menu-mobile-panel ${
+            mobileOpen ? "md-mega-menu-mobile-panel--open" : ""
           }`}
           aria-hidden={!mobileOpen}
           inert={!mobileOpen}
         >
-          <div className="rigpa-mega-menu-mobile-panel-content">
-          <nav aria-label={menuLabel} className="rigpa-mega-menu-mobile-nav">
+          <div className="md-mega-menu-mobile-panel-content">
+          <nav aria-label={menuLabel} className="md-mega-menu-mobile-nav">
             {menus.map((menu, index) => {
               const bodyId = `${baseId}-mobile-body-${index}`;
               const isExpanded = mobileExpandedIndex === index;
@@ -452,12 +452,12 @@ export default function MegaMenuHeader({
 
               if (!hasItems) {
                 return (
-                  <div key={menu.label} className="rigpa-mega-menu-mobile-section">
+                  <div key={menu.label} className="md-mega-menu-mobile-section">
                     <a
                       href={menu.url || "#"}
-                      className="rigpa-mega-menu-mobile-section-btn"
+                      className="md-mega-menu-mobile-section-btn"
                     >
-                      <span className="rigpa-mega-menu-mobile-section-label">
+                      <span className="md-mega-menu-mobile-section-label">
                         {menu.label}
                       </span>
                     </a>
@@ -468,23 +468,23 @@ export default function MegaMenuHeader({
               return (
                 <div
                   key={menu.label}
-                  className="rigpa-mega-menu-mobile-section"
+                  className="md-mega-menu-mobile-section"
                 >
                   <button
                     type="button"
-                    className="rigpa-mega-menu-mobile-section-btn"
+                    className="md-mega-menu-mobile-section-btn"
                     aria-expanded={isExpanded}
                     aria-controls={bodyId}
                     onClick={() =>
                       setMobileExpandedIndex(isExpanded ? null : index)
                     }
                   >
-                    <span className="rigpa-mega-menu-mobile-section-label">
+                    <span className="md-mega-menu-mobile-section-label">
                       {menu.label}
                     </span>
                     <svg
-                      className={`rigpa-mega-menu-mobile-chevron ${
-                        isExpanded ? "rigpa-mega-menu-mobile-chevron--open" : ""
+                      className={`md-mega-menu-mobile-chevron ${
+                        isExpanded ? "md-mega-menu-mobile-chevron--open" : ""
                       }`}
                       width="12"
                       height="12"
@@ -499,13 +499,13 @@ export default function MegaMenuHeader({
                   </button>
 
                   <div
-                    className={`rigpa-mega-menu-mobile-accordion ${
-                      isExpanded ? "rigpa-mega-menu-mobile-accordion--open" : ""
+                    className={`md-mega-menu-mobile-accordion ${
+                      isExpanded ? "md-mega-menu-mobile-accordion--open" : ""
                     }`}
                     role="region"
                     id={bodyId}
                   >
-                    <div className="rigpa-mega-menu-mobile-accordion-inner">
+                    <div className="md-mega-menu-mobile-accordion-inner">
                       <MobileSectionLinks menu={menu} id={`${bodyId}-links`} />
                     </div>
                   </div>

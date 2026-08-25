@@ -2,23 +2,23 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import MegaMenuHeader from "./MegaMenuHeader";
 import "./index.css";
-import type { RigpaMegaMenuConfig } from "./types";
+import type { MDMegaMenuConfig } from "./types";
 
 function getMountNodes(): HTMLElement[] {
   const nodes: HTMLElement[] = [];
 
-  const byId = document.getElementById("rigpa-mega-menu-root");
+  const byId = document.getElementById("md-mega-menu-root");
   if (byId) {
     nodes.push(byId);
   }
 
-  document.querySelectorAll<HTMLElement>(".rigpa-mega-menu-root[id]").forEach((el) => {
+  document.querySelectorAll<HTMLElement>(".md-mega-menu-root[id]").forEach((el) => {
     if (!nodes.includes(el)) {
       nodes.push(el);
     }
   });
 
-  document.querySelectorAll<HTMLElement>(".rigpa-mega-menu-wrapper[id]").forEach((el) => {
+  document.querySelectorAll<HTMLElement>(".md-mega-menu-wrapper[id]").forEach((el) => {
     if (!nodes.includes(el)) {
       nodes.push(el);
     }
@@ -34,18 +34,18 @@ function applyMenuTextColor(node: HTMLElement, color?: string) {
   // A per-instance value emitted via inline style on the wrapper (e.g. a
   // shortcode attr or per-page meta override) takes precedence over the
   // localized global default.
-  if (node.style.getPropertyValue("--rigpa-mega-menu-item-color")) {
+  if (node.style.getPropertyValue("--md-mega-menu-item-color")) {
     return;
   }
-  node.style.setProperty("--rigpa-mega-menu-item-color", color);
+  node.style.setProperty("--md-mega-menu-item-color", color);
 }
 
-function mountMegaMenu(node: HTMLElement, config: RigpaMegaMenuConfig) {
-  if (node.dataset.rigpaMegaMenuMounted === "true") {
+function mountMegaMenu(node: HTMLElement, config: MDMegaMenuConfig) {
+  if (node.dataset.mdMegaMenuMounted === "true") {
     return;
   }
 
-  node.dataset.rigpaMegaMenuMounted = "true";
+  node.dataset.mdMegaMenuMounted = "true";
   applyMenuTextColor(node, config.menuTextColor);
 
   createRoot(node).render(
@@ -59,8 +59,8 @@ function mountMegaMenu(node: HTMLElement, config: RigpaMegaMenuConfig) {
   );
 }
 
-function initRigpaMegaMenu() {
-  const config = window.rigpaMegaMenu;
+function initMDMegaMenu() {
+  const config = window.mdMegaMenu;
 
   if (!config?.menus?.length) {
     return;
@@ -70,7 +70,7 @@ function initRigpaMegaMenu() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initRigpaMegaMenu);
+  document.addEventListener("DOMContentLoaded", initMDMegaMenu);
 } else {
-  initRigpaMegaMenu();
+  initMDMegaMenu();
 }

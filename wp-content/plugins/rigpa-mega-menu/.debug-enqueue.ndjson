@@ -1,2 +1,0 @@
-{"sessionId":"d6af04","hypothesisId":"H1","location":"class-rigpa-mega-menu-admin.php:enqueue_assets","message":"enqueue_assets called","data":{"hook":"tools_page_rigpa-mega-menu","expectedHook":"tools_page_rigpa-mega-menu","matches":true},"timestamp":1781392976186}
-{"sessionId":"d6af04","hypothesisId":"H1","location":"class-rigpa-mega-menu-admin.php:enqueue_assets","message":"enqueue_assets called","data":{"hook":"tools_page_rigpa-mega-menu","expectedHook":"tools_page_rigpa-mega-menu","matches":true},"timestamp":1781393023715}

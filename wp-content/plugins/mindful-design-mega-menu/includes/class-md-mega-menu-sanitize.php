@@ -1,13 +1,13 @@
 <?php
 /**
- * Sanitize menu text and import payloads for Rigpa Mega Menu.
+ * Sanitize menu text and import payloads for Mindful Design Mega Menu.
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Rigpa_Mega_Menu_Sanitize {
+class MD_Mega_Menu_Sanitize {
 
     /**
      * Plain text only — strips HTML, shortcodes, and extra whitespace.

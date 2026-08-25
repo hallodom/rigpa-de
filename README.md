@@ -3,7 +3,7 @@
 WordPress, MySQL, and Docker Compose, with two custom plugins:
 
 - **Rigpa.de Map** — interactive Germany locations map.
-- **Rigpa Mega Menu** — standard WordPress navigation with an optional mega-menu display.
+- **Mindful Design Mega Menu** — standard WordPress navigation with an optional mega-menu display.
 
 ## Run locally
 
@@ -36,11 +36,11 @@ docker compose logs wordpress-setup
 | `make build-map` | Build map plugin assets |
 | `make build-mega-menu` | Build mega-menu assets |
 | `make package-plugin` | Create `dist/rigpa-de-map.zip` |
-| `make package-mega-menu` | Create `dist/rigpa-mega-menu.zip` |
+| `make package-mega-menu` | Create `dist/mindful-design-mega-menu.zip` |
 
-## Rigpa Mega Menu
+## Mindful Design Mega Menu
 
-The header reads from normal WordPress menus. No shortcode, demo menu, or bundled featured images are required.
+The header reads from normal WordPress menus. No shortcode, demo menu, or bundled featured images are required for the default automatic placement.
 
 ### Choose the menu display
 
@@ -49,9 +49,20 @@ Go to **Appearance → Menus → Manage Locations** and assign any WordPress men
 - **Header Menu (standard)** — displays regular WordPress navigation.
 - **Mega Menu** — displays the same menu using the interactive mega-menu header.
 
-Each location can have one menu. Assigning another replaces the previous assignment. If both locations have menus, **Mega Menu** takes precedence.
+Each location can have one menu. Assigning another replaces the previous assignment. With **Automatic placement** enabled in **Tools → Mega Menu**, **Mega Menu** takes precedence if both locations have menus.
 
 To compare the two modes, assign your menu to **Header Menu (standard)**, then add or remove its **Mega Menu** assignment.
+
+### Use with Elementor
+
+Assigning a menu to **Mega Menu** selects its content. The **Automatic placement** setting in **Tools → Mega Menu** controls whether the plugin also renders that menu through WordPress's `wp_body_open` hook. A menu location does not remove navigation widgets that were added separately by a theme or page builder.
+
+For an Elementor header, use exactly one menu renderer:
+
+- **Automatic placement:** turn on **Automatic placement**, assign the menu to **Mega Menu**, remove Elementor's existing **Nav Menu** widget from the header template, and do not add the mega-menu shortcode.
+- **Shortcode-only placement:** turn off **Automatic placement**, keep the menu assigned to **Mega Menu** as the data source, and add a **Shortcode** widget containing `[md_mega_menu]` wherever the mega menu should appear. This is useful for a dedicated Elementor test page while the site's normal header remains unchanged.
+
+If both the automatic mega menu and Elementor's Nav Menu widget remain enabled, the page shows two menus: the plugin's mega menu and Elementor's original navigation. If automatic rendering and the shortcode are both enabled, the mega menu itself is mounted twice.
 
 ### Structure and featured panels
 
@@ -89,7 +100,7 @@ Leave other pages on **Inherit** or choose **Solid**.
 make package-mega-menu
 ```
 
-Upload `dist/rigpa-mega-menu.zip` through **Plugins → Add New → Upload Plugin**, activate it, then create or select a menu and assign it to **Mega Menu**.
+Upload `dist/mindful-design-mega-menu.zip` through **Plugins → Add New → Upload Plugin**, activate it, then create or select a menu and assign it to **Mega Menu**.
 
 ## Rigpa.de Map
 

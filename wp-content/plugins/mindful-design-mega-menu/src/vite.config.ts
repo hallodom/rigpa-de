@@ -13,15 +13,15 @@ export default defineConfig({
     emptyOutDir: false,
     lib: {
       entry: path.resolve(__dirname, "main.tsx"),
-      name: "RigpaMegaMenu",
+      name: "MDMegaMenu",
       formats: ["iife"],
-      fileName: () => "js/rigpa-mega-menu.js",
+      fileName: () => "js/md-mega-menu.js",
     },
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith(".css")) {
-            return "css/rigpa-mega-menu.css";
+            return "css/md-mega-menu.css";
           }
           return "assets/[name][extname]";
         },

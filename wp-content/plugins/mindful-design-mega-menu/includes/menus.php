@@ -11,28 +11,28 @@ if (!defined('ABSPATH')) {
  * Register the standard and enhanced header locations editable under
  * Appearance → Menus.
  */
-function rigpa_mega_menu_register_nav_menus() {
+function md_mega_menu_register_nav_menus() {
     register_nav_menus(
         array(
-            'rigpa-header-menu' => __('Header Menu (standard)', 'rigpa-mega-menu'),
-            'rigpa-mega-menu'   => __('Mega Menu', 'rigpa-mega-menu'),
+            'md-header-menu' => __('Header Menu (standard)', 'mindful-design-mega-menu'),
+            'md-mega-menu'   => __('Mega Menu', 'mindful-design-mega-menu'),
         )
     );
 }
-add_action('after_setup_theme', 'rigpa_mega_menu_register_nav_menus');
+add_action('after_setup_theme', 'md_mega_menu_register_nav_menus');
 
 /**
  * @return string
  */
-function rigpa_mega_menu_location() {
-    return 'rigpa-mega-menu';
+function md_mega_menu_location() {
+    return 'md-mega-menu';
 }
 
 /**
  * @return string
  */
-function rigpa_standard_menu_location() {
-    return 'rigpa-header-menu';
+function md_standard_menu_location() {
+    return 'md-header-menu';
 }
 
 /**
@@ -40,8 +40,8 @@ function rigpa_standard_menu_location() {
  *
  * @return array<int, array<string, mixed>>|null
  */
-function rigpa_mega_menu_build_menus_from_nav() {
-    $location = rigpa_mega_menu_location();
+function md_mega_menu_build_menus_from_nav() {
+    $location = md_mega_menu_location();
     $locations = get_nav_menu_locations();
 
     if (empty($locations[$location])) {
@@ -68,20 +68,20 @@ function rigpa_mega_menu_build_menus_from_nav() {
 
         $parent_id = (int) $item->menu_item_parent;
         if ($parent_id === 0) {
-            $section_url = Rigpa_Mega_Menu_Sanitize::text((string) $item->url);
+            $section_url = MD_Mega_Menu_Sanitize::text((string) $item->url);
             if ($section_url === '#' || $section_url === '') {
                 $section_url = '';
             }
 
             $sections[(int) $item->ID] = array(
-                'label' => Rigpa_Mega_Menu_Sanitize::text((string) $item->title),
+                'label' => MD_Mega_Menu_Sanitize::text((string) $item->title),
                 'url'   => $section_url,
                 'items' => array(),
             );
 
-            $featured = get_post_meta((int) $item->ID, '_rigpa_mega_menu_featured', true);
+            $featured = get_post_meta((int) $item->ID, '_md_mega_menu_featured', true);
             if (is_array($featured)) {
-                $clean_featured = Rigpa_Mega_Menu_Sanitize::featured($featured);
+                $clean_featured = MD_Mega_Menu_Sanitize::featured($featured);
                 if ($clean_featured !== null) {
                     if (!empty($clean_featured['image']) && !str_starts_with($clean_featured['image'], 'http')) {
                         $clean_featured['image'] = home_url($clean_featured['image']);
@@ -90,9 +90,9 @@ function rigpa_mega_menu_build_menus_from_nav() {
                 }
             }
 
-            $featured_centres = get_post_meta((int) $item->ID, '_rigpa_mega_menu_featured_centres', true);
+            $featured_centres = get_post_meta((int) $item->ID, '_md_mega_menu_featured_centres', true);
             if (is_array($featured_centres) && $featured_centres !== array()) {
-                $clean_centres = Rigpa_Mega_Menu_Sanitize::featured_centres($featured_centres);
+                $clean_centres = MD_Mega_Menu_Sanitize::featured_centres($featured_centres);
                 if ($clean_centres !== array()) {
                     foreach ($clean_centres as $index => $centre) {
                         if (!empty($centre['image']) && !str_starts_with($centre['image'], 'http')) {
@@ -119,7 +119,7 @@ function rigpa_mega_menu_build_menus_from_nav() {
     $append_descendants = null;
     $append_descendants = static function ($parent_id, array &$section) use (&$append_descendants, $children_by_parent) {
         foreach ($children_by_parent[$parent_id] ?? array() as $child) {
-            $link = Rigpa_Mega_Menu_Sanitize::menu_link(
+            $link = MD_Mega_Menu_Sanitize::menu_link(
                 array(
                     'title'       => (string) $child->title,
                     'description' => (string) $child->description,
@@ -148,8 +148,8 @@ function rigpa_mega_menu_build_menus_from_nav() {
 /**
  * @return array<int, array<string, mixed>>
  */
-function rigpa_mega_menu_get_menus() {
-    $from_nav = rigpa_mega_menu_build_menus_from_nav();
+function md_mega_menu_get_menus() {
+    $from_nav = md_mega_menu_build_menus_from_nav();
 
     return $from_nav !== null ? $from_nav : array();
 }

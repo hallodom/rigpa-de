@@ -33,7 +33,7 @@ build-map:
 	cp wp-content/plugins/rigpa-de-map/includes/admin-media.js wp-content/plugins/rigpa-de-map/assets/js/admin-media.js
 
 build-mega-menu:
-	cd wp-content/plugins/rigpa-mega-menu/src && npm install && npm run build
+	cd wp-content/plugins/mindful-design-mega-menu/src && npm install && npm run build
 
 package-plugin:
 	./scripts/package-plugin.sh

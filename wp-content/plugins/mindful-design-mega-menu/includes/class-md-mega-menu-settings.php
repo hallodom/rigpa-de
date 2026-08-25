@@ -1,19 +1,39 @@
 <?php
 /**
- * Plugin settings for Rigpa Mega Menu.
+ * Plugin settings for Mindful Design Mega Menu.
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class Rigpa_Mega_Menu_Settings {
+class MD_Mega_Menu_Settings {
 
-    const OPTION_TRANSPARENT     = 'rigpa_mega_menu_transparent';
-    const OPTION_MENU_TEXT_COLOR = 'rigpa_mega_menu_text_color';
+    const OPTION_AUTO_RENDER     = 'md_mega_menu_auto_render';
+    const OPTION_TRANSPARENT     = 'md_mega_menu_transparent';
+    const OPTION_MENU_TEXT_COLOR = 'md_mega_menu_text_color';
 
     const DEFAULT_SOLID_TEXT_COLOR       = '#171717';
     const DEFAULT_TRANSPARENT_TEXT_COLOR = '#ffffff';
+
+    /**
+     * Whether the plugin automatically renders a menu through wp_body_open.
+     *
+     * Enabled by default for existing installations. Disable this when the
+     * shortcode is placed deliberately in an Elementor layout.
+     */
+    public static function is_auto_render_enabled() {
+        $value = get_option(self::OPTION_AUTO_RENDER, '1');
+
+        return $value !== '0' && $value !== false;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public static function set_auto_render_enabled($enabled) {
+        update_option(self::OPTION_AUTO_RENDER, $enabled ? '1' : '0');
+    }
 
     /**
      * Whether the header bar uses a transparent background (default: off / solid).
@@ -87,9 +107,9 @@ class Rigpa_Mega_Menu_Settings {
     }
 
     /**
-     * CSS declaration for --rigpa-mega-menu-item-color.
+     * CSS declaration for --md-mega-menu-item-color.
      */
     public static function get_root_color_style_declaration() {
-        return '--rigpa-mega-menu-item-color:' . self::get_menu_text_color() . ';';
+        return '--md-mega-menu-item-color:' . self::get_menu_text_color() . ';';
     }
 }

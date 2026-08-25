@@ -19,7 +19,7 @@ export interface MenuSection {
   featuredCentres?: FeaturedCard[];
 }
 
-export interface RigpaMegaMenuConfig {
+export interface MDMegaMenuConfig {
   assetsUrl: string;
   menus: MenuSection[];
   labels: {
@@ -34,6 +34,6 @@ export interface RigpaMegaMenuConfig {
 
 declare global {
   interface Window {
-    rigpaMegaMenu?: RigpaMegaMenuConfig;
+    mdMegaMenu?: MDMegaMenuConfig;
   }
 }
