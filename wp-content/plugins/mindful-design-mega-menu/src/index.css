@@ -17,9 +17,9 @@
 }
 
 .md-mega-menu-root {
-  --md-mega-menu-item-color: #ffffff;
+  --md-mega-menu-item-color: #171717;
   font-family: var(--mdmm-font-sans, "Inter", ui-sans-serif, system-ui, sans-serif);
-  color: #171717;
+  color: var(--md-mega-menu-item-color, #171717);
   line-height: 1.5;
   isolation: isolate;
   -webkit-font-smoothing: antialiased;
@@ -47,11 +47,43 @@
   background: transparent;
 }
 
+/* Full-bleed root sits over the logo column; do not paint a viewport-wide
+   white bar. The Elementor/theme header already supplies the page background. */
 .md-mega-menu-root .md-mega-menu-header--solid {
-  background: #fff;
+  background: transparent;
+  pointer-events: none;
+}
+
+.md-mega-menu-root .md-mega-menu-header--solid .md-mega-menu-inner,
+.md-mega-menu-root .md-mega-menu-header--solid .md-mega-menu-dropdown,
+.md-mega-menu-root .md-mega-menu-header--solid .md-mega-menu-mobile-panel {
+  pointer-events: auto;
 }
 
 .md-mega-menu-root .md-mega-menu-header--transparent {
+  background: transparent;
+}
+
+.md-mega-menu-root.md-mega-menu-root--transparent {
+  --md-mega-menu-item-color: #ffffff;
+  background: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
+/* Theme Builder header already positions the bar; stay in the logo/menu row. */
+.elementor-location-header .md-mega-menu-root.md-mega-menu-root--transparent {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
+.md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header,
+.md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header--transparent {
   background: transparent;
 }
 

@@ -48,12 +48,18 @@ function mountMegaMenu(node: HTMLElement, config: MDMegaMenuConfig) {
   node.dataset.mdMegaMenuMounted = "true";
   applyMenuTextColor(node, config.menuTextColor);
 
+  const transparent = node.classList.contains("md-mega-menu-root--transparent")
+    ? true
+    : node.classList.contains("md-mega-menu-root--solid")
+      ? false
+      : config.transparent !== false;
+
   createRoot(node).render(
     <StrictMode>
       <MegaMenuHeader
         menus={config.menus}
         labels={config.labels}
-        transparent={config.transparent !== false}
+        transparent={transparent}
       />
     </StrictMode>
   );

@@ -105,9 +105,12 @@ class MD_Mega_Menu_Admin {
         MD_Mega_Menu_Settings::set_transparent($transparent);
 
         if (isset($_POST['md_mega_menu_text_color'])) {
-            MD_Mega_Menu_Settings::set_menu_text_color(
-                sanitize_text_field(wp_unslash($_POST['md_mega_menu_text_color']))
-            );
+            $submitted = sanitize_text_field(wp_unslash($_POST['md_mega_menu_text_color']));
+            if (MD_Mega_Menu_Settings::is_auto_default_color($submitted)) {
+                MD_Mega_Menu_Settings::set_menu_text_color('');
+            } else {
+                MD_Mega_Menu_Settings::set_menu_text_color($submitted);
+            }
         }
 
         wp_safe_redirect(
@@ -359,13 +362,31 @@ class MD_Mega_Menu_Admin {
                                 >
                                 <code class="md-mega-menu-admin__code"><?php echo esc_html($menu_text_color); ?></code>
                                 <p class="description">
-                                    <?php esc_html_e('Colour for top-level items in the menu bar (default: white). Hover does not change the background.', 'mindful-design-mega-menu'); ?>
+                                    <?php esc_html_e('Leave at the built-in default to auto-switch: white when the header is transparent, dark when it is solid. Pick another hex only to force a custom colour in both modes.', 'mindful-design-mega-menu'); ?>
                                 </p>
                             </td>
                         </tr>
                     </table>
                     <?php submit_button(__('Save placement and appearance', 'mindful-design-mega-menu')); ?>
                 </form>
+                <script>
+                (function () {
+                    var toggle = document.getElementById('md-mega-menu-transparent');
+                    var color = document.getElementById('md-mega-menu-text-color');
+                    if (!toggle || !color) return;
+                    var code = color.parentNode.querySelector('code');
+                    var defaults = { on: '#ffffff', off: '#171717' };
+                    function isDefault(value) {
+                        return String(value).toLowerCase() === defaults.on || String(value).toLowerCase() === defaults.off;
+                    }
+                    toggle.addEventListener('change', function () {
+                        if (!isDefault(color.value)) return;
+                        var next = toggle.checked ? defaults.on : defaults.off;
+                        color.value = next;
+                        if (code) code.textContent = next;
+                    });
+                })();
+                </script>
             </div>
 
             <div class="md-mega-menu-admin__panel">

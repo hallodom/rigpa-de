@@ -68,20 +68,39 @@ class MD_Mega_Menu_Settings {
      * @param bool|null $transparent
      */
     public static function get_menu_text_color($transparent = null) {
-        $stored = (string) get_option(self::OPTION_MENU_TEXT_COLOR, '');
-        $color  = $stored === '' ? '' : (string) sanitize_hex_color($stored);
-
-        if ($color !== '') {
-            return $color;
-        }
-
         if ($transparent === null) {
             $transparent = self::is_transparent();
         }
 
-        return $transparent
+        $auto = $transparent
             ? self::DEFAULT_TRANSPARENT_TEXT_COLOR
             : self::DEFAULT_SOLID_TEXT_COLOR;
+
+        $stored = (string) get_option(self::OPTION_MENU_TEXT_COLOR, '');
+        $color  = $stored === '' ? '' : (string) sanitize_hex_color($stored);
+
+        if ($color === '' || self::is_auto_default_color($color)) {
+            return $auto;
+        }
+
+        return $color;
+    }
+
+    /**
+     * True when $color is one of the built-in defaults, not a custom pick.
+     *
+     * The admin colour input always submits a value. Saving settings while
+     * the header is solid persists #171717; toggling transparent on must
+     * not keep that leftover as an "explicit" override.
+     */
+    public static function is_auto_default_color($color) {
+        $sanitized = sanitize_hex_color((string) $color);
+        if (!$sanitized) {
+            return true;
+        }
+
+        return strcasecmp($sanitized, self::DEFAULT_SOLID_TEXT_COLOR) === 0
+            || strcasecmp($sanitized, self::DEFAULT_TRANSPARENT_TEXT_COLOR) === 0;
     }
 
     /**

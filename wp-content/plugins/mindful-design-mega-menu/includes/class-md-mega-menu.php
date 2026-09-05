@@ -234,7 +234,9 @@ class MD_Mega_Menu {
                     'learnMore' => __('Learn more →', 'mindful-design-mega-menu'),
                 ),
                 'transparent'   => MD_Mega_Menu_Settings::is_transparent(),
-                'menuTextColor' => MD_Mega_Menu_Settings::get_menu_text_color(),
+                'menuTextColor' => MD_Mega_Menu_Settings::get_menu_text_color(
+                    MD_Mega_Menu_Settings::is_transparent()
+                ),
             )
         );
 
@@ -546,7 +548,15 @@ JS;
 }
 
 .md-mega-menu-root.md-mega-menu-root--solid .md-mega-menu-header {
-    background-color: #fff !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    pointer-events: none;
+}
+
+.md-mega-menu-root.md-mega-menu-root--solid .md-mega-menu-inner,
+.md-mega-menu-root.md-mega-menu-root--solid .md-mega-menu-dropdown,
+.md-mega-menu-root.md-mega-menu-root--solid .md-mega-menu-mobile-panel {
+    pointer-events: auto;
 }
 
 .md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header {
@@ -620,6 +630,85 @@ JS;
     .md-mega-menu-root .md-mega-menu-dropdown {
         transition: none !important;
     }
+}
+
+/* Transparent mode: no painted bar, white-on-hero text, overlay the next section. */
+.md-mega-menu-root.md-mega-menu-root--transparent,
+.md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header,
+.md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header--transparent {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+.md-mega-menu-root.md-mega-menu-root--transparent {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 9999;
+}
+
+body.admin-bar .md-mega-menu-root.md-mega-menu-root--transparent {
+    top: 32px;
+}
+
+@media screen and (max-width: 782px) {
+    body.admin-bar .md-mega-menu-root.md-mega-menu-root--transparent {
+        top: 46px;
+    }
+}
+
+.elementor-location-header .md-mega-menu-root.md-mega-menu-root--transparent,
+header.elementor-location-header .md-mega-menu-root.md-mega-menu-root--transparent,
+body.admin-bar .elementor-location-header .md-mega-menu-root.md-mega-menu-root--transparent {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+}
+
+.md-mega-menu-root.md-mega-menu-root--transparent a.md-mega-menu-nav-btn,
+.elementor .md-mega-menu-root.md-mega-menu-root--transparent a.md-mega-menu-nav-btn,
+.elementor-widget .md-mega-menu-root.md-mega-menu-root--transparent a.md-mega-menu-nav-btn {
+    color: var(--md-mega-menu-item-color, #ffffff) !important;
+}
+
+.elementor-shortcode:has(.md-mega-menu-root--transparent),
+.elementor-widget-container:has(.md-mega-menu-root--transparent),
+.elementor-widget:has(.md-mega-menu-root--transparent),
+.e-con-inner:has(> .elementor-widget .md-mega-menu-root--transparent),
+.e-con:has(> .e-con-inner > .elementor-widget-shortcode .md-mega-menu-root--transparent),
+.e-con:has(> .elementor-widget-shortcode .md-mega-menu-root--transparent) {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    overflow: visible !important;
+}
+
+/* Shortcode-only Elementor section: leave flow so the hero slides underneath. */
+.e-con.e-parent:has(> .e-con-inner > .elementor-widget-shortcode .md-mega-menu-root--transparent):not(:has(> .e-con-inner > .elementor-element:not(.elementor-widget-shortcode))),
+.e-con.e-parent:has(> .elementor-widget-shortcode .md-mega-menu-root--transparent):not(:has(> .elementor-element:not(.elementor-widget-shortcode))) {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 20 !important;
+    background: transparent !important;
+    overflow: visible !important;
+}
+
+.e-con.e-parent:has(> .e-con-inner > .elementor-widget-shortcode .md-mega-menu-root--transparent):not(:has(> .e-con-inner > .elementor-element:not(.elementor-widget-shortcode))) > .e-con-inner {
+    padding: 0 !important;
+    background: transparent !important;
 }
 CSS;
     }

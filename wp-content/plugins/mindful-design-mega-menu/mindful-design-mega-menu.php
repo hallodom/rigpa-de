@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Mindful Design Mega Menu
  * Description: Interactive header mega menu powered by WordPress navigation menu locations.
- * Version: 2.0.1
+ * Version: 2.0.4
  * Author: Mindful Design
  * Text Domain: mindful-design-mega-menu
  * Requires at least: 6.0
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('MD_MEGA_MENU_VERSION', '2.0.1');
+define('MD_MEGA_MENU_VERSION', '2.0.4');
 define('MD_MEGA_MENU_PATH', plugin_dir_path(__FILE__));
 define('MD_MEGA_MENU_URL', plugin_dir_url(__FILE__));
 
