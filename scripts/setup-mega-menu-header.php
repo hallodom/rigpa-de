@@ -1,7 +1,7 @@
 <?php
 /**
  * Replace the active block-theme header template part with a clean
- * Rigpa Mega Menu shortcode, and set the demo page as the front page.
+ * Mindful Design Mega Menu shortcode, and set the demo page as the front page.
  */
 
 if (!defined('ABSPATH')) {
@@ -16,7 +16,7 @@ $theme_slug = $theme->get_stylesheet();
 $header_content = <<<HTML
 <!-- wp:group {"tagName":"header","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"}}},"layout":{"type":"constrained"}} -->
 <header class="wp-block-group" style="padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)"><!-- wp:shortcode -->
-[rigpa_mega_menu]
+[md_mega_menu]
 <!-- /wp:shortcode --></header>
 <!-- /wp:group -->
 HTML;

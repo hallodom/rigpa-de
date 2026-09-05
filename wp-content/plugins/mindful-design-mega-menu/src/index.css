@@ -1,0 +1,896 @@
+@import "tailwindcss/theme" prefix(mdmm);
+@import "tailwindcss/utilities" prefix(mdmm);
+
+@theme {
+  --font-serif: "Bitter", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* No @keyframes needed — transitions + @starting-style handle all enter animations */
+
+/* Scoped base reset — replaces global Tailwind preflight inside the menu only. */
+.md-mega-menu-root,
+.md-mega-menu-root *,
+.md-mega-menu-root *::before,
+.md-mega-menu-root *::after {
+  box-sizing: border-box;
+}
+
+.md-mega-menu-root {
+  --md-mega-menu-item-color: #171717;
+  font-family: var(--mdmm-font-sans, "Inter", ui-sans-serif, system-ui, sans-serif);
+  color: var(--md-mega-menu-item-color, #171717);
+  line-height: 1.5;
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* Full-bleed root, constrained menu content */
+.md-mega-menu-root .md-mega-menu-inner {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* Header bar — no borders; background controlled by transparent setting */
+.md-mega-menu-root .md-mega-menu-header {
+  position: relative;
+  width: 100%;
+  z-index: 50;
+  border: 0;
+  background: transparent;
+}
+
+/* Full-bleed root sits over the logo column; do not paint a viewport-wide
+   white bar. The Elementor/theme header already supplies the page background. */
+.md-mega-menu-root .md-mega-menu-header--solid {
+  background: transparent;
+  pointer-events: none;
+}
+
+.md-mega-menu-root .md-mega-menu-header--solid .md-mega-menu-inner,
+.md-mega-menu-root .md-mega-menu-header--solid .md-mega-menu-dropdown,
+.md-mega-menu-root .md-mega-menu-header--solid .md-mega-menu-mobile-panel {
+  pointer-events: auto;
+}
+
+.md-mega-menu-root .md-mega-menu-header--transparent {
+  background: transparent;
+}
+
+.md-mega-menu-root.md-mega-menu-root--transparent {
+  --md-mega-menu-item-color: #ffffff;
+  background: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
+/* Theme Builder header already positions the bar; stay in the logo/menu row. */
+.elementor-location-header .md-mega-menu-root.md-mega-menu-root--transparent {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
+.md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header,
+.md-mega-menu-root.md-mega-menu-root--transparent .md-mega-menu-header--transparent {
+  background: transparent;
+}
+
+.md-mega-menu-root .md-mega-menu-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+}
+
+.md-mega-menu-root .md-mega-menu-desktop-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  column-gap: clamp(0.5rem, 1.6vw, 1.5rem);
+  margin-inline: auto;
+}
+
+.md-mega-menu-root .md-mega-menu-nav-item {
+  position: relative;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  border-radius: 6px !important;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.md-mega-menu-root .md-mega-menu-nav-item:hover,
+.md-mega-menu-root .md-mega-menu-nav-item:has(.md-mega-menu-nav-btn--active) {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
+}
+
+/* Menu bar items — colour from plugin setting; no background on hover */
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn {
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--md-mega-menu-item-color, #ffffff);
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-chevron {
+  display: inline-block !important;
+  visibility: visible !important;
+  width: 10px !important;
+  height: 10px !important;
+  max-width: none !important;
+  max-height: none !important;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn--active .md-mega-menu-nav-chevron {
+  transform: rotate(180deg);
+}
+
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn:hover,
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn:focus,
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn:active,
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn--active,
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-nav-btn:focus-visible {
+  color: var(--md-mega-menu-item-color, #ffffff) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Dropdown panel card — fixed width, independent of root */
+.md-mega-menu-root .md-mega-menu-dropdown-inner {
+  width: 992px;
+  min-width: 992px;
+  max-width: calc(100vw - 3rem);
+  margin-inline: auto;
+  padding-block: 1.5rem;
+}
+
+/* Desktop dropdown panel — namespaced, no Tailwind dependency */
+.md-mega-menu-root .md-mega-menu-panel {
+  display: grid;
+  gap: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+  grid-template-columns: 1fr;
+}
+
+.md-mega-menu-root .md-mega-menu-panel--with-featured {
+  grid-template-columns: 1fr 300px;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-links {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.5rem 1rem !important;
+  padding: 1.25rem !important;
+  margin: 0 !important;
+  list-style: none !important;
+  align-content: start !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-link {
+  display: block !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0.625rem 0.75rem !important;
+  margin: 0 !important;
+  text-align: left !important;
+  border-radius: 0.5rem !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-link:hover,
+.md-mega-menu-root .md-mega-menu-panel-link:focus,
+.md-mega-menu-root .md-mega-menu-panel-link:active {
+  background: rgba(0, 0, 0, 0.04) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-link::before,
+.md-mega-menu-root .md-mega-menu-panel-link::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-links img,
+.md-mega-menu-root .md-mega-menu-panel-links svg,
+.md-mega-menu-root .md-mega-menu-panel-link img,
+.md-mega-menu-root .md-mega-menu-panel-link svg {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-link-title {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #171717 !important;
+  margin: 0 0 0.25rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  transition: color 0.15s ease;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-link:hover .md-mega-menu-panel-link-title,
+.md-mega-menu-root .md-mega-menu-panel-link:focus .md-mega-menu-panel-link-title {
+  color: #525252 !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-link-desc {
+  display: block !important;
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  color: #9a9a9a !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  font-style: normal !important;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured {
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  padding: 1.5rem;
+  border-left: 1px solid #e5e5e5;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured-image-wrap {
+  aspect-ratio: 4 / 3;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #171717;
+  margin-bottom: 0.5rem;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured-desc {
+  font-size: 0.75rem;
+  color: #525252;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured-cta {
+  margin-top: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #171717;
+  text-decoration: none;
+}
+
+.md-mega-menu-root .md-mega-menu-panel-featured-cta:hover {
+  text-decoration: underline;
+}
+
+/*
+ * Featured centres — two compact cards stacked in the featured column.
+ * Each card is a small image with a title (and optional one-line desc) below.
+ */
+.md-mega-menu-root .md-mega-menu-panel-featured--centres {
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+/* Centre cards are <a> tags; many parent themes (Buddyboss, Elementor)
+   override `border-bottom` on links with !important. We dodge that path
+   entirely by drawing the visible 1px edge with an inset box-shadow
+   instead of a CSS border, and bump our selector specificity to 0,3,0
+   by repeating the root class so site-level overrides can't outscore us. */
+.md-mega-menu-root.md-mega-menu-root .md-mega-menu-centre-card {
+  display: block !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: inset 0 0 0 1px #e5e5e5 !important;
+  overflow: hidden !important;
+  transition: box-shadow 0.15s ease, transform 0.15s ease !important;
+}
+
+.md-mega-menu-root.md-mega-menu-root .md-mega-menu-centre-card:hover,
+.md-mega-menu-root.md-mega-menu-root .md-mega-menu-centre-card:focus {
+  box-shadow:
+    inset 0 0 0 1px #e5e5e5,
+    0 4px 12px -2px rgb(0 0 0 / 0.12) !important;
+  transform: translateY(-1px) !important;
+}
+
+.md-mega-menu-root .md-mega-menu-centre-card-image-wrap {
+  display: block !important;
+  aspect-ratio: 16 / 9;
+  overflow: hidden !important;
+  background: #f5f5f5;
+}
+
+.md-mega-menu-root .md-mega-menu-centre-card-image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  object-fit: cover !important;
+}
+
+.md-mega-menu-root .md-mega-menu-centre-card-title {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #171717 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  padding: 0.625rem 0.75rem 0.125rem !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
+}
+
+.md-mega-menu-root .md-mega-menu-centre-card-title:only-child,
+.md-mega-menu-root .md-mega-menu-centre-card-image-wrap + .md-mega-menu-centre-card-title:last-child {
+  padding-bottom: 0.625rem !important;
+}
+
+.md-mega-menu-root .md-mega-menu-centre-card-desc {
+  display: block !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  color: #737373 !important;
+  line-height: 1.5 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  padding: 0 0.75rem 0.875rem !important;
+  margin: 0 !important;
+}
+
+.md-mega-menu-root img,
+.md-mega-menu-root svg {
+  display: block;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+.md-mega-menu-root img {
+  height: auto;
+}
+
+.md-mega-menu-root button {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.md-mega-menu-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.md-mega-menu-root nav,
+.md-mega-menu-root ul,
+.md-mega-menu-root ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Desktop dropdown — single persistent element. The wrapper alone owns the
+ * enter/exit transition. Inner content (panel/links/featured) does NOT animate
+ * so swapping menus while open is instant.
+ *
+ * @starting-style fires the first time the dropdown is rendered → enter animation.
+ * Removing --open while still rendered → exit animation runs in reverse.
+ * Supported: Chrome 117+, Firefox 129+, Safari 17.5+ (all 2023–2024).
+ */
+.md-mega-menu-root .md-mega-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: transparent;
+  border: 0;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.md-mega-menu-root .md-mega-menu-dropdown.md-mega-menu-dropdown--open {
+  pointer-events: auto;
+}
+
+.md-mega-menu-root .md-mega-menu-dropdown:not(.md-mega-menu-dropdown--open) {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@starting-style {
+  .md-mega-menu-root .md-mega-menu-dropdown {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-mega-menu-root .md-mega-menu-dropdown {
+    transition: none;
+    transform: none;
+  }
+}
+
+/*
+ * Mobile accordion — grid-template-rows trick for smooth height animation.
+ * Animation-critical props use !important so global Elementor/theme CSS
+ * (e.g. `* { transition: ... }`, container `display`/`overflow` resets)
+ * can't silently disable the slide and make it snap open.
+ */
+.md-mega-menu-root .md-mega-menu-mobile-accordion {
+  display: grid !important;
+  grid-template-rows: 0fr !important;
+  transition: grid-template-rows 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open {
+  grid-template-rows: 1fr !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-accordion-inner {
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding-bottom: 0;
+  transform: translateY(-6px);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-accordion-inner {
+  padding-bottom: 0.5rem;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-mega-menu-root .md-mega-menu-mobile-accordion-inner {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Mobile link items — @starting-style fires when accordion first opens */
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.2s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(1) { transition-delay: 0.04s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(2) { transition-delay: 0.08s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(3) { transition-delay: 0.12s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(4) { transition-delay: 0.16s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(5) { transition-delay: 0.20s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(6) { transition-delay: 0.24s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(7) { transition-delay: 0.28s; }
+.md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item:nth-child(8) { transition-delay: 0.32s; }
+
+@starting-style {
+  .md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Mobile toggle button (menu bar) */
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.625rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--md-mega-menu-item-color, #ffffff);
+  background: transparent;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle:hover,
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle:focus,
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle:active {
+  color: var(--md-mega-menu-item-color, #ffffff);
+  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--md-mega-menu-item-color, #ffffff);
+  stroke: currentColor;
+}
+
+.md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--md-mega-menu-item-color, #ffffff);
+}
+
+@media (max-width: 767px) {
+  .md-mega-menu-root .md-mega-menu-inner {
+    padding-inline: 1rem !important;
+  }
+
+  .md-mega-menu-root .md-mega-menu-header-row {
+    min-height: 48px !important;
+  }
+
+  .md-mega-menu-root .md-mega-menu-header .md-mega-menu-mobile-toggle {
+    padding: 0.5rem 0 !important;
+    margin: 0 !important;
+  }
+
+  .md-mega-menu-root .md-mega-menu-mobile-nav {
+    padding-inline: 1rem !important;
+  }
+}
+
+.md-mega-menu-root .md-mega-menu-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * Mobile panel — height expands from zero. Animation-critical props use
+ * !important so Elementor/theme global CSS can't override display/transition/
+ * overflow and turn the slide-open into an instant snap.
+ */
+.md-mega-menu-root .md-mega-menu-mobile-panel {
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  display: grid !important;
+  grid-template-rows: 0fr !important;
+  transition: grid-template-rows 0.4s cubic-bezier(0.65, 0, 0.35, 1) !important;
+  pointer-events: none;
+  will-change: grid-template-rows;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-panel.md-mega-menu-mobile-panel--open {
+  grid-template-rows: 1fr !important;
+  pointer-events: auto;
+}
+
+/* Inner wrapper required for grid height trick. Drop shadow only paints
+ * when the panel is open (opacity 0 → 1 swallows it while collapsed) and
+ * the GPU-accelerated opacity transition smooths the perceived framerate
+ * of the grid-template-rows animation alongside it. */
+.md-mega-menu-root .md-mega-menu-mobile-panel-content {
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: #fff;
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transition: opacity 0.32s cubic-bezier(0.65, 0, 0.35, 1) 0.04s;
+  will-change: opacity;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-panel--open .md-mega-menu-mobile-panel-content {
+  opacity: 1;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-nav {
+  width: 100% !important;
+  max-width: 1120px !important;
+  margin-inline: auto !important;
+  padding-inline: 1.5rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.75rem !important;
+  background: transparent !important;
+  background-image: none !important;
+  list-style: none !important;
+}
+
+/* Mobile section accordion item */
+.md-mega-menu-root .md-mega-menu-mobile-section {
+  border-bottom: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-section::before,
+.md-mega-menu-root .md-mega-menu-mobile-section::after {
+  content: none !important;
+  display: none !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-section-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: calc(100% - 1rem) !important;
+  margin: 0 0.5rem !important;
+  padding: 0.875rem 0.75rem !important;
+  text-align: left !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 0.15s ease !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-section-btn:hover,
+.md-mega-menu-root .md-mega-menu-mobile-section-btn:focus,
+.md-mega-menu-root .md-mega-menu-mobile-section-btn:active {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-section-btn::before,
+.md-mega-menu-root .md-mega-menu-mobile-section-btn::after {
+  content: none !important;
+  display: none !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-section-label {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #171717 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-family: inherit !important;
+}
+
+/* Chevron icon — small and controlled */
+.md-mega-menu-root .md-mega-menu-mobile-chevron {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  /* Match the desktop chevron tone: dark label colour at 0.7 opacity */
+  color: #171717;
+  opacity: 0.7;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Mobile link list */
+.md-mega-menu-root .md-mega-menu-mobile-links {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link-item {
+  list-style: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link-item + .md-mega-menu-mobile-link-item {
+  border-top: 0 !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link-item::before,
+.md-mega-menu-root .md-mega-menu-mobile-link-item::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0.625rem 0.75rem !important;
+  margin: 0 0.5rem !important;
+  text-decoration: none !important;
+  color: inherit !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link:hover,
+.md-mega-menu-root .md-mega-menu-mobile-link:focus,
+.md-mega-menu-root .md-mega-menu-mobile-link:active {
+  background: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link::before,
+.md-mega-menu-root .md-mega-menu-mobile-link::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+/* Hide stray images/SVGs injected by theme/page-builder in mobile links */
+.md-mega-menu-root .md-mega-menu-mobile-links img,
+.md-mega-menu-root .md-mega-menu-mobile-links svg,
+.md-mega-menu-root .md-mega-menu-mobile-link img,
+.md-mega-menu-root .md-mega-menu-mobile-link svg,
+.md-mega-menu-root .md-mega-menu-mobile-link-item img,
+.md-mega-menu-root .md-mega-menu-mobile-link-item svg,
+.md-mega-menu-root .md-mega-menu-mobile-section img,
+.md-mega-menu-root .md-mega-menu-mobile-section svg,
+.md-mega-menu-root .md-mega-menu-mobile-nav img,
+.md-mega-menu-root .md-mega-menu-mobile-nav svg {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+}
+
+/*
+ * Preserve intentional SVG icons (chevrons, toggle icon).
+ * Qualified with `svg` so these match the (0,2,1) specificity of the
+ * "hide stray SVG" rules above (e.g. `.mobile-section svg`); since they come
+ * later in source order they win, keeping the chevrons visible.
+ */
+.md-mega-menu-root svg.md-mega-menu-mobile-chevron,
+.md-mega-menu-root svg.md-mega-menu-mobile-toggle-icon {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  max-width: none !important;
+  max-height: none !important;
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+.md-mega-menu-root svg.md-mega-menu-mobile-toggle-icon {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link:hover .md-mega-menu-mobile-link-title {
+  color: #525252;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link-title {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #262626 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-family: inherit !important;
+  line-height: 1.4 !important;
+  transition: color 0.15s;
+}
+
+.md-mega-menu-root .md-mega-menu-mobile-link-desc {
+  display: block !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  color: #737373 !important;
+  line-height: 1.5 !important;
+  margin: 0.125rem 0 0 0 !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  font-family: inherit !important;
+  font-style: normal !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-mega-menu-root .md-mega-menu-mobile-panel,
+  .md-mega-menu-root .md-mega-menu-mobile-panel-content,
+  .md-mega-menu-root .md-mega-menu-mobile-accordion,
+  .md-mega-menu-root .md-mega-menu-mobile-chevron {
+    transition: none !important;
+  }
+
+  .md-mega-menu-root .md-mega-menu-mobile-accordion--open .md-mega-menu-mobile-link-item {
+    transition: none !important;
+  }
+}

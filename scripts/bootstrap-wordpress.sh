@@ -73,14 +73,14 @@ else
   echo "For production: upload dist/rigpa-de-map.zip via Plugins → Add New → Upload Plugin."
 fi
 
-MEGA_MENU_SLUG="rigpa-mega-menu"
+MEGA_MENU_SLUG="mindful-design-mega-menu"
 MEGA_MENU_DIR="/var/www/html/wp-content/plugins/${MEGA_MENU_SLUG}"
 
-if [ -f "${MEGA_MENU_DIR}/rigpa-mega-menu.php" ]; then
+if [ -f "${MEGA_MENU_DIR}/mindful-design-mega-menu.php" ]; then
   mega_menu_missing_assets=0
   for asset in \
-    "${MEGA_MENU_DIR}/assets/js/rigpa-mega-menu.js" \
-    "${MEGA_MENU_DIR}/assets/css/rigpa-mega-menu.css"
+    "${MEGA_MENU_DIR}/assets/js/md-mega-menu.js" \
+    "${MEGA_MENU_DIR}/assets/css/md-mega-menu.css"
   do
     if [ ! -f "$asset" ]; then
       echo "WARNING: Missing mega menu asset: $asset"
@@ -89,17 +89,17 @@ if [ -f "${MEGA_MENU_DIR}/rigpa-mega-menu.php" ]; then
   done
 
   if [ "$mega_menu_missing_assets" -eq 1 ]; then
-    echo "Rigpa Mega Menu plugin found but assets are incomplete."
+    echo "Mindful Design Mega Menu plugin found but assets are incomplete."
     echo "Run 'make build-mega-menu' on the host, then 'make setup' to activate the plugin."
   else
-    echo "Activating Rigpa Mega Menu plugin..."
+    echo "Activating Mindful Design Mega Menu plugin..."
     wp plugin activate "${MEGA_MENU_SLUG}" --allow-root 2>/dev/null || true
-    echo "Rigpa Mega Menu activated (or already active)."
+    echo "Mindful Design Mega Menu activated (or already active)."
   fi
 else
-  echo "Rigpa Mega Menu plugin not found in wp-content/plugins/${MEGA_MENU_SLUG}/."
+  echo "Mindful Design Mega Menu plugin not found in wp-content/plugins/${MEGA_MENU_SLUG}/."
   echo "For local dev: run 'make build-mega-menu' on the host before 'make setup'."
-  echo "For production: upload dist/rigpa-mega-menu.zip via Plugins → Add New → Upload Plugin."
+  echo "For production: upload dist/mindful-design-mega-menu.zip via Plugins → Add New → Upload Plugin."
 fi
 
 echo "Bootstrap complete."

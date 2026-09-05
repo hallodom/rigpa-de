@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PLUGIN_SLUG="rigpa-mega-menu"
+PLUGIN_SLUG="mindful-design-mega-menu"
 PLUGIN_DIR="${ROOT}/wp-content/plugins/${PLUGIN_SLUG}"
 DIST_DIR="${ROOT}/dist"
 ZIP_FILE="${DIST_DIR}/${PLUGIN_SLUG}.zip"
@@ -13,18 +13,15 @@ echo "Building plugin assets..."
 make build-mega-menu
 
 required=(
-  "${PLUGIN_DIR}/rigpa-mega-menu.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-admin.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-seeder.php"
-  "${PLUGIN_DIR}/includes/menu-descriptions.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-description-sync.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-sanitize.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-settings.php"
-  "${PLUGIN_DIR}/includes/class-rigpa-mega-menu-duplicator.php"
+  "${PLUGIN_DIR}/mindful-design-mega-menu.php"
+  "${PLUGIN_DIR}/includes/class-md-mega-menu.php"
+  "${PLUGIN_DIR}/includes/class-md-mega-menu-admin.php"
+  "${PLUGIN_DIR}/includes/class-md-mega-menu-page-settings.php"
+  "${PLUGIN_DIR}/includes/class-md-mega-menu-sanitize.php"
+  "${PLUGIN_DIR}/includes/class-md-mega-menu-settings.php"
   "${PLUGIN_DIR}/includes/menus.php"
-  "${PLUGIN_DIR}/assets/js/rigpa-mega-menu.js"
-  "${PLUGIN_DIR}/assets/css/rigpa-mega-menu.css"
+  "${PLUGIN_DIR}/assets/js/md-mega-menu.js"
+  "${PLUGIN_DIR}/assets/css/md-mega-menu.css"
 )
 
 for file in "${required[@]}"; do
@@ -34,18 +31,14 @@ for file in "${required[@]}"; do
   fi
 done
 
-image_count="$(find "${PLUGIN_DIR}/assets/images" -name '*.jpg' 2>/dev/null | wc -l | tr -d ' ')"
-if [ "${image_count}" -lt 1 ]; then
-  echo "ERROR: No featured images found in ${PLUGIN_DIR}/assets/images/" >&2
-  exit 1
-fi
-
 mkdir -p "${DIST_DIR}"
 rm -f "${ZIP_FILE}"
 
 (cd "${ROOT}/wp-content/plugins" && zip -r "${ZIP_FILE}" "${PLUGIN_SLUG}" \
   -x "*.DS_Store" \
   -x "**/.DS_Store" \
+  -x "${PLUGIN_SLUG}/src" \
+  -x "${PLUGIN_SLUG}/src/" \
   -x "${PLUGIN_SLUG}/src/**")
 
 echo ""
